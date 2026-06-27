@@ -34,6 +34,7 @@ This folder is the operating handbook for `agentic-flows`.
 - [Versioning](versioning.md): schema, flow, and stability version rules.
 - [Deployment](deployment.md): repo deployment and runtime deployment process.
 - [Release process](release-process.md): release checklist and tag policy.
+- [Release packaging](release-packaging.md): release package contents and CLI publication decision.
 - [Release notes template](release-notes-template.md): GitHub release body template.
 - [Changelog management](changelog-management.md): how to maintain `CHANGELOG.md`.
 - [Compatibility matrix](compatibility-matrix.md): current optional consumer status.

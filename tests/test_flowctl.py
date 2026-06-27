@@ -8,6 +8,7 @@ from flowctl.cli import (
     DEFAULT_SCHEMA,
     build_replay_summary,
     build_report_summary,
+    collect_release_package_files,
     dump_yaml,
     find_adapter_smoke_files,
     find_event_stream_files,
@@ -272,6 +273,17 @@ def test_repository_markdown_links_are_valid() -> None:
             failures.append(f"{path}: {errors}")
 
     assert failures == []
+
+
+def test_release_package_file_set_contains_contract_assets() -> None:
+    files = {path.relative_to(Path.cwd()).as_posix() for path in collect_release_package_files([])}
+
+    assert "schemas/flow.schema.json" in files
+    assert "schemas/adapter-smoke.schema.json" in files
+    assert "flows/coding/feature-implementation/flow.yaml" in files
+    assert "templates/coding-feature/flow.yaml" in files
+    assert "examples/samples/coding/feature-implementation.sample.json" in files
+    assert "LICENSE" in files
 
 
 def test_sample_unknown_output_is_rejected() -> None:

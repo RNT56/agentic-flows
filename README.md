@@ -43,6 +43,7 @@ flowctl validate-samples
 flowctl report
 flowctl changelog-check
 flowctl check-links
+flowctl package-release --output /tmp/agentic-flows-release.zip
 flowctl list
 flowctl graph flows/coding/feature-implementation/flow.yaml --format dot
 pytest

@@ -21,6 +21,7 @@ flowctl validate-samples
 flowctl report
 flowctl changelog-check
 flowctl check-links
+flowctl package-release --output /tmp/agentic-flows-release.zip
 pytest
 ```
 

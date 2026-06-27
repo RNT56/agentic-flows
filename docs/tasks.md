@@ -23,6 +23,7 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Add deterministic flow normalization.
 - [x] Add multi-file event stream validation.
 - [x] Add repo-local adapter smoke manifests.
+- [x] Add release package build command.
 
 ## Flow catalog tasks
 
@@ -67,7 +68,8 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [ ] Create first release candidate tag after Phase 1.
 - [x] Add compatibility matrix.
 - [x] Add release notes template.
-- [ ] Decide whether `flowctl` should be published outside this repo.
+- [x] Decide whether `flowctl` should be published outside this repo.
+- [x] Add release package build support.
 - [ ] Add deprecation policy checks before any stable release.
 
 ## Run evidence tasks

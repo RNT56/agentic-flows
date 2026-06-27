@@ -16,6 +16,7 @@ flowctl validate-samples
 flowctl report
 flowctl changelog-check
 flowctl check-links
+flowctl package-release --output /tmp/agentic-flows-release.zip
 flowctl graph flows/coding/feature-implementation/flow.yaml --format json --output /tmp/feature-flow.graph.json
 pytest
 git diff --check
@@ -48,6 +49,7 @@ The GitHub Actions workflow should run:
 - flow catalog report
 - changelog structure validation
 - local Markdown link validation
+- release package build
 - graph export
 - test suite
 

@@ -15,10 +15,12 @@
 5. Confirm docs match command output.
 6. Run `flowctl changelog-check --release <version>`.
 7. Run `flowctl check-links`.
-8. Confirm schema and flow versions are correct.
-9. Tag the release.
-10. Push the tag.
-11. Add release notes from `CHANGELOG.md`.
+8. Build a release package with `flowctl package-release --output /tmp/agentic-flows-release.zip`.
+9. Confirm schema and flow versions are correct.
+10. Tag the release.
+11. Push the tag.
+12. Add release notes from `CHANGELOG.md`.
+13. Attach the release package if consumers need a bundled asset.
 
 ## Tag format
 

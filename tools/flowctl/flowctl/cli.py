@@ -4,6 +4,7 @@ import argparse
 import json
 import re
 import sys
+import zipfile
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
@@ -44,6 +45,19 @@ DEFAULT_MARKDOWN_SEARCH_ROOTS = [
     REPO_ROOT / "examples",
     REPO_ROOT / "integrations",
 ]
+DEFAULT_RELEASE_PACKAGE_PATHS = [
+    REPO_ROOT / "README.md",
+    REPO_ROOT / "CHANGELOG.md",
+    REPO_ROOT / "LICENSE",
+    REPO_ROOT / "schemas",
+    REPO_ROOT / "flows",
+    REPO_ROOT / "templates",
+    REPO_ROOT / "examples" / "samples",
+    REPO_ROOT / "docs" / "release-notes-template.md",
+    REPO_ROOT / "docs" / "compatibility-matrix.md",
+    REPO_ROOT / "docs" / "versioning.md",
+]
+ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*]\(([^)]+)\)")
 FLOW_KEY_ORDER = [
     "spec_version",
@@ -1620,6 +1634,48 @@ def cmd_check_links(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_package_release(args: argparse.Namespace) -> int:
+    output_path = args.output.resolve()
+    files = collect_release_package_files(args.paths)
+    if not files:
+        print("No release package files found", file=sys.stderr)
+        return 1
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(output_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in files:
+            archive_path = path.relative_to(REPO_ROOT).as_posix()
+            info = zipfile.ZipInfo(archive_path, date_time=ZIP_TIMESTAMP)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            archive.writestr(info, path.read_bytes())
+
+    print(f"Wrote release package {output_path} with {len(files)} file(s)")
+    return 0
+
+
+def collect_release_package_files(paths: Iterable[Path]) -> list[Path]:
+    selected = list(paths)
+    if not selected:
+        selected = DEFAULT_RELEASE_PACKAGE_PATHS
+
+    files: list[Path] = []
+    for path in selected:
+        path = path.resolve()
+        if path.is_file():
+            files.append(path)
+            continue
+        if not path.exists():
+            continue
+        files.extend(item for item in sorted(path.rglob("*")) if item.is_file())
+
+    output_safe_files = [
+        path
+        for path in sorted(dict.fromkeys(files))
+        if ".git" not in path.parts and "__pycache__" not in path.parts and path.name != ".DS_Store"
+    ]
+    return output_safe_files
+
+
 def validate_markdown_links(path: Path) -> list[str]:
     errors: list[str] = []
     content = path.read_text(encoding="utf-8")
@@ -1939,6 +1995,11 @@ def build_parser() -> argparse.ArgumentParser:
     check_links.add_argument("paths", nargs="*", type=Path, help="Markdown files or directories. Defaults to repo docs surfaces.")
     check_links.add_argument("-v", "--verbose", action="store_true", help="Print each passing file.")
     check_links.set_defaults(func=cmd_check_links)
+
+    package_release = subparsers.add_parser("package-release", help="Build a deterministic release package zip.")
+    package_release.add_argument("--output", type=Path, required=True, help="Output zip path.")
+    package_release.add_argument("paths", nargs="*", type=Path, help="Files or directories to include. Defaults to release package contents.")
+    package_release.set_defaults(func=cmd_package_release)
 
     list_cmd = subparsers.add_parser("list", help="List valid flow definitions.")
     list_cmd.add_argument("paths", nargs="*", type=Path, help="Flow files or directories. Defaults to flows/ and templates/.")

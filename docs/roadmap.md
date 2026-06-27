@@ -99,7 +99,7 @@ Acceptance gates:
 
 ## Phase 5: Release packaging
 
-Status: planned.
+Status: in progress.
 
 Goals:
 
@@ -110,6 +110,7 @@ Goals:
 
 Acceptance gates:
 
+- Release package build passes.
 - Release checklist passes.
 - Changelog has dated release notes.
 - Consuming projects can pin by tag.
