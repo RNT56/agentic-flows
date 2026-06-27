@@ -8,6 +8,19 @@ This project follows semantic versioning for releases and keeps flow compatibili
 
 ### Added
 
+- No unreleased changes.
+
+## 0.1.0 - 2026-06-27
+
+### Added
+
+- Initialized the `agentic-flows` repository.
+- Added schemas for flows, nodes, and events.
+- Added the `flowctl` CLI with flow validation, listing, and graph export.
+- Added initial reusable flows for coding, research, collaboration, and review workflows.
+- Added starter templates for feature, refactor, and research report workflows.
+- Added adapter contract sketches for ThinClaw, NilCore, and CrustCore.
+- Added GitHub Actions validation.
 - Added the project operating handbook under `docs/`.
 - Added changelog and release management guidance.
 - Added `flowctl validate-event` for event artifact validation.
@@ -36,15 +49,3 @@ This project follows semantic versioning for releases and keeps flow compatibili
 - Added a release notes template.
 - Added a pull request checklist for validation and independent-consumer framing.
 - Clarified that ThinClaw, NilCore, and CrustCore are independent optional consumers, not an already-integrated stack.
-
-## 0.1.0 - 2026-06-27
-
-### Added
-
-- Initialized the `agentic-flows` repository.
-- Added schemas for flows, nodes, and events.
-- Added the `flowctl` CLI with flow validation, listing, and graph export.
-- Added initial reusable flows for coding, research, collaboration, and review workflows.
-- Added starter templates for feature, refactor, and research report workflows.
-- Added adapter contract sketches for ThinClaw, NilCore, and CrustCore.
-- Added GitHub Actions validation.

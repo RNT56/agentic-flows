@@ -66,7 +66,7 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 
 ## Release tasks
 
-- [ ] Create first release candidate tag after Phase 1.
+- [x] Create first release tag after Phase 1.
 - [x] Add compatibility matrix.
 - [x] Add release notes template.
 - [x] Decide whether `flowctl` should be published outside this repo.

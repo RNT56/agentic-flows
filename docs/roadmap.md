@@ -99,7 +99,7 @@ Acceptance gates:
 
 ## Phase 5: Release packaging
 
-Status: in progress.
+Status: complete.
 
 Goals:
 
