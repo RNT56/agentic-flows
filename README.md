@@ -10,7 +10,7 @@ Versioned workflow contracts for agentic systems that must plan, act, verify, ap
 | --- | --- |
 | Latest release | `v0.1.1` |
 | Flow spec | `agentic-flows/v1` |
-| Catalog size | 6 reusable workflows, 3 starter templates |
+| Catalog size | 9 reusable workflows, 3 starter templates |
 | Tooling | Python CLI, JSON Schema, YAML flow definitions |
 | Evidence model | Events, streams, run bundles, adapter smoke manifests |
 | CI gate | Schema validation, normalization, samples, runs, links, changelog, package build, tests |
@@ -57,7 +57,7 @@ flowchart LR
 
 - A versioned YAML workflow format backed by JSON Schema.
 - `flowctl`, a repo-local CLI for validation, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
-- Six reusable workflow definitions across coding, research, collaboration, and human review.
+- Nine reusable workflow definitions across coding, research, collaboration, operations, and human review.
 - Three copyable starter templates for project-specific workflows.
 - Event and run-bundle schemas for evidence-backed execution.
 - Adapter smoke manifest schemas and examples for independent optional consumers.
@@ -76,6 +76,9 @@ flowchart LR
 | [`research.deep-research-report`](flows/research/deep-research-report/README.md) | Experimental | Gather, compare, and synthesize sources into an evidence-backed report. | ThinClaw, NilCore, standalone | Sample contract; completed research run evidence still open |
 | [`collaboration.multi-agent-supervisor`](flows/collaboration/multi-agent-supervisor/README.md) | Experimental | Split larger work into owned lanes, supervise workers, and merge evidence. | ThinClaw, NilCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
 | [`general.human-in-the-loop-review`](flows/general/human-in-the-loop-review/README.md) | Preview | Route risky or ambiguous agent output through an explicit operator decision. | ThinClaw, NilCore, CrustCore, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
+| [`ops.flow-intake-and-routing`](flows/ops/flow-intake-and-routing/README.md) | Experimental | Turn an ambiguous request into a selected flow, missing-context questions, and an execution route. | ThinClaw, NilCore, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
+| [`ops.capability-negotiation`](flows/ops/capability-negotiation/README.md) | Experimental | Compare a flow's required capabilities against a runtime profile and fail closed on anything unsupported. | ThinClaw, NilCore, CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
+| [`ops.event-and-evidence-bridge`](flows/ops/event-and-evidence-bridge/README.md) | Experimental | Convert runtime-native logs into agentic-flows event streams and run bundles, then validate them. | ThinClaw, NilCore, CrustCore, standalone | Standalone run bundle, multi-file stream, NilCore contract smoke, sample contract |
 
 ## Starter templates
 
@@ -199,6 +202,7 @@ Start with the documentation index at [docs/README.md](docs/README.md).
 | Original assessment and upgraded plan | [docs/project-plan.md](docs/project-plan.md) |
 | End-to-end roadmap | [docs/roadmap.md](docs/roadmap.md) |
 | Current task board | [docs/tasks.md](docs/tasks.md) |
+| Which backlog flows are buildable now | [docs/buildable-now.md](docs/buildable-now.md) |
 | Flow contract details | [docs/flow-spec.md](docs/flow-spec.md) |
 | Authoring guidance | [docs/workflow-authoring.md](docs/workflow-authoring.md) |
 | Runtime boundary | [docs/core-integration.md](docs/core-integration.md) |

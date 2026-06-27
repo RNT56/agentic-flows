@@ -1,0 +1,29 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "ops.capability-negotiation",
+    "version": "0.1.0",
+    "source": "flows/ops/capability-negotiation/flow.yaml"
+  },
+  "inputs": {
+    "flow_requirements": {
+      "flow_id": "coding.feature-implementation",
+      "required_capabilities": ["repo.checkout", "patch.apply", "command.run", "evidence.capture", "human.review"],
+      "supported_cores": ["thinclaw", "nilcore", "crustcore", "standalone"]
+    },
+    "runtime_profile": {
+      "core": "nilcore",
+      "capabilities": ["repo.checkout", "patch.apply", "command.run", "evidence.capture"],
+      "approval_policy": "operator-required"
+    }
+  },
+  "expected_outputs": {
+    "negotiation_report": "Unsupported: human.review. Proceed status: fail-closed. The runtime cannot satisfy operator review without an approval surface.",
+    "capability_decision": {
+      "verdict": "fail-closed",
+      "unsupported": ["human.review"],
+      "supported": ["repo.checkout", "patch.apply", "command.run", "evidence.capture"]
+    }
+  },
+  "notes": "Demonstrates fail-closed behavior when a required capability is missing from the runtime profile."
+}

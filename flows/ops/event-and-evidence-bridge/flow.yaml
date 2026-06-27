@@ -1,0 +1,122 @@
+spec_version: agentic-flows/v1
+id: ops.event-and-evidence-bridge
+version: 0.1.0
+title: Event and evidence bridge
+summary: Convert runtime-native logs into agentic-flows event streams and run bundles, then validate them.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - ops
+  - evidence
+  - observability
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - log.read
+    - evidence.transform
+    - stream.validate
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: evidence-bridge
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: runtime_logs
+      type: json
+      required: true
+      description: Runtime-native execution logs to convert into portable evidence.
+    - id: source_flow
+      type: uri
+      required: true
+      description: The source flow definition the logs belong to.
+  outputs:
+    - id: run_bundle
+      type: json
+      required: true
+      description: A validated agentic-flows run bundle produced from the runtime logs.
+    - id: bridge_report
+      type: markdown
+      required: true
+      description: Summary of the conversion and the validation result.
+  artifacts:
+    - event-stream
+    - run-bundle
+    - bridge-report
+nodes:
+  - id: intake
+    type: intake
+    title: Intake runtime logs
+    description: Capture the runtime-native logs and the source flow they belong to.
+    produces:
+      - normalized-logs
+  - id: convert
+    type: tool
+    title: Convert logs to evidence
+    description: Map runtime log entries onto event-stream events and a run bundle.
+    tool: evidence-bridge
+    requires:
+      - normalized-logs
+    produces:
+      - event-stream
+      - run-bundle
+  - id: validate
+    type: verifier
+    title: Validate produced evidence
+    description: Validate the event stream against source flow metadata and map gate evidence to source refs.
+    requires:
+      - event-stream
+      - run-bundle
+    produces:
+      - validation-result
+  - id: final
+    type: finalizer
+    title: Close out bridge
+    description: Return the validated run bundle and a conversion report.
+    requires:
+      - run-bundle
+      - validation-result
+    produces:
+      - run_bundle
+      - bridge_report
+edges:
+  - from: intake
+    to: convert
+  - from: convert
+    to: validate
+  - from: validate
+    to: final
+quality_gates:
+  - id: stream-validates
+    title: Produced event stream validates
+    type: command
+    required: true
+    command: flowctl validate-stream
+    evidence: The produced event stream validates against source flow id, version, nodes, and events.
+    evidence_refs:
+      - event-stream
+  - id: evidence-maps-to-source
+    title: Gate evidence maps to source refs
+    type: review
+    required: false
+    evidence: Required gate evidence in the run bundle maps to source flow evidence refs.
+    evidence_refs:
+      - run-bundle
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - stream.validated
+    - gate.completed
+    - flow.completed
+  metrics:
+    - events.converted
+    - gates.mapped
+    - duration.seconds

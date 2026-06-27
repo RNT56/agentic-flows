@@ -1,0 +1,22 @@
+{
+  "event_version": "agentic-flows.events/v1",
+  "flow_id": "ops.event-and-evidence-bridge",
+  "flow_version": "0.1.0",
+  "run_id": "run-event-and-evidence-bridge-stream-0001",
+  "node_id": "validate",
+  "event": "gate.completed",
+  "timestamp": "2026-06-27T17:31:10Z",
+  "core": "standalone",
+  "severity": "info",
+  "payload": {
+    "gate_id": "stream-validates",
+    "status": "passed"
+  },
+  "evidence": [
+    {
+      "id": "event-stream",
+      "kind": "event-stream",
+      "uri": "artifact://runs/run-event-and-evidence-bridge-stream-0001/feature-implementation.stream.json"
+    }
+  ]
+}

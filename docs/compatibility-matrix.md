@@ -19,6 +19,9 @@ Current status:
 | `coding.security-audit` | target | target | target | target |
 | `collaboration.multi-agent-supervisor` | target | contract-smoke | not-targeted | run-smoke |
 | `general.human-in-the-loop-review` | contract-smoke | target | target | run-smoke |
+| `ops.flow-intake-and-routing` | contract-smoke | target | not-targeted | run-smoke |
+| `ops.capability-negotiation` | target | target | contract-smoke | run-smoke |
+| `ops.event-and-evidence-bridge` | target | contract-smoke | target | run-smoke |
 | `research.deep-research-report` | target | target | not-targeted | target |
 | `template.coding-feature` | not-targeted | not-targeted | not-targeted | target |
 | `template.coding-refactor` | not-targeted | not-targeted | not-targeted | target |
@@ -37,4 +40,7 @@ Current status:
 - `coding.feature-implementation` has a standalone valid run bundle at `examples/runs/feature-implementation.run.json`.
 - `general.human-in-the-loop-review` has a standalone valid run bundle at `examples/runs/human-in-the-loop-review.run.json`.
 - `collaboration.multi-agent-supervisor` has a standalone valid run bundle at `examples/runs/multi-agent-supervisor.run.json`.
+- `ops.flow-intake-and-routing` has a standalone valid run bundle at `examples/runs/flow-intake-and-routing.run.json`.
+- `ops.capability-negotiation` has a standalone valid run bundle at `examples/runs/capability-negotiation.run.json`.
+- `ops.event-and-evidence-bridge` has a standalone valid run bundle at `examples/runs/event-and-evidence-bridge.run.json` and a multi-file event stream under `examples/streams/event-and-evidence-bridge/`.
 - Repo-local adapter smoke manifests live under `examples/adapters/`.

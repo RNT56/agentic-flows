@@ -8,6 +8,7 @@ This folder is the operating handbook for `agentic-flows`.
 - [Consumer model](consumer-model.md): how to discuss ThinClaw, NilCore, and CrustCore as independent optional consumers.
 - [Roadmap](roadmap.md): end-to-end phases from contract baseline to stable optional consumption.
 - [Task backlog](tasks.md): prioritized implementation tasks, acceptance gates, and current status.
+- [Buildable-now assessment](buildable-now.md): which backlog workflows can be built end-to-end now, with evidence-honesty reasoning.
 - [Project plan](project-plan.md): original plan assessment and current project shape.
 
 ## Building and operating flows

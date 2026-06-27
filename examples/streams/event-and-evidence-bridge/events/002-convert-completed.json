@@ -1,0 +1,11 @@
+{
+  "event_version": "agentic-flows.events/v1",
+  "flow_id": "ops.event-and-evidence-bridge",
+  "flow_version": "0.1.0",
+  "run_id": "run-event-and-evidence-bridge-stream-0001",
+  "node_id": "convert",
+  "event": "node.completed",
+  "timestamp": "2026-06-27T17:30:45Z",
+  "core": "standalone",
+  "severity": "info"
+}

@@ -1,0 +1,138 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "ops.capability-negotiation",
+    "version": "0.1.0",
+    "source": "flows/ops/capability-negotiation/flow.yaml"
+  },
+  "run": {
+    "id": "run-capability-negotiation-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T16:00:00Z",
+    "completed_at": "2026-06-27T16:01:30Z"
+  },
+  "inputs": {
+    "flow_requirements": {
+      "flow_id": "coding.refactor-and-verify",
+      "required_capabilities": ["repo.checkout", "command.run", "evidence.capture"],
+      "supported_cores": ["thinclaw", "nilcore", "crustcore", "standalone"]
+    },
+    "runtime_profile": {
+      "core": "standalone",
+      "capabilities": ["repo.checkout", "command.run", "evidence.capture"],
+      "approval_policy": "not-required"
+    }
+  },
+  "outputs": {
+    "negotiation_report": "All required capabilities are supported by the standalone runtime. Proceed status: proceed. No undeclared capabilities were requested.",
+    "capability_decision": {
+      "verdict": "proceed",
+      "unsupported": [],
+      "supported": ["repo.checkout", "command.run", "evidence.capture"]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "capability-matrix",
+      "kind": "json",
+      "uri": "artifact://runs/run-capability-negotiation-0001/capability-matrix.json"
+    },
+    {
+      "id": "negotiation-report",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-capability-negotiation-0001/negotiation-report.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-capability-negotiation-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T16:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-capability-negotiation-0001",
+      "node_id": "intake",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T16:00:15Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-capability-negotiation-0001",
+      "node_id": "compare",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T16:00:45Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-capability-negotiation-0001",
+      "node_id": "decide",
+      "event": "decision.recorded",
+      "timestamp": "2026-06-27T16:01:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "verdict": "proceed"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-capability-negotiation-0001",
+      "node_id": "compare",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T16:01:05Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "capabilities-fail-closed",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "capability-matrix",
+          "kind": "json",
+          "uri": "artifact://runs/run-capability-negotiation-0001/capability-matrix.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-capability-negotiation-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T16:01:30Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-capability-negotiation-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T16:01:30Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

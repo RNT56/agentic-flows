@@ -1,0 +1,10 @@
+{
+  "event_version": "agentic-flows.events/v1",
+  "flow_id": "ops.event-and-evidence-bridge",
+  "flow_version": "0.1.0",
+  "run_id": "run-event-and-evidence-bridge-stream-0001",
+  "event": "flow.completed",
+  "timestamp": "2026-06-27T17:31:30Z",
+  "core": "standalone",
+  "severity": "info"
+}

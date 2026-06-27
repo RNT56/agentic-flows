@@ -1,0 +1,106 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "ops.event-and-evidence-bridge",
+    "version": "0.1.0",
+    "source": "flows/ops/event-and-evidence-bridge/flow.yaml"
+  },
+  "run": {
+    "id": "run-nilcore-event-and-evidence-bridge-0001",
+    "core": "nilcore",
+    "status": "completed",
+    "started_at": "2026-06-27T18:00:00Z",
+    "completed_at": "2026-06-27T18:01:30Z"
+  },
+  "inputs": {
+    "runtime_logs": {
+      "run_id": "nilcore-worker-3310",
+      "entries": 4
+    },
+    "source_flow": "flows/collaboration/multi-agent-supervisor/flow.yaml"
+  },
+  "outputs": {
+    "run_bundle": {
+      "run_version": "agentic-flows.run/v1",
+      "status": "completed",
+      "events_converted": 4
+    },
+    "bridge_report": "Converted 4 NilCore worker log entries into a valid event stream and run bundle."
+  },
+  "artifacts": [
+    {
+      "id": "event-stream",
+      "kind": "event-stream",
+      "uri": "artifact://runs/run-nilcore-event-and-evidence-bridge-0001/supervisor.stream.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.event-and-evidence-bridge",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-event-and-evidence-bridge-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T18:00:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.event-and-evidence-bridge",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-event-and-evidence-bridge-0001",
+      "node_id": "convert",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T18:00:45Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.event-and-evidence-bridge",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-event-and-evidence-bridge-0001",
+      "node_id": "validate",
+      "event": "stream.validated",
+      "timestamp": "2026-06-27T18:01:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "events_converted": 4
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.event-and-evidence-bridge",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-event-and-evidence-bridge-0001",
+      "node_id": "validate",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T18:01:10Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "stream-validates",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "event-stream",
+          "kind": "event-stream",
+          "uri": "artifact://runs/run-nilcore-event-and-evidence-bridge-0001/supervisor.stream.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.event-and-evidence-bridge",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-event-and-evidence-bridge-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T18:01:30Z",
+      "core": "nilcore",
+      "severity": "info"
+    }
+  ]
+}

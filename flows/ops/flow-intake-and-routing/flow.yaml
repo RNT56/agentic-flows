@@ -1,0 +1,139 @@
+spec_version: agentic-flows/v1
+id: ops.flow-intake-and-routing
+version: 0.1.0
+title: Flow intake and routing
+summary: Turn an ambiguous request into a selected flow, missing-context questions, and an execution route.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - ops
+  - routing
+  - intake
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - standalone
+  required_capabilities:
+    - flow.catalog.read
+    - routing.decide
+    - decision.record
+    - human.review
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: dispatch-planner
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: request
+      type: markdown
+      required: true
+      description: User-visible request to be routed to a workflow.
+    - id: catalog
+      type: uri
+      required: true
+      description: Location of the available flow definitions to route against.
+  outputs:
+    - id: routing_decision
+      type: json
+      required: true
+      description: Selected flow id, execution route, target core, and rationale.
+    - id: missing_context
+      type: markdown
+      required: true
+      description: Outstanding questions needed before execution, or an explicit none.
+  artifacts:
+    - routing-options
+    - routing-decision
+    - missing-context
+    - approval-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake request
+    description: Capture the request, target core, constraints, and any obvious missing context.
+    produces:
+      - scoped-request
+      - missing-context
+  - id: plan
+    type: plan
+    title: Assemble routing options
+    description: Match the scoped request against the catalog and rank candidate flows by fit.
+    requires:
+      - scoped-request
+    produces:
+      - routing-options
+  - id: route
+    type: decision
+    title: Select route
+    description: Choose a flow and execution route, or fall back to requesting more context.
+    requires:
+      - routing-options
+    produces:
+      - routing-decision
+  - id: approval
+    type: approval
+    title: High-risk route approval
+    description: Capture an explicit operator decision before routing high-risk or irreversible work.
+    requires:
+      - routing-decision
+    produces:
+      - approval-record
+    policy:
+      human_required_when:
+        - high_risk_route
+        - irreversible_capability
+  - id: final
+    type: finalizer
+    title: Close out routing
+    description: Return the routing decision, target core, and any outstanding missing-context questions.
+    requires:
+      - routing-decision
+    produces:
+      - routing_decision
+      - missing_context
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: route
+  - from: route
+    to: approval
+    condition: high-risk-route
+  - from: route
+    to: final
+    condition: low-risk-route
+  - from: approval
+    to: final
+quality_gates:
+  - id: route-compatible
+    title: Route is compatible with requested core
+    type: review
+    required: true
+    evidence: Selected flow lists the requested core and its required capabilities are satisfiable.
+    evidence_refs:
+      - routing-decision
+  - id: high-risk-approval-logged
+    title: High-risk route approval logged
+    type: policy
+    required: false
+    evidence: High-risk or irreversible routes capture an explicit operator approval record.
+    evidence_refs:
+      - approval-record
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - decision.recorded
+    - approval.requested
+    - approval.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - candidate.flows
+    - missing.context.items
+    - duration.seconds

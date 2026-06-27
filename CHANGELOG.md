@@ -6,9 +6,17 @@ This project follows semantic versioning for releases and keeps flow compatibili
 
 ## Unreleased
 
+### Added
+
+- Added the `ops.flow-intake-and-routing` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `ops.capability-negotiation` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `ops.event-and-evidence-bridge` reusable flow with a standalone run bundle, a multi-file event stream, and a NilCore contract smoke.
+- Added `docs/buildable-now.md`, an evidence-backed assessment of which backlog workflows can be built end-to-end now.
+
 ### Changed
 
 - Reworked the README into a full project landing page with vision, catalog status, workflow backlog links, runtime-boundary framing, and validation guidance.
+- Expanded the catalog to nine reusable workflows by adding the Wave 0 integration-spine flows and recorded their compatibility states.
 
 ## 0.1.1 - 2026-06-27
 

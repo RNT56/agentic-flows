@@ -1,0 +1,22 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "ops.flow-intake-and-routing",
+    "version": "0.1.0",
+    "source": "flows/ops/flow-intake-and-routing/flow.yaml"
+  },
+  "inputs": {
+    "request": "Please refactor the billing module without changing behavior, then prove the public API is unchanged.",
+    "catalog": "https://github.com/RNT56/agentic-flows/tree/main/flows"
+  },
+  "expected_outputs": {
+    "routing_decision": {
+      "selected_flow": "coding.refactor-and-verify",
+      "target_core": "nilcore",
+      "route": "high-risk-route",
+      "rationale": "Behavior-preserving refactor with a public API stability gate; routed for approval because it touches a shared contract."
+    },
+    "missing_context": "None - the request named the module, the no-behavior-change constraint, and the verification expectation."
+  },
+  "notes": "Routes a scoped refactor request to a catalog flow and records the target core plus rationale."
+}

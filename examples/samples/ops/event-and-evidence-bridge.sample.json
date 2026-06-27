@@ -1,0 +1,28 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "ops.event-and-evidence-bridge",
+    "version": "0.1.0",
+    "source": "flows/ops/event-and-evidence-bridge/flow.yaml"
+  },
+  "inputs": {
+    "runtime_logs": {
+      "run_id": "native-run-7781",
+      "entries": [
+        {"t": "2026-06-27T17:00:00Z", "kind": "start"},
+        {"t": "2026-06-27T17:00:30Z", "kind": "gate", "gate_id": "project-checks-pass", "status": "passed"},
+        {"t": "2026-06-27T17:01:00Z", "kind": "complete"}
+      ]
+    },
+    "source_flow": "file://flows/coding/feature-implementation/flow.yaml"
+  },
+  "expected_outputs": {
+    "run_bundle": {
+      "run_version": "agentic-flows.run/v1",
+      "status": "completed",
+      "events_converted": 4
+    },
+    "bridge_report": "Converted 4 native log entries into a valid event stream and run bundle. Stream validated against coding.feature-implementation@0.1.0."
+  },
+  "notes": "Converts a runtime's own log into a portable, validated agentic-flows run bundle."
+}
