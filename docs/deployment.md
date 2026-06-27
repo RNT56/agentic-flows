@@ -11,6 +11,7 @@ Required gates before pushing:
 
 ```bash
 flowctl validate
+flowctl validate-event examples/standalone/event.sample.json
 pytest
 ```
 
@@ -37,4 +38,3 @@ git push origin v0.1.0
 ```
 
 Do not tag a flow as stable until adapter evidence exists.
-

@@ -20,6 +20,18 @@ Validate a single flow:
 flowctl validate flows/coding/feature-implementation/flow.yaml
 ```
 
+## Validate events
+
+```bash
+flowctl validate-event examples/standalone/event.sample.json
+```
+
+Validate all event JSON files in a folder:
+
+```bash
+flowctl validate-event examples/
+```
+
 ## List flows
 
 ```bash
@@ -40,4 +52,3 @@ flowctl graph flows/coding/feature-implementation/flow.yaml --format dot
 3. Add or remove nodes and edges.
 4. Run `flowctl validate <new-flow-path>`.
 5. Add a README next to reusable flows.
-

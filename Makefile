@@ -1,10 +1,13 @@
-.PHONY: install validate list graph test
+.PHONY: install validate validate-event list graph test
 
 install:
 	python -m pip install -e . pytest
 
 validate:
 	flowctl validate
+
+validate-event:
+	flowctl validate-event examples/
 
 list:
 	flowctl list
@@ -14,4 +17,3 @@ graph:
 
 test:
 	pytest
-

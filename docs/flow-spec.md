@@ -54,3 +54,8 @@ Gate types:
 - At least one quality gate is required.
 - Command gates include a command.
 
+## Event validation
+
+`flowctl validate-event` checks event JSON against `schemas/event.schema.json`.
+
+It also applies semantic timestamp validation so event examples and run artifacts fail when `timestamp` is not an RFC 3339 date-time.

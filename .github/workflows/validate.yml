@@ -24,6 +24,9 @@ jobs:
       - name: Validate flow definitions
         run: flowctl validate
 
+      - name: Validate event examples
+        run: flowctl validate-event examples/
+
       - name: Export feature flow graph
         run: flowctl graph flows/coding/feature-implementation/flow.yaml --format json --output /tmp/feature-flow.graph.json
 

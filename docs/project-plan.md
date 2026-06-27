@@ -48,6 +48,8 @@ This is intentionally small. The repo can be useful immediately while Rust and G
 
 ## Execution roadmap
 
+The detailed roadmap now lives in [roadmap.md](roadmap.md). The current task board lives in [tasks.md](tasks.md).
+
 ### Phase 1: Contract baseline
 
 Status: implemented.
@@ -104,4 +106,3 @@ Acceptance gate:
 - Runtime-specific APIs are documented as contracts, not compiled adapters.
 - Command gates are declarative. The consuming runtime decides how and where to run them.
 - Cross-core compatibility should be proven with real adapters before any flow is marked `stable`.
-

@@ -31,6 +31,7 @@ source .venv/bin/activate
 python -m pip install -e . pytest
 
 flowctl validate
+flowctl validate-event examples/standalone/event.sample.json
 flowctl list
 flowctl graph flows/coding/feature-implementation/flow.yaml --format dot
 pytest
@@ -67,3 +68,10 @@ A workflow is ready to use when:
 
 See [docs/project-plan.md](docs/project-plan.md) for the upgraded plan and [docs/core-integration.md](docs/core-integration.md) for runtime expectations.
 
+## Documentation
+
+Start with [docs/README.md](docs/README.md). The docs folder contains the full roadmap, goals, task backlog, workflow authoring guidance, testing strategy, release process, changelog management, governance, and adapter implementation plan.
+
+## Changelog
+
+Release and compatibility notes live in [CHANGELOG.md](CHANGELOG.md). Keep `Unreleased` current for schema, flow, command, adapter-contract, and process changes.

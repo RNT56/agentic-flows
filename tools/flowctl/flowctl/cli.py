@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -12,14 +13,16 @@ except ImportError as exc:  # pragma: no cover - exercised by users without deps
     raise SystemExit("PyYAML is required. Install with: python -m pip install -e .") from exc
 
 try:
-    from jsonschema import Draft202012Validator
+    from jsonschema import Draft202012Validator, FormatChecker
 except ImportError as exc:  # pragma: no cover - exercised by users without deps
     raise SystemExit("jsonschema is required. Install with: python -m pip install -e .") from exc
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SCHEMA = REPO_ROOT / "schemas" / "flow.schema.json"
+DEFAULT_EVENT_SCHEMA = REPO_ROOT / "schemas" / "event.schema.json"
 DEFAULT_SEARCH_ROOTS = [REPO_ROOT / "flows", REPO_ROOT / "templates"]
+DEFAULT_EVENT_SEARCH_ROOTS = [REPO_ROOT / "examples"]
 
 
 def load_yaml(path: Path) -> dict[str, Any]:
@@ -58,6 +61,25 @@ def find_flow_files(paths: Iterable[Path]) -> list[Path]:
     return sorted(dict.fromkeys(files))
 
 
+def find_json_files(paths: Iterable[Path]) -> list[Path]:
+    selected = list(paths)
+    if not selected:
+        selected = DEFAULT_EVENT_SEARCH_ROOTS
+
+    files: list[Path] = []
+    for path in selected:
+        path = path.resolve()
+        if path.is_file():
+            files.append(path)
+            continue
+        if not path.exists():
+            files.append(path)
+            continue
+        files.extend(sorted(path.rglob("*.json")))
+
+    return sorted(dict.fromkeys(files))
+
+
 def format_error_path(parts: Iterable[Any]) -> str:
     path = "$"
     for part in parts:
@@ -69,12 +91,27 @@ def format_error_path(parts: Iterable[Any]) -> str:
 
 
 def validate_flow_document(document: dict[str, Any], schema: dict[str, Any]) -> list[str]:
-    validator = Draft202012Validator(schema)
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
     errors = [
         f"{format_error_path(error.path)}: {error.message}"
         for error in sorted(validator.iter_errors(document), key=lambda err: list(err.path))
     ]
     errors.extend(validate_semantics(document))
+    return errors
+
+
+def validate_event_document(document: dict[str, Any], schema: dict[str, Any]) -> list[str]:
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    errors = [
+        f"{format_error_path(error.path)}: {error.message}"
+        for error in sorted(validator.iter_errors(document), key=lambda err: list(err.path))
+    ]
+    timestamp = document.get("timestamp")
+    if isinstance(timestamp, str):
+        try:
+            datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+        except ValueError:
+            errors.append("$.timestamp: expected RFC 3339 date-time")
     return errors
 
 
@@ -186,6 +223,43 @@ def cmd_validate(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_validate_event(args: argparse.Namespace) -> int:
+    schema = load_json(args.event_schema)
+    event_files = find_json_files(args.paths)
+    if not event_files:
+        print("No event JSON files found", file=sys.stderr)
+        return 1
+
+    failures = 0
+    for path in event_files:
+        if not path.exists():
+            print(f"FAIL {path}: path does not exist", file=sys.stderr)
+            failures += 1
+            continue
+        try:
+            document = load_json(path)
+            errors = validate_event_document(document, schema)
+        except Exception as exc:  # noqa: BLE001 - CLI should report file context
+            print(f"FAIL {path}: {exc}", file=sys.stderr)
+            failures += 1
+            continue
+
+        if errors:
+            failures += 1
+            print(f"FAIL {path}", file=sys.stderr)
+            for error in errors:
+                print(f"  - {error}", file=sys.stderr)
+        elif args.verbose:
+            print(f"OK   {path}")
+
+    if failures:
+        print(f"{failures} event file(s) failed validation", file=sys.stderr)
+        return 1
+
+    print(f"Validated {len(event_files)} event file(s)")
+    return 0
+
+
 def cmd_list(args: argparse.Namespace) -> int:
     schema = load_json(args.schema)
     rows: list[tuple[str, str, str, str]] = []
@@ -284,6 +358,12 @@ def build_parser() -> argparse.ArgumentParser:
     validate.add_argument("-v", "--verbose", action="store_true", help="Print each passing file.")
     validate.set_defaults(func=cmd_validate)
 
+    validate_event = subparsers.add_parser("validate-event", help="Validate event JSON files.")
+    validate_event.add_argument("paths", nargs="*", type=Path, help="Event files or directories. Defaults to examples/.")
+    validate_event.add_argument("--event-schema", type=Path, default=DEFAULT_EVENT_SCHEMA, help="Path to the event JSON Schema.")
+    validate_event.add_argument("-v", "--verbose", action="store_true", help="Print each passing file.")
+    validate_event.set_defaults(func=cmd_validate_event)
+
     list_cmd = subparsers.add_parser("list", help="List valid flow definitions.")
     list_cmd.add_argument("paths", nargs="*", type=Path, help="Flow files or directories. Defaults to flows/ and templates/.")
     list_cmd.add_argument("--json", action="store_true", help="Print JSON output.")
@@ -306,4 +386,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":  # pragma: no cover
     raise SystemExit(main())
-

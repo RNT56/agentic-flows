@@ -1,0 +1,11 @@
+{
+  "event_version": "agentic-flows.events/v1",
+  "flow_id": "coding.feature-implementation",
+  "flow_version": "0.1.0",
+  "run_id": "run-0002",
+  "node_id": "verify",
+  "event": "gate.completed",
+  "timestamp": "not-a-date",
+  "core": "standalone",
+  "severity": "fatal"
+}
