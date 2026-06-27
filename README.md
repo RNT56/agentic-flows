@@ -1,29 +1,119 @@
 # agentic-flows
 
-Reusable workflow definitions for RNT56 agentic projects.
+[![Validate agentic flows](https://github.com/RNT56/agentic-flows/actions/workflows/validate.yml/badge.svg)](https://github.com/RNT56/agentic-flows/actions/workflows/validate.yml)
 
-`agentic-flows` is a contract and catalog repo for high-level agentic process design. ThinClaw, NilCore, and CrustCore are separate projects; this repo defines workflow specs they may choose to consume later through adapters, vendoring, or copied templates.
+Versioned workflow contracts for agentic systems that must plan, act, verify, approve, and leave evidence.
 
-Useful optional-consumer framing:
+`agentic-flows` is the portable workflow layer for RNT56 agentic projects. It defines reusable flow specs, schemas, samples, run bundles, adapter contracts, and release gates that independent runtimes can choose to consume. It is not a fourth runtime and it does not merge ThinClaw, NilCore, or CrustCore into one codebase.
 
-- **ThinClaw** can consume flows as durable routines and operator-facing decisions.
-- **NilCore** can consume flows as worker/supervisor execution plans.
-- **CrustCore** can consume flows as verifier and proof contracts.
+| Surface | Current state |
+| --- | --- |
+| Latest release | `v0.1.1` |
+| Flow spec | `agentic-flows/v1` |
+| Catalog size | 6 reusable workflows, 3 starter templates |
+| Tooling | Python CLI, JSON Schema, YAML flow definitions |
+| Evidence model | Events, streams, run bundles, adapter smoke manifests |
+| CI gate | Schema validation, normalization, samples, runs, links, changelog, package build, tests |
+| Backlog | [todo-workflows.md](todo-workflows.md) |
 
-This repository does not replace or merge those projects. It gives them a neutral, versioned workflow format, examples, validation, and adapter contracts when they are ready to opt in.
+## Vision
 
-## What is in this repo
+Agentic work should not be a loose prompt transcript. It should be an explicit, inspectable contract:
+
+1. Inputs are named.
+2. Execution steps are bounded.
+3. Approvals are intentional.
+4. Quality gates are machine-checkable.
+5. Completion comes with evidence.
+6. Consumers can pin versions instead of guessing what changed.
+
+This repository gives RNT56 projects a shared workflow language without forcing a shared runtime. A flow can describe how a feature implementation, refactor, security audit, research report, human approval, or multi-agent supervision loop should behave. Each independent project decides whether to load it, adapt it, copy it, or ignore it.
+
+## Project model
+
+```mermaid
+flowchart LR
+  Catalog["agentic-flows catalog"] --> Schemas["Schemas"]
+  Catalog --> CLI["flowctl"]
+  Catalog --> Examples["Samples and runs"]
+  Catalog --> Contracts["Adapter contracts"]
+  Contracts --> ThinClaw["ThinClaw"]
+  Contracts --> NilCore["NilCore"]
+  Contracts --> CrustCore["CrustCore"]
+  CLI --> CI["Validation CI"]
+  Examples --> Evidence["Evidence bundles"]
+```
+
+`agentic-flows` owns the contract. Runtime ownership stays outside this repo.
+
+| Optional consumer | Natural role | What it would consume |
+| --- | --- | --- |
+| ThinClaw | Durable routines, memory, channels, operator decisions | Flow references, approval nodes, routine state, decision records |
+| NilCore | Sandboxed worker execution and supervision | Agent tasks, tool nodes, worker-dispatch events, run evidence |
+| CrustCore | Verifier-owned proof and audit boundaries | Quality gates, evidence refs, completion proof contracts |
+| Standalone | Local inspection and examples | Flow validation, graph export, sample runs, package artifacts |
+
+## What is built now
+
+- A versioned YAML workflow format backed by JSON Schema.
+- `flowctl`, a repo-local CLI for validation, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
+- Six reusable workflow definitions across coding, research, collaboration, and human review.
+- Three copyable starter templates for project-specific workflows.
+- Event and run-bundle schemas for evidence-backed execution.
+- Adapter smoke manifest schemas and examples for independent optional consumers.
+- A compatibility matrix that separates intent from proven adapter evidence.
+- Release packaging and CI validation for reproducible catalog snapshots.
+- A full operating handbook under [docs/](docs/README.md).
+- A future workflow backlog under [todo-workflows.md](todo-workflows.md).
+
+## Current workflow catalog
+
+| Workflow | Stability | Best for | Optional consumers | Current evidence |
+| --- | --- | --- | --- | --- |
+| [`coding.feature-implementation`](flows/coding/feature-implementation/README.md) | Preview | Implement a scoped repository change with planning, checks, review, and closeout evidence. | ThinClaw, NilCore, CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
+| [`coding.refactor-and-verify`](flows/coding/refactor-and-verify/README.md) | Preview | Change internals while proving public behavior stayed stable. | ThinClaw, NilCore, CrustCore, standalone | Sample contract; completed run evidence still open |
+| [`coding.security-audit`](flows/coding/security-audit/README.md) | Experimental | Inspect a repo or diff for security risks with ranked findings and evidence. | ThinClaw, NilCore, CrustCore, standalone | Sample contract; repeatable audit run evidence still open |
+| [`research.deep-research-report`](flows/research/deep-research-report/README.md) | Experimental | Gather, compare, and synthesize sources into an evidence-backed report. | ThinClaw, NilCore, standalone | Sample contract; completed research run evidence still open |
+| [`collaboration.multi-agent-supervisor`](flows/collaboration/multi-agent-supervisor/README.md) | Experimental | Split larger work into owned lanes, supervise workers, and merge evidence. | ThinClaw, NilCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
+| [`general.human-in-the-loop-review`](flows/general/human-in-the-loop-review/README.md) | Preview | Route risky or ambiguous agent output through an explicit operator decision. | ThinClaw, NilCore, CrustCore, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
+
+## Starter templates
+
+| Template | Use it when | Path |
+| --- | --- | --- |
+| Coding feature | A project needs a tailored feature-delivery flow with verification gates. | [`templates/coding-feature`](templates/coding-feature/README.md) |
+| Coding refactor | A project needs a behavior-preserving refactor flow with baseline checks. | [`templates/coding-refactor`](templates/coding-refactor/README.md) |
+| Research report | A project needs a source-backed research flow with citation and conflict rules. | [`templates/research-report`](templates/research-report/README.md) |
+
+## Workflow backlog
+
+The next wave of work lives in [todo-workflows.md](todo-workflows.md). It is intentionally broad and product-oriented: integration spine flows, ThinClaw-first personal operating loops, NilCore-first engineering execution loops, CrustCore-first proof loops, security, research, deployment, product, documentation, orchestration, and long-horizon program workflows.
+
+The recommended first build sequence starts with:
+
+1. `ops.flow-intake-and-routing`
+2. `ops.capability-negotiation`
+3. `ops.event-and-evidence-bridge`
+4. `personal.daily-command-center`
+5. `engineering.issue-to-verified-pr`
+6. `proof.verified-patch-acceptance`
+7. `engineering.ci-failure-diagnosis`
+8. `engineering.pr-review-and-risk-notes`
+9. `engineering.release-train`
+10. `orchestration.parallel-work-claiming`
+
+## Repository layout
 
 ```text
-flows/          Versioned reusable workflow definitions.
-templates/      Copyable starter flows for new projects.
-schemas/        JSON Schema contracts for flows, nodes, and events.
-tools/flowctl/  CLI for validation, listing, and graph export.
-integrations/   ThinClaw, NilCore, CrustCore, and shared adapter contracts.
-examples/       Minimal consumption examples and runbooks.
-docs/           Architecture, spec, roadmap, and integration guidance.
-tests/          CLI and schema regression tests.
-todo-workflows.md  Candidate workflow backlog for future buildout.
+flows/             Versioned reusable workflow definitions.
+templates/         Copyable starter flows for project-specific variants.
+schemas/           JSON Schema contracts for flows, nodes, events, streams, runs, and adapter smoke manifests.
+tools/flowctl/     Python CLI for validation, reporting, graph export, replay, packaging, and release checks.
+integrations/      Runtime-neutral adapter contracts plus ThinClaw, NilCore, and CrustCore adapter notes.
+examples/          Samples, standalone examples, event streams, run bundles, and adapter smoke manifests.
+docs/              Architecture, roadmap, governance, testing, release, authoring, and integration guidance.
+tests/             CLI and schema regression tests.
+todo-workflows.md  Future workflow backlog and build-order plan.
 ```
 
 ## Quick start
@@ -34,9 +124,18 @@ source .venv/bin/activate
 python -m pip install -e . pytest
 
 flowctl validate
+flowctl list
+flowctl report
+pytest
+```
+
+Run the full local release-grade validation set before opening a PR or promoting a flow:
+
+```bash
+flowctl validate
 flowctl normalize
 flowctl validate-adapter-smoke examples/adapters/
-flowctl validate-event examples/standalone/event.sample.json
+flowctl validate-event examples/
 flowctl validate-stream examples/streams/
 flowctl validate-run examples/runs/
 flowctl replay examples/runs/feature-implementation.run.json
@@ -46,32 +145,39 @@ flowctl changelog-check
 flowctl check-links
 flowctl package-release --output /tmp/agentic-flows-release.zip
 flowctl release-check
-flowctl list
-flowctl graph flows/coding/feature-implementation/flow.yaml --format dot
 pytest
 ```
 
-The default validation command checks every `flow.yaml` under `flows/` and `templates/`.
+Export a workflow graph when reviewing execution shape:
 
-## Current repo stack
+```bash
+flowctl graph flows/coding/feature-implementation/flow.yaml --format dot
+flowctl graph flows/coding/feature-implementation/flow.yaml --format json --output /tmp/feature-flow.graph.json
+```
 
-- Flow definitions: YAML with a JSON Schema contract.
-- Validation and export: Python CLI (`flowctl`).
-- CI: GitHub Actions validates schemas, flows, graph export, and tests.
-- Runtime adapters: optional contract-first docs plus first adapter seams in independent consumer repos.
+## Maturity and promotion
 
-## First-class flows
+Workflow status is earned by evidence, not by intent.
 
-- `coding/feature-implementation`
-- `coding/refactor-and-verify`
-- `coding/security-audit`
-- `research/deep-research-report`
-- `collaboration/multi-agent-supervisor`
-- `general/human-in-the-loop-review`
+| Stage | Meaning |
+| --- | --- |
+| `experimental` | Contract exists, but the run evidence or adapter evidence is incomplete. |
+| `preview` | Contract, samples, and core validation exist; at least part of the evidence path is proven. |
+| `stable` | Repeatable adapter and run evidence exists for the intended consumers. |
+
+Optional-consumer compatibility is tracked separately in [docs/compatibility-matrix.md](docs/compatibility-matrix.md):
+
+| Compatibility state | Meaning |
+| --- | --- |
+| `target` | Designed with the consumer in mind, but not proven. |
+| `contract-smoke` | Repo-local adapter smoke manifest validates. |
+| `adapter-smoke` | Independent consumer can load and validate the flow. |
+| `run-smoke` | Independent consumer can emit a valid run bundle. |
+| `stable` | Repeatable adapter and run evidence exists. |
 
 ## Definition of ready
 
-A workflow is ready to use when:
+A reusable workflow is ready for serious consumption when:
 
 1. `flowctl validate` passes.
 2. The flow declares intended optional consumers and required capabilities.
@@ -80,15 +186,40 @@ A workflow is ready to use when:
 5. At least one required quality gate is present.
 6. Required quality gates name declared artifact or event evidence refs.
 7. The flow README includes a maturity rubric.
-8. A consuming project records events compatible with `schemas/event.schema.json`.
+8. A consuming project records events compatible with [`schemas/event.schema.json`](schemas/event.schema.json).
 9. `flowctl release-check` passes before tagging or promoting a flow to `stable`.
 
-See [docs/project-plan.md](docs/project-plan.md) for the upgraded plan, [docs/core-integration.md](docs/core-integration.md) for runtime expectations, and [todo-workflows.md](todo-workflows.md) for the future workflow backlog.
+## Documentation map
 
-## Documentation
+Start with the documentation index at [docs/README.md](docs/README.md).
 
-Start with [docs/README.md](docs/README.md). The docs folder contains the full roadmap, goals, task backlog, workflow authoring guidance, testing strategy, release process, changelog management, governance, and adapter implementation plan.
+| Need | Read |
+| --- | --- |
+| Project mission and constraints | [docs/goals.md](docs/goals.md) |
+| Original assessment and upgraded plan | [docs/project-plan.md](docs/project-plan.md) |
+| End-to-end roadmap | [docs/roadmap.md](docs/roadmap.md) |
+| Current task board | [docs/tasks.md](docs/tasks.md) |
+| Flow contract details | [docs/flow-spec.md](docs/flow-spec.md) |
+| Authoring guidance | [docs/workflow-authoring.md](docs/workflow-authoring.md) |
+| Runtime boundary | [docs/core-integration.md](docs/core-integration.md) |
+| Consumer independence | [docs/consumer-model.md](docs/consumer-model.md) |
+| Adapter plan | [docs/adapter-implementation-plan.md](docs/adapter-implementation-plan.md) |
+| Event streams | [docs/event-streams.md](docs/event-streams.md) |
+| Run bundles | [docs/run-bundles.md](docs/run-bundles.md) |
+| Testing strategy | [docs/testing-strategy.md](docs/testing-strategy.md) |
+| Release process | [docs/release-process.md](docs/release-process.md) |
+| Changelog rules | [docs/changelog-management.md](docs/changelog-management.md) |
+| Future workflow backlog | [todo-workflows.md](todo-workflows.md) |
 
-## Changelog
+## Release and maintenance rules
 
-Release and compatibility notes live in [CHANGELOG.md](CHANGELOG.md). Keep `Unreleased` current for schema, flow, command, adapter-contract, and process changes.
+- Keep [CHANGELOG.md](CHANGELOG.md) current for user-facing schema, flow, command, adapter-contract, documentation, and process changes.
+- Do not describe ThinClaw, NilCore, or CrustCore as already integrated unless the independent project has live adapter evidence.
+- Do not promote a workflow to `stable` without repeatable run evidence and compatibility evidence.
+- Keep flow definitions normalized with `flowctl normalize`.
+- Keep samples and run bundles synchronized with schema changes.
+- Prefer small, contract-preserving flow revisions over broad rewrites.
+
+## License
+
+This project is licensed under Apache-2.0. See [LICENSE](LICENSE).

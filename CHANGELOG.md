@@ -6,9 +6,9 @@ This project follows semantic versioning for releases and keeps flow compatibili
 
 ## Unreleased
 
-### Added
+### Changed
 
-- No unreleased changes.
+- Reworked the README into a full project landing page with vision, catalog status, workflow backlog links, runtime-boundary framing, and validation guidance.
 
 ## 0.1.1 - 2026-06-27
 
