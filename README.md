@@ -44,6 +44,7 @@ flowctl report
 flowctl changelog-check
 flowctl check-links
 flowctl package-release --output /tmp/agentic-flows-release.zip
+flowctl release-check
 flowctl list
 flowctl graph flows/coding/feature-implementation/flow.yaml --format dot
 pytest
@@ -79,6 +80,7 @@ A workflow is ready to use when:
 6. Required quality gates name declared artifact or event evidence refs.
 7. The flow README includes a maturity rubric.
 8. A consuming project records events compatible with `schemas/event.schema.json`.
+9. `flowctl release-check` passes before tagging or promoting a flow to `stable`.
 
 See [docs/project-plan.md](docs/project-plan.md) for the upgraded plan and [docs/core-integration.md](docs/core-integration.md) for runtime expectations.
 

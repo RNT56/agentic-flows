@@ -57,6 +57,9 @@ jobs:
       - name: Build release package
         run: flowctl package-release --output /tmp/agentic-flows-release.zip
 
+      - name: Check release readiness
+        run: flowctl release-check
+
       - name: Export feature flow graph
         run: flowctl graph flows/coding/feature-implementation/flow.yaml --format json --output /tmp/feature-flow.graph.json
 

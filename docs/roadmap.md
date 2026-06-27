@@ -111,6 +111,7 @@ Goals:
 Acceptance gates:
 
 - Release package build passes.
+- `flowctl release-check` passes.
 - Release checklist passes.
 - Changelog has dated release notes.
 - Consuming projects can pin by tag.
@@ -123,7 +124,7 @@ Goals:
 
 - Promote proven flows from `experimental` or `preview` to `stable`.
 - Require adapter smoke evidence for every listed optional consumer.
-- Add deprecation policy for replaced flows.
+- Enforce deprecation policy for replaced flows.
 
 Acceptance gates:
 

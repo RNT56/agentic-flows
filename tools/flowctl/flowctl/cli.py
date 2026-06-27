@@ -58,6 +58,7 @@ DEFAULT_RELEASE_PACKAGE_PATHS = [
     REPO_ROOT / "docs" / "versioning.md",
 ]
 ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
+OPTIONAL_CONSUMERS = {"crustcore", "nilcore", "thinclaw"}
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*]\(([^)]+)\)")
 FLOW_KEY_ORDER = [
     "spec_version",
@@ -273,6 +274,11 @@ def format_error_path(parts: Iterable[Any]) -> str:
         else:
             path += f".{part}"
     return path
+
+
+def display_path(path: Path) -> str:
+    resolved = path.resolve()
+    return str(resolved.relative_to(REPO_ROOT)) if resolved.is_relative_to(REPO_ROOT) else str(path)
 
 
 def validate_flow_document(document: dict[str, Any], schema: dict[str, Any]) -> list[str]:
@@ -1676,6 +1682,283 @@ def collect_release_package_files(paths: Iterable[Path]) -> list[Path]:
     return output_safe_files
 
 
+def cmd_release_check(args: argparse.Namespace) -> int:
+    flow_files = find_flow_files(args.paths)
+    errors = validate_release_readiness(
+        flow_files,
+        load_json(args.schema),
+        load_json(args.adapter_schema),
+        load_json(args.run_schema),
+        load_json(args.event_schema),
+        load_json(args.stream_schema),
+        load_json(args.sample_schema),
+    )
+    if errors:
+        print("Release check failed", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    print(f"Release check passed for {len(flow_files)} flow file(s)")
+    return 0
+
+
+def validate_release_readiness(
+    flow_files: Iterable[Path],
+    flow_schema: dict[str, Any],
+    adapter_schema: dict[str, Any],
+    run_schema: dict[str, Any],
+    event_schema: dict[str, Any],
+    stream_schema: dict[str, Any],
+    sample_schema: dict[str, Any],
+) -> list[str]:
+    entries, errors = load_release_flow_entries(flow_files, flow_schema)
+    sample_flow_ids, sample_errors = load_valid_sample_flow_ids(sample_schema, flow_schema)
+    adapter_pairs, adapter_errors = load_valid_adapter_smoke_pairs(
+        adapter_schema,
+        flow_schema,
+        run_schema,
+        event_schema,
+        stream_schema,
+    )
+    completed_run_pairs, run_errors = load_valid_completed_run_pairs(run_schema, event_schema, flow_schema)
+
+    errors.extend(sample_errors)
+    errors.extend(adapter_errors)
+    errors.extend(run_errors)
+    errors.extend(validate_deprecation_targets(entries))
+
+    for entry in entries:
+        document = entry["document"]
+        if document.get("stability") == "stable":
+            errors.extend(validate_stable_flow_readiness(entry, sample_flow_ids, adapter_pairs, completed_run_pairs))
+
+    return errors
+
+
+def load_release_flow_entries(
+    flow_files: Iterable[Path],
+    flow_schema: dict[str, Any],
+) -> tuple[list[dict[str, Any]], list[str]]:
+    selected = list(flow_files)
+    if not selected:
+        return [], ["flows: no flow files found"]
+
+    entries: list[dict[str, Any]] = []
+    errors: list[str] = []
+    paths_by_id: dict[str, list[str]] = {}
+    for path in selected:
+        if not path.exists():
+            errors.append(f"{display_path(path)}: path does not exist")
+            continue
+        try:
+            document = load_yaml(path)
+        except Exception as exc:  # noqa: BLE001 - release check should report file context
+            errors.append(f"{display_path(path)}: {exc}")
+            continue
+
+        flow_errors = validate_flow_document(document, flow_schema)
+        if flow_errors:
+            errors.extend(f"{display_path(path)}: {error}" for error in flow_errors)
+            continue
+
+        flow_id = document.get("id")
+        if isinstance(flow_id, str):
+            paths_by_id.setdefault(flow_id, []).append(display_path(path))
+        entries.append({"path": path, "document": document})
+
+    for flow_id, paths in sorted(paths_by_id.items()):
+        if len(paths) > 1:
+            joined_paths = ", ".join(paths)
+            errors.append(f"$.id: duplicate flow id '{flow_id}' in {joined_paths}")
+
+    return entries, errors
+
+
+def load_valid_sample_flow_ids(
+    sample_schema: dict[str, Any],
+    flow_schema: dict[str, Any],
+) -> tuple[set[str], list[str]]:
+    flow_ids: set[str] = set()
+    errors: list[str] = []
+    for path in find_sample_files([]):
+        if not path.exists():
+            errors.append(f"{display_path(path)}: path does not exist")
+            continue
+        try:
+            document = load_json(path)
+            sample_errors = validate_sample_document(document, sample_schema, flow_schema, sample_path=path)
+        except Exception as exc:  # noqa: BLE001 - release check should report file context
+            errors.append(f"{display_path(path)}: {exc}")
+            continue
+
+        if sample_errors:
+            errors.extend(f"{display_path(path)}: {error}" for error in sample_errors)
+            continue
+
+        flow_info = document.get("flow", {})
+        if isinstance(flow_info, dict) and isinstance(flow_info.get("id"), str):
+            flow_ids.add(flow_info["id"])
+
+    return flow_ids, errors
+
+
+def load_valid_adapter_smoke_pairs(
+    adapter_schema: dict[str, Any],
+    flow_schema: dict[str, Any],
+    run_schema: dict[str, Any],
+    event_schema: dict[str, Any],
+    stream_schema: dict[str, Any],
+) -> tuple[set[tuple[str, str]], list[str]]:
+    pairs: set[tuple[str, str]] = set()
+    errors: list[str] = []
+    for path in find_adapter_smoke_files([]):
+        if not path.exists():
+            errors.append(f"{display_path(path)}: path does not exist")
+            continue
+        try:
+            document = load_json(path)
+            adapter_errors = validate_adapter_smoke_document(
+                document,
+                adapter_schema,
+                flow_schema,
+                run_schema,
+                event_schema,
+                stream_schema,
+                adapter_path=path,
+            )
+        except Exception as exc:  # noqa: BLE001 - release check should report file context
+            errors.append(f"{display_path(path)}: {exc}")
+            continue
+
+        if adapter_errors:
+            errors.extend(f"{display_path(path)}: {error}" for error in adapter_errors)
+            continue
+
+        flow_info = document.get("flow", {})
+        consumer = document.get("consumer")
+        if isinstance(flow_info, dict) and isinstance(flow_info.get("id"), str) and isinstance(consumer, str):
+            pairs.add((flow_info["id"], consumer))
+
+    return pairs, errors
+
+
+def load_valid_completed_run_pairs(
+    run_schema: dict[str, Any],
+    event_schema: dict[str, Any],
+    flow_schema: dict[str, Any],
+) -> tuple[set[tuple[str, str]], list[str]]:
+    pairs: set[tuple[str, str]] = set()
+    errors: list[str] = []
+    for path in find_run_files([REPO_ROOT / "examples"]):
+        if not path.exists():
+            errors.append(f"{display_path(path)}: path does not exist")
+            continue
+        try:
+            document = load_json(path)
+            run_errors = validate_run_document(document, run_schema, event_schema, flow_schema, run_path=path)
+        except Exception as exc:  # noqa: BLE001 - release check should report file context
+            errors.append(f"{display_path(path)}: {exc}")
+            continue
+
+        if run_errors:
+            errors.extend(f"{display_path(path)}: {error}" for error in run_errors)
+            continue
+
+        flow_info = document.get("flow", {})
+        run_info = document.get("run", {})
+        if (
+            isinstance(flow_info, dict)
+            and isinstance(run_info, dict)
+            and run_info.get("status") == "completed"
+            and isinstance(flow_info.get("id"), str)
+            and isinstance(run_info.get("core"), str)
+        ):
+            pairs.add((flow_info["id"], run_info["core"]))
+
+    return pairs, errors
+
+
+def validate_deprecation_targets(entries: list[dict[str, Any]]) -> list[str]:
+    errors: list[str] = []
+    entries_by_id = {
+        entry["document"]["id"]: entry
+        for entry in entries
+        if isinstance(entry.get("document"), dict) and isinstance(entry["document"].get("id"), str)
+    }
+
+    for entry in entries:
+        path = entry["path"]
+        document = entry["document"]
+        flow_id = document.get("id")
+        replacement_id = document.get("deprecated_by")
+        if not isinstance(flow_id, str) or not isinstance(replacement_id, str):
+            continue
+        if replacement_id == flow_id:
+            errors.append(f"{display_path(path)}: $.deprecated_by: cannot reference itself")
+            continue
+        replacement_entry = entries_by_id.get(replacement_id)
+        if not replacement_entry:
+            errors.append(
+                f"{display_path(path)}: $.deprecated_by: replacement flow '{replacement_id}' is not in the release catalog"
+            )
+            continue
+        replacement_document = replacement_entry["document"]
+        if replacement_document.get("deprecated_by"):
+            errors.append(
+                f"{display_path(path)}: $.deprecated_by: replacement flow '{replacement_id}' is also deprecated"
+            )
+        is_production_flow = path.resolve().is_relative_to(REPO_ROOT / "flows")
+        replacement_is_production_flow = replacement_entry["path"].resolve().is_relative_to(REPO_ROOT / "flows")
+        if is_production_flow and not replacement_is_production_flow:
+            errors.append(
+                f"{display_path(path)}: $.deprecated_by: production flows must be replaced by another production flow"
+            )
+
+    return errors
+
+
+def validate_stable_flow_readiness(
+    entry: dict[str, Any],
+    sample_flow_ids: set[str],
+    adapter_pairs: set[tuple[str, str]],
+    completed_run_pairs: set[tuple[str, str]],
+) -> list[str]:
+    errors: list[str] = []
+    path = entry["path"]
+    document = entry["document"]
+    flow_id = document.get("id")
+    if not isinstance(flow_id, str):
+        return errors
+
+    if document.get("deprecated_by"):
+        errors.append(f"{display_path(path)}: $.deprecated_by: stable flows must not be deprecated")
+
+    readme_path = path.with_name("README.md")
+    if not readme_path.exists():
+        errors.append(f"{display_path(path)}: $.readme: stable flows require a sibling README.md")
+    elif not readme_has_maturity_rubric(readme_path):
+        errors.append(f"{display_path(path)}: $.readme: stable flow README requires a maturity rubric")
+
+    if flow_id not in sample_flow_ids:
+        errors.append(
+            f"{display_path(path)}: $.sample: stable flows require a valid examples/samples/*.sample.json file"
+        )
+
+    supported_cores = set(document.get("runtime", {}).get("supported_cores", []))
+    for consumer in sorted(supported_cores & OPTIONAL_CONSUMERS):
+        if (flow_id, consumer) not in adapter_pairs:
+            errors.append(
+                f"{display_path(path)}: $.runtime.supported_cores: stable flow requires adapter smoke evidence for {consumer}"
+            )
+    if "standalone" in supported_cores and (flow_id, "standalone") not in completed_run_pairs:
+        errors.append(
+            f"{display_path(path)}: $.runtime.supported_cores: stable flow requires completed standalone run evidence"
+        )
+
+    return errors
+
+
 def validate_markdown_links(path: Path) -> list[str]:
     errors: list[str] = []
     content = path.read_text(encoding="utf-8")
@@ -2000,6 +2283,45 @@ def build_parser() -> argparse.ArgumentParser:
     package_release.add_argument("--output", type=Path, required=True, help="Output zip path.")
     package_release.add_argument("paths", nargs="*", type=Path, help="Files or directories to include. Defaults to release package contents.")
     package_release.set_defaults(func=cmd_package_release)
+
+    release_check = subparsers.add_parser("release-check", help="Validate pre-tag release readiness rules.")
+    release_check.add_argument(
+        "paths",
+        nargs="*",
+        type=Path,
+        help="Flow files or directories. Defaults to flows/ and templates/.",
+    )
+    release_check.add_argument(
+        "--adapter-schema",
+        type=Path,
+        default=DEFAULT_ADAPTER_SMOKE_SCHEMA,
+        help="Path to the adapter smoke JSON Schema.",
+    )
+    release_check.add_argument(
+        "--run-schema",
+        type=Path,
+        default=DEFAULT_RUN_SCHEMA,
+        help="Path to the run bundle JSON Schema.",
+    )
+    release_check.add_argument(
+        "--event-schema",
+        type=Path,
+        default=DEFAULT_EVENT_SCHEMA,
+        help="Path to the event JSON Schema.",
+    )
+    release_check.add_argument(
+        "--stream-schema",
+        type=Path,
+        default=DEFAULT_EVENT_STREAM_SCHEMA,
+        help="Path to the event stream JSON Schema.",
+    )
+    release_check.add_argument(
+        "--sample-schema",
+        type=Path,
+        default=DEFAULT_SAMPLE_SCHEMA,
+        help="Path to the sample JSON Schema.",
+    )
+    release_check.set_defaults(func=cmd_release_check)
 
     list_cmd = subparsers.add_parser("list", help="List valid flow definitions.")
     list_cmd.add_argument("paths", nargs="*", type=Path, help="Flow files or directories. Defaults to flows/ and templates/.")

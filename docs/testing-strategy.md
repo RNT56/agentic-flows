@@ -17,6 +17,7 @@ flowctl report
 flowctl changelog-check
 flowctl check-links
 flowctl package-release --output /tmp/agentic-flows-release.zip
+flowctl release-check
 flowctl graph flows/coding/feature-implementation/flow.yaml --format json --output /tmp/feature-flow.graph.json
 pytest
 git diff --check
@@ -50,6 +51,7 @@ The GitHub Actions workflow should run:
 - changelog structure validation
 - local Markdown link validation
 - release package build
+- release readiness checks
 - graph export
 - test suite
 
@@ -70,4 +72,5 @@ No release should be tagged unless:
 - CI passes on `main`
 - `CHANGELOG.md` has a dated entry
 - docs match the current command surface
+- `flowctl release-check` passes
 - stable flows have adapter evidence for each declared optional consumer

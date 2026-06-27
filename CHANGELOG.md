@@ -29,6 +29,7 @@ This project follows semantic versioning for releases and keeps flow compatibili
 - Added `schemas/event-stream.schema.json` and `flowctl validate-stream` for multi-file event streams.
 - Added `schemas/adapter-smoke.schema.json`, `flowctl validate-adapter-smoke`, and repo-local adapter smoke examples.
 - Added `flowctl package-release` for deterministic release package builds.
+- Added `flowctl release-check` for deprecation and stable-promotion release gates.
 - Added a completed feature implementation run example.
 - Added completed standalone run examples for human review and multi-agent supervisor flows.
 - Added a compatibility matrix and run-bundle guidance.

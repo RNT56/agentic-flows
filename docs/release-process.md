@@ -16,11 +16,12 @@
 6. Run `flowctl changelog-check --release <version>`.
 7. Run `flowctl check-links`.
 8. Build a release package with `flowctl package-release --output /tmp/agentic-flows-release.zip`.
-9. Confirm schema and flow versions are correct.
-10. Tag the release.
-11. Push the tag.
-12. Add release notes from `CHANGELOG.md`.
-13. Attach the release package if consumers need a bundled asset.
+9. Run `flowctl release-check`.
+10. Confirm schema and flow versions are correct.
+11. Tag the release.
+12. Push the tag.
+13. Add release notes from `CHANGELOG.md`.
+14. Attach the release package if consumers need a bundled asset.
 
 ## Tag format
 
@@ -52,3 +53,15 @@ Do not release `v1.0.0` until:
 - event validation is implemented
 - run validation is implemented
 - each declared optional consumer has adapter evidence for at least one flow
+
+## Release readiness command
+
+`flowctl release-check` validates the policy gates that are easy to miss during manual review:
+
+- deprecated flows must point at a replacement flow in the release catalog
+- production flows must be replaced by production flows
+- stable flows cannot also be deprecated
+- stable flows need a sibling README maturity rubric
+- stable flows need a valid sample
+- stable flows need completed standalone run evidence when they support `standalone`
+- stable flows need adapter smoke evidence for every declared optional consumer

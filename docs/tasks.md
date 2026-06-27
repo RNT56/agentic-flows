@@ -50,6 +50,7 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Add `flowctl normalize` for deterministic YAML ordering.
 - [x] Add `flowctl changelog-check` before first tagged release.
 - [x] Add markdown link checking once docs stabilize.
+- [x] Add `flowctl release-check` for deprecation and stable-promotion gates.
 
 ## Optional adapter tasks
 
@@ -70,7 +71,7 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Add release notes template.
 - [x] Decide whether `flowctl` should be published outside this repo.
 - [x] Add release package build support.
-- [ ] Add deprecation policy checks before any stable release.
+- [x] Add deprecation policy checks before any stable release.
 
 ## Run evidence tasks
 

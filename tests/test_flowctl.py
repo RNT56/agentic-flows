@@ -4,7 +4,10 @@ import json
 
 from flowctl.cli import (
     DEFAULT_ADAPTER_SMOKE_SCHEMA,
+    DEFAULT_EVENT_SCHEMA,
     DEFAULT_EVENT_STREAM_SCHEMA,
+    DEFAULT_RUN_SCHEMA,
+    DEFAULT_SAMPLE_SCHEMA,
     DEFAULT_SCHEMA,
     build_replay_summary,
     build_report_summary,
@@ -26,6 +29,7 @@ from flowctl.cli import (
     validate_flow_document,
     validate_changelog,
     validate_markdown_links,
+    validate_release_readiness,
     validate_run_document,
     validate_sample_document,
 )
@@ -284,6 +288,56 @@ def test_release_package_file_set_contains_contract_assets() -> None:
     assert "templates/coding-feature/flow.yaml" in files
     assert "examples/samples/coding/feature-implementation.sample.json" in files
     assert "LICENSE" in files
+
+
+def release_check_schemas() -> tuple[dict, dict, dict, dict, dict, dict]:
+    return (
+        load_json(DEFAULT_SCHEMA),
+        load_json(DEFAULT_ADAPTER_SMOKE_SCHEMA),
+        load_json(DEFAULT_RUN_SCHEMA),
+        load_json(DEFAULT_EVENT_SCHEMA),
+        load_json(DEFAULT_EVENT_STREAM_SCHEMA),
+        load_json(DEFAULT_SAMPLE_SCHEMA),
+    )
+
+
+def test_repository_release_readiness_is_valid() -> None:
+    errors = validate_release_readiness(find_flow_files([]), *release_check_schemas())
+
+    assert errors == []
+
+
+def test_release_check_rejects_missing_deprecation_target(tmp_path: Path) -> None:
+    flow = load_yaml(Path("flows/coding/feature-implementation/flow.yaml"))
+    flow["deprecated_by"] = "coding.future-replacement"
+    flow["migration"] = {
+        "summary": "Move to the future replacement flow once it exists.",
+        "steps": ["Pin the replacement flow and update the consumer mapping."],
+    }
+    flow_path = tmp_path / "flow.yaml"
+    flow_path.write_text(dump_yaml(flow), encoding="utf-8")
+
+    errors = validate_release_readiness([flow_path], *release_check_schemas())
+
+    assert any(
+        "replacement flow 'coding.future-replacement' is not in the release catalog" in error
+        for error in errors
+    )
+
+
+def test_release_check_rejects_stable_flow_missing_consumer_evidence(tmp_path: Path) -> None:
+    source_flow = Path("flows/coding/feature-implementation/flow.yaml")
+    flow = load_yaml(source_flow)
+    flow["stability"] = "stable"
+    flow_path = tmp_path / "flow.yaml"
+    flow_path.write_text(dump_yaml(flow), encoding="utf-8")
+    source_readme = source_flow.with_name("README.md").read_text(encoding="utf-8")
+    (tmp_path / "README.md").write_text(source_readme, encoding="utf-8")
+
+    errors = validate_release_readiness([flow_path], *release_check_schemas())
+
+    assert any("adapter smoke evidence for nilcore" in error for error in errors)
+    assert any("adapter smoke evidence for thinclaw" in error for error in errors)
 
 
 def test_sample_unknown_output_is_rejected() -> None:
