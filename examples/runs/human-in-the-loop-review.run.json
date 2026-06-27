@@ -109,6 +109,7 @@
       },
       "evidence": [
         {
+          "id": "decision-record",
           "kind": "decision-record",
           "uri": "artifact://runs/run-human-review-0001/decision.json"
         }
@@ -148,4 +149,3 @@
     }
   ]
 }
-

@@ -32,6 +32,11 @@
       "uri": "artifact://runs/run-feature-implementation-0001/test.log"
     },
     {
+      "id": "review-notes",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-feature-implementation-0001/review-notes.md"
+    },
+    {
       "id": "closeout",
       "kind": "markdown",
       "uri": "artifact://runs/run-feature-implementation-0001/closeout.md"
@@ -108,6 +113,7 @@
       },
       "evidence": [
         {
+          "id": "test-log",
           "kind": "test-log",
           "uri": "artifact://runs/run-feature-implementation-0001/test.log"
         }
@@ -129,8 +135,9 @@
       },
       "evidence": [
         {
-          "kind": "review",
-          "uri": "artifact://runs/run-feature-implementation-0001/closeout.md"
+          "id": "review-notes",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-feature-implementation-0001/review-notes.md"
         }
       ]
     },
@@ -168,4 +175,3 @@
     }
   ]
 }
-

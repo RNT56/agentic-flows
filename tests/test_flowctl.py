@@ -4,6 +4,7 @@ import json
 
 from flowctl.cli import (
     DEFAULT_SCHEMA,
+    build_replay_summary,
     build_report_summary,
     find_flow_files,
     find_json_files,
@@ -149,6 +150,18 @@ def test_repository_run_bundles_are_valid() -> None:
     assert failures == []
 
 
+def test_run_bundle_replay_summary_reconstructs_gates() -> None:
+    run = load_json(Path("examples/runs/feature-implementation.run.json"))
+
+    summary = build_replay_summary(run)
+
+    assert summary["run"]["id"] == "run-feature-implementation-0001"
+    assert summary["flow"]["id"] == "coding.feature-implementation"
+    assert summary["outputs"] == ["closeout", "patch"]
+    assert summary["gates"][0]["gate_id"] == "project-checks-pass"
+    assert "test-log" in summary["gates"][0]["evidence_refs"]
+
+
 def test_flow_samples_are_valid() -> None:
     sample_schema = load_json(Path("schemas/sample.schema.json"))
     flow_schema = load_json(DEFAULT_SCHEMA)
@@ -193,6 +206,23 @@ def test_run_bundle_missing_required_gate_is_rejected() -> None:
 
     assert any("required quality gate 'project-checks-pass'" in error for error in errors)
     assert any("$.outputs.patch" in error for error in errors)
+
+
+def test_run_bundle_wrong_gate_evidence_ref_is_rejected() -> None:
+    run_schema = load_json(Path("schemas/run.schema.json"))
+    event_schema = load_json(Path("schemas/event.schema.json"))
+    flow_schema = load_json(DEFAULT_SCHEMA)
+    run = load_json(Path("tests/fixtures/invalid-run-wrong-gate-evidence.json"))
+
+    errors = validate_run_document(
+        run,
+        run_schema,
+        event_schema,
+        flow_schema,
+        run_path=Path("tests/fixtures/invalid-run-wrong-gate-evidence.json"),
+    )
+
+    assert any("needs evidence id or kind matching one of: test-log" in error for error in errors)
 
 
 def test_report_summary_counts_stability_and_cores() -> None:

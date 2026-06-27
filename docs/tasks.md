@@ -17,6 +17,8 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Add maturity rubrics for production flow READMEs.
 - [x] Add optional deprecation and migration metadata.
 - [x] Add semantic regression fixtures for flow quality rules.
+- [x] Add run replay summaries for completed run bundles.
+- [x] Match passed gate evidence to declared gate evidence refs.
 
 ## Flow catalog tasks
 
@@ -39,6 +41,7 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 
 - [x] Add `flowctl report`.
 - [x] Add `flowctl validate-run`.
+- [x] Add `flowctl replay`.
 - [ ] Add `flowctl normalize` for deterministic YAML ordering.
 - [ ] Add `flowctl changelog-check` before first tagged release.
 - [ ] Add markdown link checking once docs stabilize.
@@ -59,3 +62,9 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Add release notes template.
 - [ ] Decide whether `flowctl` should be published outside this repo.
 - [ ] Add deprecation policy checks before any stable release.
+
+## Run evidence tasks
+
+- [x] Validate passed gate evidence against source flow `evidence_refs`.
+- [x] Add replay summaries for run bundles.
+- [ ] Validate external multi-file event streams.

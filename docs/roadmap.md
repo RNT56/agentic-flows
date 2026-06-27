@@ -80,7 +80,7 @@ Acceptance gates:
 
 ## Phase 4: Run evidence and replay
 
-Status: planned.
+Status: in progress.
 
 Goals:
 
@@ -93,6 +93,7 @@ Acceptance gates:
 - A run can be replayed from event JSON.
 - Missing required gate evidence fails validation.
 - Flow version mismatches fail validation.
+- Passed gate evidence matches declared gate evidence refs.
 
 ## Phase 5: Release packaging
 

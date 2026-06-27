@@ -80,6 +80,9 @@ It verifies:
 - completed runs include `flow.completed`
 - completed runs include required outputs
 - every required quality gate has passed `gate.completed` evidence
+- passed gate evidence ids or kinds match the source gate's `evidence_refs`
+
+`flowctl replay` validates a run bundle and reconstructs a timeline with run status, outputs, passed gates, evidence refs, and ordered events.
 
 ## Sample validation
 

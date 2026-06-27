@@ -1,0 +1,85 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "coding.feature-implementation",
+    "version": "0.1.0",
+    "source": "flows/coding/feature-implementation/flow.yaml"
+  },
+  "run": {
+    "id": "run-wrong-gate-evidence-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T14:00:00Z",
+    "completed_at": "2026-06-27T14:04:00Z"
+  },
+  "outputs": {
+    "patch": "artifact://diff",
+    "closeout": "artifact://closeout"
+  },
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-wrong-gate-evidence-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T14:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-wrong-gate-evidence-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T14:03:20Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "project-checks-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "wrong-proof",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-wrong-gate-evidence-0001/wrong.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-wrong-gate-evidence-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T14:03:40Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "acceptance-covered",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "review-notes",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-wrong-gate-evidence-0001/review-notes.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-wrong-gate-evidence-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T14:04:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

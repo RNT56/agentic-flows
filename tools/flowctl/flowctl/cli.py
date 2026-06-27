@@ -355,6 +355,14 @@ def validate_run_events(
     passed_gate_ids: set[str] = set()
     known_node_ids = {node["id"] for node in flow_document.get("nodes", [])} if flow_document else set()
     known_event_names = set(flow_document.get("observability", {}).get("events", [])) if flow_document else set()
+    source_gates = flow_document.get("quality_gates", []) if flow_document else []
+    gate_evidence_refs = {
+        gate["id"]: set(gate.get("evidence_refs", []))
+        for gate in source_gates
+        if isinstance(gate, dict)
+        and isinstance(gate.get("id"), str)
+        and isinstance(gate.get("evidence_refs"), list)
+    }
 
     for index, event in enumerate(events):
         if not isinstance(event, dict):
@@ -389,8 +397,17 @@ def validate_run_events(
             gate_status = payload.get("status")
             if isinstance(gate_id, str) and gate_status == "passed":
                 passed_gate_ids.add(gate_id)
-                if not event.get("evidence"):
+                evidence = event.get("evidence")
+                if not evidence:
                     errors.append(f"$.events[{index}].evidence: passed required gates need evidence")
+                elif gate_evidence_refs.get(gate_id):
+                    observed_evidence_refs = collect_event_evidence_refs(evidence)
+                    expected_refs = gate_evidence_refs[gate_id]
+                    if observed_evidence_refs.isdisjoint(expected_refs):
+                        expected = ", ".join(sorted(expected_refs))
+                        errors.append(
+                            f"$.events[{index}].evidence: passed gate '{gate_id}' needs evidence id or kind matching one of: {expected}"
+                        )
 
     if status == "completed" and "flow.completed" not in observed_events:
         errors.append("$.events: completed runs require a flow.completed event")
@@ -406,6 +423,24 @@ def validate_run_events(
                 errors.append(f"$.events: required quality gate '{gate_id}' is missing passed gate.completed evidence")
 
     return errors
+
+
+def collect_event_evidence_refs(evidence: Any) -> set[str]:
+    if not isinstance(evidence, list):
+        return set()
+
+    refs: set[str] = set()
+    for item in evidence:
+        if not isinstance(item, dict):
+            continue
+        evidence_id = item.get("id")
+        if isinstance(evidence_id, str):
+            refs.add(evidence_id)
+            continue
+        kind = item.get("kind")
+        if isinstance(kind, str):
+            refs.add(kind)
+    return refs
 
 
 def prefix_error_path(error: str, prefix: str) -> str:
@@ -723,6 +758,122 @@ def cmd_validate_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_replay(args: argparse.Namespace) -> int:
+    run_schema = load_json(args.run_schema)
+    event_schema = load_json(args.event_schema)
+    flow_schema = load_json(args.schema)
+    run_files = find_run_files(args.paths)
+    if not run_files:
+        print("No run bundle files found", file=sys.stderr)
+        return 1
+
+    failures = 0
+    summaries: list[dict[str, Any]] = []
+    for path in run_files:
+        if not path.exists():
+            print(f"FAIL {path}: path does not exist", file=sys.stderr)
+            failures += 1
+            continue
+        try:
+            document = load_json(path)
+            errors = validate_run_document(document, run_schema, event_schema, flow_schema, run_path=path)
+        except Exception as exc:  # noqa: BLE001 - CLI should report file context
+            print(f"FAIL {path}: {exc}", file=sys.stderr)
+            failures += 1
+            continue
+
+        if errors:
+            failures += 1
+            print(f"FAIL {path}", file=sys.stderr)
+            for error in errors:
+                print(f"  - {error}", file=sys.stderr)
+            continue
+
+        summary = build_replay_summary(document)
+        summary["path"] = str(path.relative_to(REPO_ROOT)) if path.is_relative_to(REPO_ROOT) else str(path)
+        summaries.append(summary)
+
+    if failures:
+        print(f"{failures} run bundle file(s) failed replay validation", file=sys.stderr)
+        return 1
+
+    if args.json:
+        print(json.dumps(summaries, indent=2))
+    else:
+        print_replay_summaries(summaries)
+    return 0
+
+
+def build_replay_summary(document: dict[str, Any]) -> dict[str, Any]:
+    flow_info = document.get("flow", {})
+    run_info = document.get("run", {})
+    events = document.get("events", [])
+    outputs = document.get("outputs", {})
+
+    timeline: list[dict[str, Any]] = []
+    gates: list[dict[str, Any]] = []
+    for event in events if isinstance(events, list) else []:
+        if not isinstance(event, dict):
+            continue
+        replay_event = {
+            "timestamp": event.get("timestamp"),
+            "event": event.get("event"),
+            "node_id": event.get("node_id"),
+            "severity": event.get("severity"),
+        }
+        timeline.append({key: value for key, value in replay_event.items() if value is not None})
+
+        payload = event.get("payload", {})
+        if event.get("event") == "gate.completed" and isinstance(payload, dict):
+            gates.append(
+                {
+                    "gate_id": payload.get("gate_id"),
+                    "status": payload.get("status"),
+                    "node_id": event.get("node_id"),
+                    "evidence_refs": sorted(collect_event_evidence_refs(event.get("evidence"))),
+                }
+            )
+
+    return {
+        "flow": {
+            "id": flow_info.get("id"),
+            "version": flow_info.get("version"),
+            "source": flow_info.get("source"),
+        },
+        "run": {
+            "id": run_info.get("id"),
+            "core": run_info.get("core"),
+            "status": run_info.get("status"),
+            "started_at": run_info.get("started_at"),
+            "completed_at": run_info.get("completed_at"),
+        },
+        "event_count": len(timeline),
+        "gates": gates,
+        "outputs": sorted(outputs) if isinstance(outputs, dict) else [],
+        "timeline": timeline,
+    }
+
+
+def print_replay_summaries(summaries: list[dict[str, Any]]) -> None:
+    for summary_index, summary in enumerate(summaries):
+        if summary_index:
+            print()
+        flow = summary["flow"]
+        run = summary["run"]
+        print(f"Run {run.get('id')} ({run.get('status')})")
+        print(f"Flow: {flow.get('id')}@{flow.get('version')}  Core: {run.get('core')}  Events: {summary['event_count']}")
+        print(f"Outputs: {', '.join(summary['outputs']) if summary['outputs'] else 'none'}")
+        if summary["gates"]:
+            print("Gates:")
+            for gate in summary["gates"]:
+                refs = ", ".join(gate.get("evidence_refs", [])) or "none"
+                print(f"  - {gate.get('gate_id')}: {gate.get('status')} ({refs})")
+        print("Timeline:")
+        for event in summary["timeline"]:
+            node = f" [{event['node_id']}]" if "node_id" in event else ""
+            print(f"  - {event.get('timestamp')} {event.get('event')}{node} {event.get('severity')}")
+
+
 def cmd_validate_samples(args: argparse.Namespace) -> int:
     sample_schema = load_json(args.sample_schema)
     flow_schema = load_json(args.schema)
@@ -1019,6 +1170,13 @@ def build_parser() -> argparse.ArgumentParser:
     validate_run.add_argument("--event-schema", type=Path, default=DEFAULT_EVENT_SCHEMA, help="Path to the event JSON Schema.")
     validate_run.add_argument("-v", "--verbose", action="store_true", help="Print each passing file.")
     validate_run.set_defaults(func=cmd_validate_run)
+
+    replay = subparsers.add_parser("replay", help="Validate and replay run bundle timelines.")
+    replay.add_argument("paths", nargs="*", type=Path, help="Run bundle files or directories. Defaults to examples/runs/.")
+    replay.add_argument("--run-schema", type=Path, default=DEFAULT_RUN_SCHEMA, help="Path to the run bundle JSON Schema.")
+    replay.add_argument("--event-schema", type=Path, default=DEFAULT_EVENT_SCHEMA, help="Path to the event JSON Schema.")
+    replay.add_argument("--json", action="store_true", help="Emit replay summaries as JSON.")
+    replay.set_defaults(func=cmd_replay)
 
     validate_samples = subparsers.add_parser("validate-samples", help="Validate flow sample input/output JSON files.")
     validate_samples.add_argument("paths", nargs="*", type=Path, help="Sample files or directories. Defaults to examples/samples/.")

@@ -124,6 +124,7 @@
       },
       "evidence": [
         {
+          "id": "lane-plan",
           "kind": "lane-plan",
           "uri": "artifact://runs/run-multi-agent-supervisor-0001/lane-plan.md"
         }
@@ -145,6 +146,7 @@
       },
       "evidence": [
         {
+          "id": "worker-results",
           "kind": "worker-results",
           "uri": "artifact://runs/run-multi-agent-supervisor-0001/worker-results.json"
         }

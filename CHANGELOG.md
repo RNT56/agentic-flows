@@ -22,6 +22,8 @@ This project follows semantic versioning for releases and keeps flow compatibili
 - Added semantic regression fixtures for graph, gate, evidence, and deprecation validation rules.
 - Added optional `deprecated_by` and `migration` metadata for future flow replacements.
 - Added maturity rubrics to production flow READMEs.
+- Added run evidence ids and validation that passed gate evidence matches declared gate `evidence_refs`.
+- Added `flowctl replay` for validated run-bundle timelines.
 - Added a completed feature implementation run example.
 - Added completed standalone run examples for human review and multi-agent supervisor flows.
 - Added a compatibility matrix and run-bundle guidance.

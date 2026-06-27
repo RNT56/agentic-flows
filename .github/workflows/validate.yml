@@ -30,6 +30,9 @@ jobs:
       - name: Validate run bundles
         run: flowctl validate-run examples/runs/
 
+      - name: Replay feature run bundle
+        run: flowctl replay examples/runs/feature-implementation.run.json --json
+
       - name: Validate flow samples
         run: flowctl validate-samples
 

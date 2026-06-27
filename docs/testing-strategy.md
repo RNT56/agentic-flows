@@ -8,6 +8,7 @@ Run before pushing:
 flowctl validate
 flowctl validate-event examples/standalone/event.sample.json
 flowctl validate-run examples/runs/
+flowctl replay examples/runs/feature-implementation.run.json --json
 flowctl validate-samples
 flowctl report
 flowctl graph flows/coding/feature-implementation/flow.yaml --format json --output /tmp/feature-flow.graph.json
@@ -34,6 +35,7 @@ The GitHub Actions workflow should run:
 - flow validation
 - event validation
 - run bundle validation
+- run bundle replay
 - flow sample validation
 - flow catalog report
 - graph export

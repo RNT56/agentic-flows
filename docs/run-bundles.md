@@ -8,6 +8,12 @@ They are validated by:
 flowctl validate-run examples/runs/
 ```
 
+They can be replayed into a readable timeline by:
+
+```bash
+flowctl replay examples/runs/feature-implementation.run.json
+```
+
 ## Purpose
 
 A run bundle connects four things:
@@ -54,6 +60,7 @@ Completed runs must also include:
 - a `flow.completed` event
 - passed `gate.completed` events for every required quality gate
 - evidence for required gates
+- evidence ids or kinds matching the source flow's gate `evidence_refs`
 
 ## Validation rules
 
@@ -69,10 +76,21 @@ Completed runs must also include:
 - event names are declared in the source flow
 - required outputs exist for completed runs
 - required quality gates have passed evidence
+- passed gate evidence matches the gate's declared `evidence_refs`
+
+## Replay
+
+`flowctl replay` validates the run bundle first, then reconstructs:
+
+- run status and flow version
+- output ids
+- passed gate ids and evidence refs
+- ordered event timeline
+
+Use `--json` when another tool should consume the replay summary.
 
 ## Independent consumer usage
 
 ThinClaw, NilCore, CrustCore, or another project can emit run bundles if they choose to consume `agentic-flows`.
 
 That does not require shared runtime state. The bundle is the exchange format.
-
