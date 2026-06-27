@@ -8,6 +8,12 @@ This project follows semantic versioning for releases and keeps flow compatibili
 
 ### Added
 
+- No unreleased changes.
+
+## 0.1.1 - 2026-06-27
+
+### Added
+
 - Documented first optional adapter seams in the independent ThinClaw, NilCore, and CrustCore repos.
 
 ## 0.1.0 - 2026-06-27
