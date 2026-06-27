@@ -38,6 +38,8 @@ flowctl validate-run examples/runs/
 flowctl replay examples/runs/feature-implementation.run.json
 flowctl validate-samples
 flowctl report
+flowctl changelog-check
+flowctl check-links
 flowctl list
 flowctl graph flows/coding/feature-implementation/flow.yaml --format dot
 pytest

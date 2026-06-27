@@ -19,6 +19,7 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Add semantic regression fixtures for flow quality rules.
 - [x] Add run replay summaries for completed run bundles.
 - [x] Match passed gate evidence to declared gate evidence refs.
+- [x] Add changelog and local Markdown link checks.
 
 ## Flow catalog tasks
 
@@ -43,8 +44,8 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Add `flowctl validate-run`.
 - [x] Add `flowctl replay`.
 - [ ] Add `flowctl normalize` for deterministic YAML ordering.
-- [ ] Add `flowctl changelog-check` before first tagged release.
-- [ ] Add markdown link checking once docs stabilize.
+- [x] Add `flowctl changelog-check` before first tagged release.
+- [x] Add markdown link checking once docs stabilize.
 
 ## Optional adapter tasks
 

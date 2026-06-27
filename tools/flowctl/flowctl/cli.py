@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
+from urllib.parse import unquote
 
 try:
     import yaml
@@ -28,6 +30,17 @@ DEFAULT_SEARCH_ROOTS = [REPO_ROOT / "flows", REPO_ROOT / "templates"]
 DEFAULT_EVENT_SEARCH_ROOTS = [REPO_ROOT / "examples"]
 DEFAULT_RUN_SEARCH_ROOTS = [REPO_ROOT / "examples" / "runs"]
 DEFAULT_SAMPLE_SEARCH_ROOTS = [REPO_ROOT / "examples" / "samples"]
+DEFAULT_MARKDOWN_SEARCH_ROOTS = [
+    REPO_ROOT / "README.md",
+    REPO_ROOT / "CONTRIBUTING.md",
+    REPO_ROOT / "CHANGELOG.md",
+    REPO_ROOT / "docs",
+    REPO_ROOT / "flows",
+    REPO_ROOT / "templates",
+    REPO_ROOT / "examples",
+    REPO_ROOT / "integrations",
+]
+MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*]\(([^)]+)\)")
 
 
 def load_yaml(path: Path) -> dict[str, Any]:
@@ -120,6 +133,26 @@ def find_sample_files(paths: Iterable[Path]) -> list[Path]:
             files.append(path)
             continue
         files.extend(sorted(path.rglob("*.sample.json")))
+
+    return sorted(dict.fromkeys(files))
+
+
+def find_markdown_files(paths: Iterable[Path]) -> list[Path]:
+    selected = list(paths)
+    if not selected:
+        selected = DEFAULT_MARKDOWN_SEARCH_ROOTS
+
+    files: list[Path] = []
+    for path in selected:
+        path = path.resolve()
+        if path.is_file():
+            if path.suffix.lower() == ".md":
+                files.append(path)
+            continue
+        if not path.exists():
+            files.append(path)
+            continue
+        files.extend(sorted(path.rglob("*.md")))
 
     return sorted(dict.fromkeys(files))
 
@@ -924,6 +957,116 @@ def cmd_validate_samples(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_changelog_check(args: argparse.Namespace) -> int:
+    errors = validate_changelog(args.changelog, release=args.release)
+    if errors:
+        print(f"FAIL {args.changelog}", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    if args.release:
+        print(f"Changelog contains release {args.release}")
+    else:
+        print(f"Changelog check passed for {args.changelog}")
+    return 0
+
+
+def validate_changelog(path: Path, *, release: str | None = None) -> list[str]:
+    errors: list[str] = []
+    if not path.exists():
+        return [f"{path}: file does not exist"]
+
+    content = path.read_text(encoding="utf-8")
+    if not content.startswith("# Changelog"):
+        errors.append("missing top-level '# Changelog' heading")
+    unreleased = extract_changelog_section(content, "Unreleased")
+    if unreleased is None:
+        errors.append("missing '## Unreleased' section")
+    elif not re.search(r"^###\s+\w+", unreleased, flags=re.MULTILINE):
+        errors.append("'## Unreleased' section needs at least one subsection")
+    elif not re.search(r"^\s*-\s+\S+", unreleased, flags=re.MULTILINE):
+        errors.append("'## Unreleased' section needs at least one bullet")
+
+    for match in re.finditer(r"^##\s+([0-9]+\.[0-9]+\.[0-9]+)\s+-\s+([0-9]{4}-[0-9]{2}-[0-9]{2})\s*$", content, flags=re.MULTILINE):
+        date_value = match.group(2)
+        try:
+            datetime.strptime(date_value, "%Y-%m-%d")
+        except ValueError:
+            errors.append(f"release {match.group(1)} has invalid date {date_value}")
+
+    if release and not re.search(rf"^##\s+{re.escape(release)}\s+-\s+[0-9]{{4}}-[0-9]{{2}}-[0-9]{{2}}\s*$", content, flags=re.MULTILINE):
+        errors.append(f"missing release heading for {release}")
+
+    return errors
+
+
+def extract_changelog_section(content: str, heading: str) -> str | None:
+    match = re.search(rf"^##\s+{re.escape(heading)}\s*$", content, flags=re.MULTILINE)
+    if not match:
+        return None
+    next_heading = re.search(r"^##\s+", content[match.end() :], flags=re.MULTILINE)
+    end = match.end() + next_heading.start() if next_heading else len(content)
+    return content[match.end() : end]
+
+
+def cmd_check_links(args: argparse.Namespace) -> int:
+    files = find_markdown_files(args.paths)
+    if not files:
+        print("No Markdown files found", file=sys.stderr)
+        return 1
+
+    failures = 0
+    for path in files:
+        if not path.exists():
+            print(f"FAIL {path}: path does not exist", file=sys.stderr)
+            failures += 1
+            continue
+        errors = validate_markdown_links(path)
+        if errors:
+            failures += 1
+            print(f"FAIL {path}", file=sys.stderr)
+            for error in errors:
+                print(f"  - {error}", file=sys.stderr)
+        elif args.verbose:
+            print(f"OK   {path}")
+
+    if failures:
+        print(f"{failures} Markdown file(s) failed link validation", file=sys.stderr)
+        return 1
+
+    print(f"Validated links in {len(files)} Markdown file(s)")
+    return 0
+
+
+def validate_markdown_links(path: Path) -> list[str]:
+    errors: list[str] = []
+    content = path.read_text(encoding="utf-8")
+    for line_number, line in enumerate(content.splitlines(), start=1):
+        for match in MARKDOWN_LINK_PATTERN.finditer(line):
+            target = match.group(1).strip()
+            if should_skip_markdown_link(target):
+                continue
+            target_path_text = unquote(target.split("#", 1)[0])
+            if not target_path_text:
+                continue
+            target_path = (path.parent / target_path_text).resolve()
+            if not target_path.exists():
+                errors.append(f"line {line_number}: missing local link target {target}")
+    return errors
+
+
+def should_skip_markdown_link(target: str) -> bool:
+    lowered = target.lower()
+    return (
+        lowered.startswith("http://")
+        or lowered.startswith("https://")
+        or lowered.startswith("mailto:")
+        or lowered.startswith("tel:")
+        or lowered.startswith("app://")
+    )
+
+
 def production_flow_ids(flow_schema: dict[str, Any]) -> set[str]:
     flow_ids: set[str] = set()
     for path in find_flow_files([REPO_ROOT / "flows"]):
@@ -1183,6 +1326,16 @@ def build_parser() -> argparse.ArgumentParser:
     validate_samples.add_argument("--sample-schema", type=Path, default=DEFAULT_SAMPLE_SCHEMA, help="Path to the sample JSON Schema.")
     validate_samples.add_argument("-v", "--verbose", action="store_true", help="Print each passing file.")
     validate_samples.set_defaults(func=cmd_validate_samples)
+
+    changelog_check = subparsers.add_parser("changelog-check", help="Validate changelog structure.")
+    changelog_check.add_argument("--changelog", type=Path, default=REPO_ROOT / "CHANGELOG.md", help="Path to CHANGELOG.md.")
+    changelog_check.add_argument("--release", help="Require a dated release heading for this version.")
+    changelog_check.set_defaults(func=cmd_changelog_check)
+
+    check_links = subparsers.add_parser("check-links", help="Validate local Markdown links.")
+    check_links.add_argument("paths", nargs="*", type=Path, help="Markdown files or directories. Defaults to repo docs surfaces.")
+    check_links.add_argument("-v", "--verbose", action="store_true", help="Print each passing file.")
+    check_links.set_defaults(func=cmd_check_links)
 
     list_cmd = subparsers.add_parser("list", help="List valid flow definitions.")
     list_cmd.add_argument("paths", nargs="*", type=Path, help="Flow files or directories. Defaults to flows/ and templates/.")

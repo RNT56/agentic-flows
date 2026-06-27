@@ -13,10 +13,12 @@
 3. Confirm GitHub Actions pass on `main`.
 4. Move entries from `Unreleased` to a dated changelog section.
 5. Confirm docs match command output.
-6. Confirm schema and flow versions are correct.
-7. Tag the release.
-8. Push the tag.
-9. Add release notes from `CHANGELOG.md`.
+6. Run `flowctl changelog-check --release <version>`.
+7. Run `flowctl check-links`.
+8. Confirm schema and flow versions are correct.
+9. Tag the release.
+10. Push the tag.
+11. Add release notes from `CHANGELOG.md`.
 
 ## Tag format
 

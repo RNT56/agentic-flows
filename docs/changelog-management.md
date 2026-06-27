@@ -41,7 +41,8 @@ Before tagging:
 2. Add the release version and date.
 3. Confirm version bumps match the change type.
 4. Link migration notes for breaking changes.
-5. Leave a fresh empty `Unreleased` section.
+5. Run `flowctl changelog-check --release <version>`.
+6. Leave a fresh empty `Unreleased` section.
 
 ## Changelog quality bar
 
@@ -58,4 +59,3 @@ Avoid:
 ```text
 - Updated files.
 ```
-

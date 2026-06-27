@@ -11,6 +11,8 @@ flowctl validate-run examples/runs/
 flowctl replay examples/runs/feature-implementation.run.json --json
 flowctl validate-samples
 flowctl report
+flowctl changelog-check
+flowctl check-links
 flowctl graph flows/coding/feature-implementation/flow.yaml --format json --output /tmp/feature-flow.graph.json
 pytest
 git diff --check
@@ -38,6 +40,8 @@ The GitHub Actions workflow should run:
 - run bundle replay
 - flow sample validation
 - flow catalog report
+- changelog structure validation
+- local Markdown link validation
 - graph export
 - test suite
 

@@ -39,6 +39,12 @@ jobs:
       - name: Generate flow report
         run: flowctl report
 
+      - name: Check changelog
+        run: flowctl changelog-check
+
+      - name: Check local Markdown links
+        run: flowctl check-links
+
       - name: Export feature flow graph
         run: flowctl graph flows/coding/feature-implementation/flow.yaml --format json --output /tmp/feature-flow.graph.json
 

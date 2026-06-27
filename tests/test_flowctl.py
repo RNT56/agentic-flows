@@ -8,12 +8,15 @@ from flowctl.cli import (
     build_report_summary,
     find_flow_files,
     find_json_files,
+    find_markdown_files,
     find_run_files,
     find_sample_files,
     load_json,
     load_yaml,
     validate_event_document,
     validate_flow_document,
+    validate_changelog,
+    validate_markdown_links,
     validate_run_document,
     validate_sample_document,
 )
@@ -169,6 +172,23 @@ def test_flow_samples_are_valid() -> None:
 
     for path in find_sample_files([Path("examples/samples")]):
         errors = validate_sample_document(load_json(path), sample_schema, flow_schema, sample_path=path)
+        if errors:
+            failures.append(f"{path}: {errors}")
+
+    assert failures == []
+
+
+def test_changelog_structure_is_valid() -> None:
+    errors = validate_changelog(Path("CHANGELOG.md"))
+
+    assert errors == []
+
+
+def test_repository_markdown_links_are_valid() -> None:
+    failures: list[str] = []
+
+    for path in find_markdown_files([]):
+        errors = validate_markdown_links(path)
         if errors:
             failures.append(f"{path}: {errors}")
 

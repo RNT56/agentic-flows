@@ -16,6 +16,8 @@ flowctl validate-run examples/runs/
 flowctl replay examples/runs/feature-implementation.run.json --json
 flowctl validate-samples
 flowctl report
+flowctl changelog-check
+flowctl check-links
 pytest
 ```
 
