@@ -1,0 +1,84 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "collaboration.multi-agent-supervisor",
+    "version": "0.1.0",
+    "source": "flows/collaboration/multi-agent-supervisor/flow.yaml"
+  },
+  "run": {
+    "id": "adapter-nilcore-supervisor-0001",
+    "core": "nilcore",
+    "status": "completed",
+    "started_at": "2026-06-27T17:25:00Z",
+    "completed_at": "2026-06-27T17:31:00Z"
+  },
+  "outputs": {
+    "consolidated_result": "NilCore contract smoke dispatched lanes and reconciled worker evidence."
+  },
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "adapter-nilcore-supervisor-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T17:25:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "adapter-nilcore-supervisor-0001",
+      "node_id": "reconcile",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T17:30:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "lanes-non-overlapping",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "lane-plan",
+          "kind": "markdown",
+          "uri": "artifact://adapters/nilcore-supervisor/lane-plan.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "adapter-nilcore-supervisor-0001",
+      "node_id": "reconcile",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T17:30:30Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "worker-evidence-present",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "worker-results",
+          "kind": "json",
+          "uri": "artifact://adapters/nilcore-supervisor/worker-results.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "adapter-nilcore-supervisor-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T17:31:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "crustcore",
+  "flow": {
+    "id": "coding.feature-implementation",
+    "version": "0.1.0",
+    "source": "flows/coding/feature-implementation/flow.yaml"
+  },
+  "capability_support": [
+    "repo.checkout",
+    "patch.apply",
+    "command.run",
+    "evidence.capture",
+    "human.review"
+  ],
+  "node_type_mappings": {
+    "intake": "proof request intake",
+    "plan": "verification plan",
+    "agent_task": "patch-producing worker",
+    "tool": "command evidence runner",
+    "verifier": "proof gate verifier",
+    "approval": "human proof exception",
+    "finalizer": "verified patch closeout"
+  },
+  "run_bundle": "runs/crustcore-feature-implementation.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate 'project-checks-pass'"
+  },
+  "notes": "Repo-local contract smoke for a possible CrustCore verifier adapter."
+}

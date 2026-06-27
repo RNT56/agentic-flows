@@ -27,6 +27,9 @@ jobs:
       - name: Check flow normalization
         run: flowctl normalize
 
+      - name: Validate adapter smoke manifests
+        run: flowctl validate-adapter-smoke examples/adapters/
+
       - name: Validate event examples
         run: flowctl validate-event examples/
 

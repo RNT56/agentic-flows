@@ -21,6 +21,14 @@ Validate a single flow:
 flowctl validate flows/coding/feature-implementation/flow.yaml
 ```
 
+## Validate adapter smoke manifests
+
+```bash
+flowctl validate-adapter-smoke examples/adapters/
+```
+
+Adapter smoke manifests prove repo-local optional-consumer mappings. They do not claim that ThinClaw, NilCore, or CrustCore have already integrated this repo.
+
 ## Validate events
 
 ```bash

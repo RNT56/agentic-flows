@@ -22,6 +22,7 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Add changelog and local Markdown link checks.
 - [x] Add deterministic flow normalization.
 - [x] Add multi-file event stream validation.
+- [x] Add repo-local adapter smoke manifests.
 
 ## Flow catalog tasks
 
@@ -51,6 +52,9 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 
 ## Optional adapter tasks
 
+- [x] Add repo-local ThinClaw adapter smoke manifest.
+- [x] Add repo-local NilCore adapter smoke manifest.
+- [x] Add repo-local CrustCore adapter smoke manifest.
 - [ ] ThinClaw: optionally load a flow into routine state.
 - [ ] ThinClaw: persist approval decisions with source flow version.
 - [ ] NilCore: optionally dispatch `agent_task` nodes as worker jobs.

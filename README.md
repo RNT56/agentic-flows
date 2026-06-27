@@ -34,6 +34,7 @@ python -m pip install -e . pytest
 
 flowctl validate
 flowctl normalize
+flowctl validate-adapter-smoke examples/adapters/
 flowctl validate-event examples/standalone/event.sample.json
 flowctl validate-stream examples/streams/
 flowctl validate-run examples/runs/

@@ -27,6 +27,7 @@ This folder is the operating handbook for `agentic-flows`.
 - [Architecture](architecture.md): repo layers and runtime responsibilities.
 - [Core integration](core-integration.md): shared adapter contract for ThinClaw, NilCore, and CrustCore.
 - [Adapter implementation plan](adapter-implementation-plan.md): staged work needed in each core.
+- [Adapter smoke manifests](adapter-smoke.md): repo-local optional-consumer contract evidence.
 
 ## Release and maintenance
 

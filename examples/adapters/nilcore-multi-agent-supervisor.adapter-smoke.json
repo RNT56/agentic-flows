@@ -1,0 +1,25 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "collaboration.multi-agent-supervisor",
+    "version": "0.1.0",
+    "source": "flows/collaboration/multi-agent-supervisor/flow.yaml"
+  },
+  "capability_support": [
+    "task.decompose",
+    "worker.dispatch",
+    "evidence.capture",
+    "human.review"
+  ],
+  "node_type_mappings": {
+    "intake": "supervisor intake payload",
+    "plan": "lane decomposition plan",
+    "agent_task": "worker dispatch job",
+    "verifier": "supervisor reconcile check",
+    "approval": "operator merge decision",
+    "finalizer": "supervisor closeout result"
+  },
+  "run_bundle": "runs/nilcore-multi-agent-supervisor.run.json",
+  "notes": "Repo-local contract smoke for a possible NilCore worker-dispatch adapter."
+}

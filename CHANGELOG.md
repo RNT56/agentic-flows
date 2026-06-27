@@ -27,6 +27,7 @@ This project follows semantic versioning for releases and keeps flow compatibili
 - Added `flowctl changelog-check` and `flowctl check-links` with CI coverage.
 - Added `flowctl normalize` for deterministic flow YAML ordering with CI coverage.
 - Added `schemas/event-stream.schema.json` and `flowctl validate-stream` for multi-file event streams.
+- Added `schemas/adapter-smoke.schema.json`, `flowctl validate-adapter-smoke`, and repo-local adapter smoke examples.
 - Added a completed feature implementation run example.
 - Added completed standalone run examples for human review and multi-agent supervisor flows.
 - Added a compatibility matrix and run-bundle guidance.

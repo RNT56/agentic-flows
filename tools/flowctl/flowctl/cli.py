@@ -23,11 +23,13 @@ except ImportError as exc:  # pragma: no cover - exercised by users without deps
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SCHEMA = REPO_ROOT / "schemas" / "flow.schema.json"
+DEFAULT_ADAPTER_SMOKE_SCHEMA = REPO_ROOT / "schemas" / "adapter-smoke.schema.json"
 DEFAULT_EVENT_SCHEMA = REPO_ROOT / "schemas" / "event.schema.json"
 DEFAULT_EVENT_STREAM_SCHEMA = REPO_ROOT / "schemas" / "event-stream.schema.json"
 DEFAULT_RUN_SCHEMA = REPO_ROOT / "schemas" / "run.schema.json"
 DEFAULT_SAMPLE_SCHEMA = REPO_ROOT / "schemas" / "sample.schema.json"
 DEFAULT_SEARCH_ROOTS = [REPO_ROOT / "flows", REPO_ROOT / "templates"]
+DEFAULT_ADAPTER_SMOKE_SEARCH_ROOTS = [REPO_ROOT / "examples" / "adapters"]
 DEFAULT_EVENT_SEARCH_ROOTS = [REPO_ROOT / "examples"]
 DEFAULT_EVENT_STREAM_SEARCH_ROOTS = [REPO_ROOT / "examples" / "streams"]
 DEFAULT_RUN_SEARCH_ROOTS = [REPO_ROOT / "examples" / "runs"]
@@ -144,6 +146,25 @@ def find_json_files(paths: Iterable[Path]) -> list[Path]:
     return sorted(dict.fromkeys(files))
 
 
+def find_adapter_smoke_files(paths: Iterable[Path]) -> list[Path]:
+    selected = list(paths)
+    if not selected:
+        selected = DEFAULT_ADAPTER_SMOKE_SEARCH_ROOTS
+
+    files: list[Path] = []
+    for path in selected:
+        path = path.resolve()
+        if path.is_file():
+            files.append(path)
+            continue
+        if not path.exists():
+            files.append(path)
+            continue
+        files.extend(sorted(path.rglob("*.adapter-smoke.json")))
+
+    return sorted(dict.fromkeys(files))
+
+
 def find_run_files(paths: Iterable[Path]) -> list[Path]:
     selected = list(paths)
     if not selected:
@@ -224,6 +245,7 @@ def find_markdown_files(paths: Iterable[Path]) -> list[Path]:
 def is_structured_example_json(path: Path) -> bool:
     return (
         path.name.endswith(".run.json")
+        or path.name.endswith(".adapter-smoke.json")
         or path.name.endswith(".stream.json")
         or ("samples" in path.parts and path.name.endswith(".sample.json"))
     )
@@ -519,6 +541,137 @@ def validate_event_stream_document(
     return errors
 
 
+def validate_adapter_smoke_document(
+    document: dict[str, Any],
+    adapter_schema: dict[str, Any],
+    flow_schema: dict[str, Any],
+    run_schema: dict[str, Any],
+    event_schema: dict[str, Any],
+    stream_schema: dict[str, Any],
+    *,
+    adapter_path: Path | None = None,
+) -> list[str]:
+    validator = Draft202012Validator(adapter_schema, format_checker=FormatChecker())
+    errors = [
+        f"{format_error_path(error.path)}: {error.message}"
+        for error in sorted(validator.iter_errors(document), key=lambda err: list(err.path))
+    ]
+
+    flow_info = document.get("flow", {})
+    if not isinstance(flow_info, dict):
+        return errors
+
+    flow_document: dict[str, Any] | None = None
+    flow_source = flow_info.get("source")
+    if isinstance(flow_source, str):
+        flow_path = resolve_flow_source(flow_source, adapter_path)
+        if not flow_path.exists():
+            errors.append(f"$.flow.source: flow file does not exist: {flow_source}")
+        else:
+            try:
+                flow_document = load_yaml(flow_path)
+                for error in validate_flow_document(flow_document, flow_schema):
+                    errors.append(f"$.flow.source({flow_source}): {error}")
+            except Exception as exc:  # noqa: BLE001 - CLI should report adapter context
+                errors.append(f"$.flow.source: {exc}")
+
+    if not flow_document:
+        return errors
+
+    consumer = document.get("consumer")
+    if flow_info.get("id") != flow_document.get("id"):
+        errors.append("$.flow.id: does not match source flow id")
+    if flow_info.get("version") != flow_document.get("version"):
+        errors.append("$.flow.version: does not match source flow version")
+
+    supported_cores = flow_document.get("runtime", {}).get("supported_cores", [])
+    if consumer not in supported_cores:
+        errors.append("$.consumer: is not listed in source flow runtime.supported_cores")
+
+    required_capabilities = set(flow_document.get("runtime", {}).get("required_capabilities", []))
+    supported_capabilities = {
+        capability for capability in document.get("capability_support", []) if isinstance(capability, str)
+    }
+    missing_capabilities = sorted(required_capabilities - supported_capabilities)
+    for capability in missing_capabilities:
+        errors.append(f"$.capability_support: missing required capability '{capability}'")
+
+    mappings = document.get("node_type_mappings", {})
+    if isinstance(mappings, dict):
+        node_types = {
+            node["type"]
+            for node in flow_document.get("nodes", [])
+            if isinstance(node, dict) and isinstance(node.get("type"), str)
+        }
+        missing_node_types = sorted(node_type for node_type in node_types if node_type not in mappings)
+        for node_type in missing_node_types:
+            errors.append(f"$.node_type_mappings: missing mapping for node type '{node_type}'")
+
+    run_bundle = document.get("run_bundle")
+    if isinstance(run_bundle, str):
+        run_path = resolve_adapter_artifact_source(run_bundle, adapter_path)
+        if not run_path.exists():
+            errors.append(f"$.run_bundle: file does not exist: {run_bundle}")
+        else:
+            try:
+                run_document = load_json(run_path)
+                run_errors = validate_run_document(run_document, run_schema, event_schema, flow_schema, run_path=run_path)
+                for error in run_errors:
+                    errors.append(f"$.run_bundle({run_bundle}): {error}")
+                run_core = run_document.get("run", {}).get("core") if isinstance(run_document.get("run"), dict) else None
+                if consumer and run_core != consumer:
+                    errors.append("$.run_bundle.run.core: does not match adapter consumer")
+            except Exception as exc:  # noqa: BLE001 - CLI should report adapter context
+                errors.append(f"$.run_bundle: {exc}")
+
+    event_stream = document.get("event_stream")
+    if isinstance(event_stream, str):
+        stream_path = resolve_adapter_artifact_source(event_stream, adapter_path)
+        if not stream_path.exists():
+            errors.append(f"$.event_stream: file does not exist: {event_stream}")
+        else:
+            try:
+                stream_document = load_json(stream_path)
+                stream_errors = validate_event_stream_document(
+                    stream_document,
+                    stream_schema,
+                    event_schema,
+                    flow_schema,
+                    stream_path=stream_path,
+                )
+                for error in stream_errors:
+                    errors.append(f"$.event_stream({event_stream}): {error}")
+            except Exception as exc:  # noqa: BLE001 - CLI should report adapter context
+                errors.append(f"$.event_stream: {exc}")
+
+    negative_run_bundle = document.get("negative_run_bundle")
+    if isinstance(negative_run_bundle, dict):
+        source = negative_run_bundle.get("source")
+        expected_error = negative_run_bundle.get("expected_error")
+        if isinstance(source, str) and isinstance(expected_error, str):
+            negative_path = resolve_adapter_artifact_source(source, adapter_path)
+            if not negative_path.exists():
+                errors.append(f"$.negative_run_bundle.source: file does not exist: {source}")
+            else:
+                try:
+                    negative_document = load_json(negative_path)
+                    negative_errors = validate_run_document(
+                        negative_document,
+                        run_schema,
+                        event_schema,
+                        flow_schema,
+                        run_path=negative_path,
+                    )
+                    if not negative_errors:
+                        errors.append("$.negative_run_bundle: expected fixture to fail validation")
+                    elif not any(expected_error in error for error in negative_errors):
+                        errors.append(f"$.negative_run_bundle.expected_error: did not match validation errors for {source}")
+                except Exception as exc:  # noqa: BLE001 - CLI should report adapter context
+                    errors.append(f"$.negative_run_bundle.source: {exc}")
+
+    return errors
+
+
 def load_event_stream_events(event_sources: Any, stream_path: Path | None, errors: list[str]) -> list[dict[str, Any]]:
     events: list[dict[str, Any]] = []
     if not isinstance(event_sources, list):
@@ -761,6 +914,16 @@ def resolve_stream_event_source(source: str, stream_path: Path | None) -> Path:
     return stream_path.parent / source_path
 
 
+def resolve_adapter_artifact_source(source: str, adapter_path: Path | None) -> Path:
+    source_path = Path(source)
+    if source_path.is_absolute():
+        return source_path
+    repo_relative = REPO_ROOT / source_path
+    if repo_relative.exists() or adapter_path is None:
+        return repo_relative
+    return adapter_path.parent / source_path
+
+
 def parse_rfc3339(value: str) -> datetime | None:
     try:
         return datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -981,6 +1144,55 @@ def cmd_validate(args: argparse.Namespace) -> int:
         return 1
 
     print(f"Validated {len(flow_files)} flow file(s)")
+    return 0
+
+
+def cmd_validate_adapter_smoke(args: argparse.Namespace) -> int:
+    adapter_schema = load_json(args.adapter_schema)
+    flow_schema = load_json(args.schema)
+    run_schema = load_json(args.run_schema)
+    event_schema = load_json(args.event_schema)
+    stream_schema = load_json(args.stream_schema)
+    adapter_files = find_adapter_smoke_files(args.paths)
+    if not adapter_files:
+        print("No adapter smoke files found", file=sys.stderr)
+        return 1
+
+    failures = 0
+    for path in adapter_files:
+        if not path.exists():
+            print(f"FAIL {path}: path does not exist", file=sys.stderr)
+            failures += 1
+            continue
+        try:
+            document = load_json(path)
+            errors = validate_adapter_smoke_document(
+                document,
+                adapter_schema,
+                flow_schema,
+                run_schema,
+                event_schema,
+                stream_schema,
+                adapter_path=path,
+            )
+        except Exception as exc:  # noqa: BLE001 - CLI should report file context
+            print(f"FAIL {path}: {exc}", file=sys.stderr)
+            failures += 1
+            continue
+
+        if errors:
+            failures += 1
+            print(f"FAIL {path}", file=sys.stderr)
+            for error in errors:
+                print(f"  - {error}", file=sys.stderr)
+        elif args.verbose:
+            print(f"OK   {path}")
+
+    if failures:
+        print(f"{failures} adapter smoke file(s) failed validation", file=sys.stderr)
+        return 1
+
+    print(f"Validated {len(adapter_files)} adapter smoke file(s)")
     return 0
 
 
@@ -1669,6 +1881,15 @@ def build_parser() -> argparse.ArgumentParser:
     validate.add_argument("paths", nargs="*", type=Path, help="Flow files or directories. Defaults to flows/ and templates/.")
     validate.add_argument("-v", "--verbose", action="store_true", help="Print each passing file.")
     validate.set_defaults(func=cmd_validate)
+
+    validate_adapter = subparsers.add_parser("validate-adapter-smoke", help="Validate adapter smoke manifests.")
+    validate_adapter.add_argument("paths", nargs="*", type=Path, help="Adapter smoke files or directories. Defaults to examples/adapters/.")
+    validate_adapter.add_argument("--adapter-schema", type=Path, default=DEFAULT_ADAPTER_SMOKE_SCHEMA, help="Path to the adapter smoke JSON Schema.")
+    validate_adapter.add_argument("--run-schema", type=Path, default=DEFAULT_RUN_SCHEMA, help="Path to the run bundle JSON Schema.")
+    validate_adapter.add_argument("--event-schema", type=Path, default=DEFAULT_EVENT_SCHEMA, help="Path to the event JSON Schema.")
+    validate_adapter.add_argument("--stream-schema", type=Path, default=DEFAULT_EVENT_STREAM_SCHEMA, help="Path to the event stream JSON Schema.")
+    validate_adapter.add_argument("-v", "--verbose", action="store_true", help="Print each passing file.")
+    validate_adapter.set_defaults(func=cmd_validate_adapter_smoke)
 
     normalize = subparsers.add_parser("normalize", help="Check or rewrite flow.yaml files into canonical YAML order.")
     normalize.add_argument("paths", nargs="*", type=Path, help="Flow files or directories. Defaults to flows/ and templates/.")

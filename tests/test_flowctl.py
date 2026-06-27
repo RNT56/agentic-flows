@@ -3,11 +3,13 @@ from pathlib import Path
 import json
 
 from flowctl.cli import (
+    DEFAULT_ADAPTER_SMOKE_SCHEMA,
     DEFAULT_EVENT_STREAM_SCHEMA,
     DEFAULT_SCHEMA,
     build_replay_summary,
     build_report_summary,
     dump_yaml,
+    find_adapter_smoke_files,
     find_event_stream_files,
     find_flow_files,
     find_json_files,
@@ -17,6 +19,7 @@ from flowctl.cli import (
     load_json,
     load_yaml,
     normalize_flow_document,
+    validate_adapter_smoke_document,
     validate_event_document,
     validate_event_stream_document,
     validate_flow_document,
@@ -130,9 +133,16 @@ def test_event_discovery_excludes_run_bundles() -> None:
 
     assert Path("examples/standalone/event.sample.json").resolve() in paths
     assert Path("examples/runs/feature-implementation.run.json").resolve() not in paths
+    assert Path("examples/adapters/thinclaw-human-review.adapter-smoke.json").resolve() not in paths
     assert Path("examples/samples/coding/feature-implementation.sample.json").resolve() not in paths
     assert Path("examples/streams/feature-implementation/feature-implementation.stream.json").resolve() not in paths
     assert Path("examples/streams/feature-implementation/events/001-flow-started.json").resolve() in paths
+
+
+def test_adapter_smoke_discovery_finds_manifests() -> None:
+    paths = find_adapter_smoke_files([Path("examples/adapters")])
+
+    assert Path("examples/adapters/thinclaw-human-review.adapter-smoke.json").resolve() in paths
 
 
 def test_event_stream_discovery_finds_stream_manifests() -> None:
@@ -191,6 +201,30 @@ def test_repository_event_streams_are_valid() -> None:
             event_schema,
             flow_schema,
             stream_path=path,
+        )
+        if errors:
+            failures.append(f"{path}: {errors}")
+
+    assert failures == []
+
+
+def test_repository_adapter_smokes_are_valid() -> None:
+    adapter_schema = load_json(DEFAULT_ADAPTER_SMOKE_SCHEMA)
+    flow_schema = load_json(DEFAULT_SCHEMA)
+    run_schema = load_json(Path("schemas/run.schema.json"))
+    event_schema = load_json(Path("schemas/event.schema.json"))
+    stream_schema = load_json(DEFAULT_EVENT_STREAM_SCHEMA)
+    failures: list[str] = []
+
+    for path in find_adapter_smoke_files([Path("examples/adapters")]):
+        errors = validate_adapter_smoke_document(
+            load_json(path),
+            adapter_schema,
+            flow_schema,
+            run_schema,
+            event_schema,
+            stream_schema,
+            adapter_path=path,
         )
         if errors:
             failures.append(f"{path}: {errors}")

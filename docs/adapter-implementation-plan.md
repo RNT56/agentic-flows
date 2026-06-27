@@ -15,6 +15,18 @@ This plan tracks how independent projects such as ThinClaw, NilCore, and CrustCo
 9. Attach required gate evidence.
 10. Return outputs matching `contracts.outputs`.
 
+## Repo-local smoke evidence
+
+This repository includes adapter smoke manifests under `examples/adapters/`.
+
+Run:
+
+```bash
+flowctl validate-adapter-smoke examples/adapters/
+```
+
+These manifests prove contract coverage in this repo. They do not prove that ThinClaw, NilCore, or CrustCore have implemented adapters in their own repositories.
+
 ## ThinClaw lane
 
 Goal: optionally load flows as durable routines.

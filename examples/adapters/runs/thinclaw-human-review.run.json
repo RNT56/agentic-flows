@@ -1,0 +1,65 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "general.human-in-the-loop-review",
+    "version": "0.1.0",
+    "source": "flows/general/human-in-the-loop-review/flow.yaml"
+  },
+  "run": {
+    "id": "adapter-thinclaw-human-review-0001",
+    "core": "thinclaw",
+    "status": "completed",
+    "started_at": "2026-06-27T17:20:00Z",
+    "completed_at": "2026-06-27T17:22:00Z"
+  },
+  "outputs": {
+    "decision": {
+      "status": "approve",
+      "rationale": "Operator accepted the reviewed output."
+    }
+  },
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "general.human-in-the-loop-review",
+      "flow_version": "0.1.0",
+      "run_id": "adapter-thinclaw-human-review-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T17:20:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "general.human-in-the-loop-review",
+      "flow_version": "0.1.0",
+      "run_id": "adapter-thinclaw-human-review-0001",
+      "node_id": "approve",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T17:21:30Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "decision-recorded",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "decision-record",
+          "kind": "json",
+          "uri": "artifact://adapters/thinclaw-human-review/decision.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "general.human-in-the-loop-review",
+      "flow_version": "0.1.0",
+      "run_id": "adapter-thinclaw-human-review-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T17:22:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    }
+  ]
+}

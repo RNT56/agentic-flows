@@ -1,0 +1,85 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "coding.feature-implementation",
+    "version": "0.1.0",
+    "source": "flows/coding/feature-implementation/flow.yaml"
+  },
+  "run": {
+    "id": "adapter-crustcore-feature-0001",
+    "core": "crustcore",
+    "status": "completed",
+    "started_at": "2026-06-27T17:35:00Z",
+    "completed_at": "2026-06-27T17:40:00Z"
+  },
+  "outputs": {
+    "patch": "artifact://adapters/crustcore-feature/diff.patch",
+    "closeout": "artifact://adapters/crustcore-feature/closeout.md"
+  },
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "adapter-crustcore-feature-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T17:35:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "adapter-crustcore-feature-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T17:39:00Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "project-checks-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "test-log",
+          "uri": "artifact://adapters/crustcore-feature/test.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "adapter-crustcore-feature-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T17:39:30Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "acceptance-covered",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "review-notes",
+          "kind": "markdown",
+          "uri": "artifact://adapters/crustcore-feature/review-notes.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "adapter-crustcore-feature-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T17:40:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    }
+  ]
+}

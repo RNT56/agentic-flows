@@ -1,0 +1,23 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "thinclaw",
+  "flow": {
+    "id": "general.human-in-the-loop-review",
+    "version": "0.1.0",
+    "source": "flows/general/human-in-the-loop-review/flow.yaml"
+  },
+  "capability_support": [
+    "evidence.capture",
+    "human.review",
+    "decision.record"
+  ],
+  "node_type_mappings": {
+    "intake": "routine intake state",
+    "verifier": "pre-review assessment state",
+    "approval": "operator decision state with flow version",
+    "agent_task": "revision routine state",
+    "finalizer": "routine closeout state"
+  },
+  "run_bundle": "runs/thinclaw-human-review.run.json",
+  "notes": "Repo-local contract smoke for a possible ThinClaw routine loader."
+}

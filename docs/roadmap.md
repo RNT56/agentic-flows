@@ -63,7 +63,7 @@ Acceptance gates:
 
 ## Phase 3: Optional adapter smoke tests
 
-Status: planned.
+Status: in progress.
 
 Goals:
 
@@ -74,6 +74,7 @@ Goals:
 
 Acceptance gates:
 
+- Repo-local adapter smoke manifests validate for ThinClaw, NilCore, and CrustCore.
 - Each participating project can load at least one declared-compatible flow without per-flow custom parsing.
 - Each participating project can reject unsupported capabilities.
 - Each participating project can emit or consume events compatible with `schemas/event.schema.json`.
