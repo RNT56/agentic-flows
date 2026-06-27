@@ -11,5 +11,4 @@ The core shape is:
 5. Request human approval when risk requires it.
 6. Close out with evidence.
 
-NilCore should own the sandboxed work execution, CrustCore should own verifier-backed patch proof when available, and ThinClaw should own the operator-facing routine and memory of the decision.
-
+If those independent projects choose to consume this flow, NilCore can map the execution work to sandboxed jobs, CrustCore can map the gates to verifier-backed proof, and ThinClaw can map approvals and closeout to operator-facing routine state.

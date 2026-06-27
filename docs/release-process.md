@@ -47,5 +47,4 @@ Do not release `v1.0.0` until:
 - at least one stable flow exists
 - event validation is implemented
 - run validation is implemented
-- each supported core has adapter evidence for at least one flow
-
+- each declared optional consumer has adapter evidence for at least one flow

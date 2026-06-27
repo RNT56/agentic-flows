@@ -32,6 +32,23 @@ Validate all event JSON files in a folder:
 flowctl validate-event examples/
 ```
 
+## Validate run bundles
+
+```bash
+flowctl validate-run examples/runs/
+```
+
+Run bundles connect a completed event stream back to the source flow and required gates.
+
+## Generate a flow report
+
+```bash
+flowctl report
+flowctl report --json
+```
+
+The report summarizes flow stability, optional consumers, node counts, gate counts, and catalog issues.
+
 ## List flows
 
 ```bash

@@ -1,8 +1,8 @@
 # NilCore integration
 
-NilCore should consume `agentic-flows` as a worker execution and supervisor plan.
+NilCore can consume `agentic-flows` as a worker execution and supervisor plan if that independent project chooses to add an adapter.
 
-Expected first adapter:
+Possible first adapter:
 
 1. Load and validate a flow.
 2. Dispatch `agent_task` nodes to sandboxed workers.
@@ -11,4 +11,3 @@ Expected first adapter:
 5. Return lane and node evidence to the caller.
 
 See [go/README.md](go/README.md) for the initial Go adapter shape.
-

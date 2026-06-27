@@ -1,6 +1,6 @@
 # Adapter implementation plan
 
-This plan tracks how ThinClaw, NilCore, and CrustCore should consume `agentic-flows`.
+This plan tracks how independent projects such as ThinClaw, NilCore, and CrustCore could choose to consume `agentic-flows`.
 
 ## Shared sequence
 
@@ -17,7 +17,7 @@ This plan tracks how ThinClaw, NilCore, and CrustCore should consume `agentic-fl
 
 ## ThinClaw lane
 
-Goal: load flows as durable routines.
+Goal: optionally load flows as durable routines.
 
 Tasks:
 
@@ -28,11 +28,11 @@ Tasks:
 
 Acceptance gate:
 
-- ThinClaw can create a routine from a flow and record an approval event.
+- ThinClaw can create a routine from a flow and record an approval event without requiring changes in NilCore or CrustCore.
 
 ## NilCore lane
 
-Goal: use flows as supervised worker plans.
+Goal: optionally use flows as supervised worker plans.
 
 Tasks:
 
@@ -44,11 +44,11 @@ Tasks:
 
 Acceptance gate:
 
-- NilCore can dispatch a two-node worker plan and return valid events.
+- NilCore can dispatch a two-node worker plan and return valid events without requiring changes in ThinClaw or CrustCore.
 
 ## CrustCore lane
 
-Goal: use flows as verifier and proof contracts.
+Goal: optionally use flows as verifier and proof contracts.
 
 Tasks:
 
@@ -60,11 +60,11 @@ Tasks:
 
 Acceptance gate:
 
-- CrustCore rejects completion without required gate evidence and accepts completion when evidence is present.
+- CrustCore rejects completion without required gate evidence and accepts completion when evidence is present without requiring changes in ThinClaw or NilCore.
 
 ## Cross-core compatibility
 
-A flow can be promoted to stable only after each listed core has adapter evidence.
+A flow can be promoted to stable for a listed optional consumer only after that independent project has adapter evidence.
 
 Required evidence:
 
@@ -73,4 +73,3 @@ Required evidence:
 - event validation result
 - quality gate validation result
 - notes for any adapter-specific mapping
-

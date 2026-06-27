@@ -11,7 +11,7 @@ This repository owns:
 - examples
 - documentation and release process
 
-The consuming cores own:
+Independent consuming projects own:
 
 - runtime execution
 - sandboxing
@@ -35,7 +35,7 @@ Require review for:
 - Additive schema changes are allowed within the same major spec version.
 - Breaking schema changes require a new `spec_version`.
 - Flows should not remove required inputs, outputs, or gates without a major flow version bump.
-- A flow should not list a core as supported without loader evidence once adapter smoke tests exist.
+- A flow should not list an optional consumer as stable without loader evidence once adapter smoke tests exist.
 
 ## Deprecation policy
 
@@ -57,4 +57,3 @@ Decision records should capture:
 - alternatives considered
 - compatibility impact
 - follow-up tasks
-

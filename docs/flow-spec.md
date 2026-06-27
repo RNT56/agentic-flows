@@ -59,3 +59,17 @@ Gate types:
 `flowctl validate-event` checks event JSON against `schemas/event.schema.json`.
 
 It also applies semantic timestamp validation so event examples and run artifacts fail when `timestamp` is not an RFC 3339 date-time.
+
+## Run validation
+
+`flowctl validate-run` checks completed run bundles against `schemas/run.schema.json`, the event schema, and the source flow.
+
+It verifies:
+
+- run metadata matches event metadata
+- the referenced source flow exists and validates
+- event names are declared by the source flow
+- node ids reference source flow nodes
+- completed runs include `flow.completed`
+- completed runs include required outputs
+- every required quality gate has passed `gate.completed` evidence

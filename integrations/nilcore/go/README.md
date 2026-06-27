@@ -17,5 +17,4 @@ type WorkflowExecutor interface {
 }
 ```
 
-NilCore should own worker dispatch, sandbox boundaries, retries, and supervisor reconciliation.
-
+If implemented, NilCore can own worker dispatch, sandbox boundaries, retries, and supervisor reconciliation.

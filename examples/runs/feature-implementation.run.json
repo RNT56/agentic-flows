@@ -1,0 +1,171 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "coding.feature-implementation",
+    "version": "0.1.0",
+    "source": "flows/coding/feature-implementation/flow.yaml"
+  },
+  "run": {
+    "id": "run-feature-implementation-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T14:00:00Z",
+    "completed_at": "2026-06-27T14:04:00Z"
+  },
+  "inputs": {
+    "task": "Implement a documented feature with validation evidence.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "outputs": {
+    "patch": "artifact://diff",
+    "closeout": "artifact://closeout"
+  },
+  "artifacts": [
+    {
+      "id": "diff",
+      "kind": "patch",
+      "uri": "artifact://runs/run-feature-implementation-0001/diff.patch"
+    },
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-feature-implementation-0001/test.log"
+    },
+    {
+      "id": "closeout",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-feature-implementation-0001/closeout.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-implementation-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T14:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-implementation-0001",
+      "node_id": "intake",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:00:20Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-implementation-0001",
+      "node_id": "plan",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:01:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-implementation-0001",
+      "node_id": "implement",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:02:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-implementation-0001",
+      "node_id": "test",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:03:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-implementation-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T14:03:20Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "project-checks-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "kind": "test-log",
+          "uri": "artifact://runs/run-feature-implementation-0001/test.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-implementation-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T14:03:40Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "acceptance-covered",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "kind": "review",
+          "uri": "artifact://runs/run-feature-implementation-0001/closeout.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-implementation-0001",
+      "node_id": "verify",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:03:50Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-implementation-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:04:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-implementation-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T14:04:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}
+

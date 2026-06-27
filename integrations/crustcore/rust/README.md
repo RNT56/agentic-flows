@@ -17,5 +17,4 @@ pub trait FlowVerifier {
 }
 ```
 
-The adapter should keep CrustCore responsible for proof and completion, not generic workflow scheduling.
-
+If implemented, the adapter should keep CrustCore responsible for proof and completion, not generic workflow scheduling.

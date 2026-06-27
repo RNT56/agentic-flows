@@ -32,15 +32,17 @@ The integration layer tells runtimes how to consume flows:
 - `integrations/crustcore/`
 - `examples/`
 
-The consuming core is responsible for execution, state, permissions, sandboxing, and proof. This repository is responsible for stable workflow definitions and compatibility rules.
+The independent consuming project is responsible for execution, state, permissions, sandboxing, and proof. This repository is responsible for stable workflow definitions and compatibility rules.
 
-## Runtime responsibilities
+## Optional consumer responsibilities
 
-| Runtime | Primary responsibility | Expected integration |
+These are possible mappings for independent projects. They are not claims that the projects already share a runtime or adapter layer.
+
+| Consumer | Possible responsibility | Optional integration path |
 | --- | --- | --- |
-| ThinClaw | Home, memory, routines, channels, operator control | Load flows as durable routines and preserve decisions. |
-| NilCore | Worker execution, supervision, sandboxed checks | Dispatch `agent_task` and `tool` nodes to workers. |
-| CrustCore | Proof, audit, verifier-owned completion | Validate gates and emit proof artifacts such as verified patches. |
+| ThinClaw | Routines, memory, channels, operator control | Load flows as durable routines and preserve decisions if an adapter exists. |
+| NilCore | Worker execution, supervision, sandboxed checks | Dispatch `agent_task` and `tool` nodes if an adapter exists. |
+| CrustCore | Proof, audit, verifier-owned completion | Validate gates and emit proof artifacts if an adapter exists. |
 | Standalone | Local development and examples | Validate and inspect flows without a full runtime. |
 
 ## Data flow
@@ -54,4 +56,3 @@ flowchart LR
   E --> F["event stream"]
   F --> G["operator closeout"]
 ```
-

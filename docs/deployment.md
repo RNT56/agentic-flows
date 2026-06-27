@@ -3,7 +3,7 @@
 This repo deploys in two senses:
 
 1. Repository deployment: validated flow definitions are pushed to GitHub.
-2. Runtime deployment: a consuming core pins a commit or tag and loads selected flows.
+2. Consumer deployment: an independent project pins a commit or tag and loads selected flows.
 
 ## Repository deployment
 
@@ -12,6 +12,8 @@ Required gates before pushing:
 ```bash
 flowctl validate
 flowctl validate-event examples/standalone/event.sample.json
+flowctl validate-run examples/runs/
+flowctl report
 pytest
 ```
 
@@ -27,6 +29,7 @@ Recommended process:
 4. Confirm runtime capabilities.
 5. Execute a dry run or adapter smoke test.
 6. Record event output compatible with `schemas/event.schema.json`.
+7. Package completed evidence as a run bundle compatible with `schemas/run.schema.json`.
 
 ## Release tags
 
@@ -37,4 +40,4 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-Do not tag a flow as stable until adapter evidence exists.
+Do not tag a flow as stable for a consumer until that independent project has adapter evidence.

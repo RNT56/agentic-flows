@@ -24,7 +24,7 @@ Acceptance gate:
 
 Acceptance gate:
 
-- The flow validates and its supported cores, capabilities, gates, and outputs are clear.
+- The flow validates and its optional consumers, capabilities, gates, and outputs are clear.
 
 ## Tooling change workflow
 
@@ -62,4 +62,3 @@ Acceptance gate:
 Acceptance gate:
 
 - A consuming repo can pin the tag and understand compatibility impact from the changelog.
-

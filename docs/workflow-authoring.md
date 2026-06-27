@@ -4,7 +4,7 @@
 
 1. Start from a template under `templates/`.
 2. Pick a stable `id` before the flow is consumed.
-3. Declare supported cores conservatively.
+3. Declare optional consumers conservatively in `runtime.supported_cores`.
 4. Declare required capabilities before writing nodes.
 5. Write the graph from entrypoint to finalizer.
 6. Add at least one required quality gate.
@@ -22,7 +22,7 @@
 - Are quality gates specific and required where needed?
 - Are runtime-specific details isolated under `runtime.adapter_hints`?
 - Does the flow avoid naming implementation details from one core as universal concepts?
-- Does the README explain when to use the flow and which core owns which responsibility?
+- Does the README explain when to use the flow and how optional consumers could map it?
 
 ## Stability promotion
 
@@ -34,7 +34,7 @@
 
 `preview` can move to `stable` when:
 
-- Every supported core has adapter smoke evidence.
+- Every declared optional consumer has adapter smoke evidence.
 - Required capabilities are implemented or intentionally mapped.
 - Run events validate against `schemas/event.schema.json`.
 - Changelog and compatibility notes are updated.
@@ -48,5 +48,4 @@ Deprecated flows should include:
 - Why they are deprecated.
 - What replaces them.
 - Which release will remove them.
-- Migration notes for consuming cores.
-
+- Migration notes for consuming projects.

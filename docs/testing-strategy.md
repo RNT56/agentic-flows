@@ -7,6 +7,8 @@ Run before pushing:
 ```bash
 flowctl validate
 flowctl validate-event examples/standalone/event.sample.json
+flowctl validate-run examples/runs/
+flowctl report
 flowctl graph flows/coding/feature-implementation/flow.yaml --format json --output /tmp/feature-flow.graph.json
 pytest
 git diff --check
@@ -29,12 +31,14 @@ The GitHub Actions workflow should run:
 - package installation
 - flow validation
 - event validation
+- run bundle validation
+- flow catalog report
 - graph export
 - test suite
 
-## Adapter smoke tests
+## Optional adapter smoke tests
 
-Adapter smoke tests should prove that a runtime can:
+Adapter smoke tests should prove that an independent optional consumer can:
 
 - load a valid flow
 - reject unsupported capabilities
@@ -49,5 +53,4 @@ No release should be tagged unless:
 - CI passes on `main`
 - `CHANGELOG.md` has a dated entry
 - docs match the current command surface
-- stable flows have adapter evidence
-
+- stable flows have adapter evidence for each declared optional consumer

@@ -1,8 +1,8 @@
 # ThinClaw integration
 
-ThinClaw should consume `agentic-flows` as durable operator-facing routines.
+ThinClaw can consume `agentic-flows` as durable operator-facing routines if that independent project chooses to add an adapter.
 
-Expected first adapter:
+Possible first adapter:
 
 1. Load and validate a flow.
 2. Create a routine from the flow graph.
@@ -11,4 +11,3 @@ Expected first adapter:
 5. Link run evidence back to the source flow version.
 
 See [rust/README.md](rust/README.md) for the initial Rust adapter shape.
-

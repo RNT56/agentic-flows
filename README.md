@@ -1,14 +1,16 @@
 # agentic-flows
 
-Reusable workflow definitions for the RNT56 agentic stack.
+Reusable workflow definitions for RNT56 agentic projects.
 
-`agentic-flows` is the contract layer between high-level agentic process design and the runtimes that execute or verify those processes:
+`agentic-flows` is a contract and catalog repo for high-level agentic process design. ThinClaw, NilCore, and CrustCore are separate projects; this repo defines workflow specs they may choose to consume later through adapters, vendoring, or copied templates.
 
-- **ThinClaw** is the home: durable identity, memory, routines, channels, and operator-facing control.
-- **NilCore** is the worker: sandboxed task execution, supervisor loops, browser checks, and scale-out delegation.
-- **CrustCore** is the proof: verifier-owned completion, audit boundaries, approvals, and trusted patch evidence.
+Useful optional-consumer framing:
 
-This repository does not replace those cores. It gives them a shared, versioned workflow format, examples, validation, and integration contracts.
+- **ThinClaw** can consume flows as durable routines and operator-facing decisions.
+- **NilCore** can consume flows as worker/supervisor execution plans.
+- **CrustCore** can consume flows as verifier and proof contracts.
+
+This repository does not replace or merge those projects. It gives them a neutral, versioned workflow format, examples, validation, and adapter contracts when they are ready to opt in.
 
 ## What is in this repo
 
@@ -32,6 +34,8 @@ python -m pip install -e . pytest
 
 flowctl validate
 flowctl validate-event examples/standalone/event.sample.json
+flowctl validate-run examples/runs/
+flowctl report
 flowctl list
 flowctl graph flows/coding/feature-implementation/flow.yaml --format dot
 pytest
@@ -39,12 +43,12 @@ pytest
 
 The default validation command checks every `flow.yaml` under `flows/` and `templates/`.
 
-## Current stack
+## Current repo stack
 
 - Flow definitions: YAML with a JSON Schema contract.
 - Validation and export: Python CLI (`flowctl`).
 - CI: GitHub Actions validates schemas, flows, graph export, and tests.
-- Runtime adapters: contract-first documentation until ThinClaw, NilCore, and CrustCore expose stable importable APIs for this layer.
+- Runtime adapters: optional contract-first documentation until an independent consumer project implements a loader.
 
 ## First-class flows
 
@@ -60,11 +64,11 @@ The default validation command checks every `flow.yaml` under `flows/` and `temp
 A workflow is ready to use when:
 
 1. `flowctl validate` passes.
-2. The flow declares its supported cores and required capabilities.
+2. The flow declares intended optional consumers and required capabilities.
 3. Every edge references an existing node.
 4. Every node is reachable from the entrypoint.
 5. At least one required quality gate is present.
-6. The consuming runtime records events compatible with `schemas/event.schema.json`.
+6. A consuming project records events compatible with `schemas/event.schema.json`.
 
 See [docs/project-plan.md](docs/project-plan.md) for the upgraded plan and [docs/core-integration.md](docs/core-integration.md) for runtime expectations.
 

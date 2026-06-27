@@ -5,7 +5,8 @@ This folder is the operating handbook for `agentic-flows`.
 ## Product and roadmap
 
 - [Goals](goals.md): mission, non-goals, success metrics, and operating principles.
-- [Roadmap](roadmap.md): end-to-end phases from contract baseline to stable cross-core adoption.
+- [Consumer model](consumer-model.md): how to discuss ThinClaw, NilCore, and CrustCore as independent optional consumers.
+- [Roadmap](roadmap.md): end-to-end phases from contract baseline to stable optional consumption.
 - [Task backlog](tasks.md): prioritized implementation tasks, acceptance gates, and current status.
 - [Project plan](project-plan.md): original plan assessment and current project shape.
 
@@ -15,6 +16,7 @@ This folder is the operating handbook for `agentic-flows`.
 - [Flow spec](flow-spec.md): required flow fields, node types, gates, and validation semantics.
 - [Workflow authoring](workflow-authoring.md): how to design, review, and maintain flow definitions.
 - [Operating workflows](operating-workflows.md): day-to-day change, review, adapter, and release workflows.
+- [Run bundles](run-bundles.md): evidence bundle format and validation rules.
 - [Best practices](best-practices.md): rules for safe, reusable, and runtime-neutral flows.
 - [Testing strategy](testing-strategy.md): validation, fixtures, CI, adapter smoke tests, and release gates.
 
@@ -29,5 +31,7 @@ This folder is the operating handbook for `agentic-flows`.
 - [Versioning](versioning.md): schema, flow, and stability version rules.
 - [Deployment](deployment.md): repo deployment and runtime deployment process.
 - [Release process](release-process.md): release checklist and tag policy.
+- [Release notes template](release-notes-template.md): GitHub release body template.
 - [Changelog management](changelog-management.md): how to maintain `CHANGELOG.md`.
+- [Compatibility matrix](compatibility-matrix.md): current optional consumer status.
 - [Governance](governance.md): ownership, review, compatibility, and deprecation policy.

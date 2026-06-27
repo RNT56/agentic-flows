@@ -10,5 +10,4 @@ pub trait RoutineFlowLoader {
 }
 ```
 
-ThinClaw should remain the durable home for routine state, human decisions, and cross-session memory.
-
+If implemented, ThinClaw should remain the durable home for routine state, human decisions, and cross-session memory.

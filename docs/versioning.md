@@ -29,9 +29,8 @@ Increment:
 
 ## Stability levels
 
-- `experimental`: Safe to iterate; consumers should pin exact commits.
-- `preview`: Shape is useful but cross-core adapters may still change.
+- `experimental`: Safe to iterate; optional consumers should pin exact commits.
+- `preview`: Shape is useful but optional consumer adapters may still change.
 - `stable`: Compatible with declared cores and protected by integration evidence.
 
-No flow should become `stable` before real ThinClaw, NilCore, and CrustCore adapter checks exist for the cores listed in `runtime.supported_cores`.
-
+No flow should become `stable` before real adapter checks exist for every optional consumer listed in `runtime.supported_cores`.

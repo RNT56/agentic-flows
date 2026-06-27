@@ -7,7 +7,7 @@ The proposed structure was directionally right, but not complete enough to execu
 What was good:
 
 - It separated reusable `flows/` from copyable `templates/`.
-- It recognized ThinClaw, NilCore, and CrustCore as independent cores rather than one merged runtime.
+- It recognized ThinClaw, NilCore, and CrustCore as independent projects rather than one merged runtime.
 - It included schemas, tools, tests, and integration folders.
 
 What was missing:
@@ -17,7 +17,7 @@ What was missing:
 - A runtime event contract.
 - Versioning rules for flow compatibility.
 - A definition of ready for reusable flows.
-- A clear boundary between this repo and the three execution/proof cores.
+- A clear boundary between this repo and the independent projects that may consume it.
 - Starter flows that are valid today.
 - CI that protects the repository from documentation-only drift.
 
@@ -25,14 +25,14 @@ This repo now starts from an executable contract-first baseline instead of just 
 
 ## Product idea
 
-`agentic-flows` is the workflow definition layer for the RNT56 agentic stack.
+`agentic-flows` is the workflow definition layer for reusable RNT56 agentic workflows.
 
 It should answer four questions for every reusable workflow:
 
 1. What inputs does the workflow accept?
 2. Which nodes execute, verify, approve, or finalize work?
 3. What quality gates prove that the workflow is complete?
-4. Which runtime capabilities must ThinClaw, NilCore, CrustCore, or a standalone runner provide?
+4. Which capabilities must an optional consumer such as ThinClaw, NilCore, CrustCore, or a standalone runner provide?
 
 It should not become a fourth agent runtime. Runtime execution stays in the cores.
 
@@ -66,11 +66,11 @@ Acceptance gate:
 
 ### Phase 2: Runtime adapters
 
-Implement thin adapters in the consuming repos.
+Implement thin adapters only inside consuming repos that choose to opt in.
 
-- ThinClaw loads flows as durable routines and records operator decisions.
-- NilCore dispatches node execution as sandboxed worker jobs.
-- CrustCore consumes verifier gates and emits patch/audit proof.
+- ThinClaw could load flows as durable routines and record operator decisions.
+- NilCore could dispatch node execution as sandboxed worker jobs.
+- CrustCore could consume verifier gates and emit patch/audit proof.
 
 Acceptance gate:
 
@@ -98,11 +98,11 @@ Publish stable consumption surfaces.
 
 Acceptance gate:
 
-- A consuming core can pin `agentic-flows` by tag and know whether a flow is compatible.
+- A consuming project can pin `agentic-flows` by tag and know whether a flow is compatible.
 
 ## Current limitations
 
 - The repo validates definitions; it does not execute nodes.
-- Runtime-specific APIs are documented as contracts, not compiled adapters.
-- Command gates are declarative. The consuming runtime decides how and where to run them.
+- Optional-consumer-specific APIs are documented as contracts, not compiled adapters.
+- Command gates are declarative. The consuming project decides how and where to run them.
 - Cross-core compatibility should be proven with real adapters before any flow is marked `stable`.

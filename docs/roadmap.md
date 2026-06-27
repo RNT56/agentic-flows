@@ -1,6 +1,6 @@
 # Roadmap
 
-This roadmap tracks the full project from current bootstrap to stable cross-core use.
+This roadmap tracks the full project from current bootstrap to stable optional consumption by independent projects.
 
 ## Phase 0: Repository foundation
 
@@ -22,7 +22,7 @@ Acceptance gates:
 
 ## Phase 1: Operating handbook and evidence validation
 
-Status: in progress.
+Status: complete.
 
 Goals:
 
@@ -30,13 +30,17 @@ Goals:
 - Add changelog management.
 - Add event validation support to `flowctl`.
 - Add CI coverage for event validation.
+- Add run bundle validation and a first completed run example.
+- Add flow catalog reporting.
 
 Acceptance gates:
 
 - Docs index links every process document.
 - `CHANGELOG.md` has an unreleased section.
 - `flowctl validate-event` validates sample events.
-- CI runs flow validation, event validation, graph export, and tests.
+- `flowctl validate-run` validates sample run bundles.
+- `flowctl report` summarizes catalog maturity.
+- CI runs flow validation, event validation, run validation, report generation, graph export, and tests.
 
 ## Phase 2: Flow quality and catalog maturity
 
@@ -44,33 +48,33 @@ Status: planned.
 
 Goals:
 
-- Add flow metadata reports.
+- Expand flow metadata reports.
 - Add stronger semantic validation for contracts, artifacts, and required gate evidence names.
 - Add examples for every production flow.
 - Add at least one invalid fixture for every semantic validation class.
 
 Acceptance gates:
 
-- `flowctl report` can summarize flow maturity.
+- `flowctl report` can summarize flow maturity and optional consumers.
 - Every production flow has a sample input and expected output contract.
 - Every preview flow has a documented path to stability.
 
-## Phase 3: Runtime adapter smoke tests
+## Phase 3: Optional adapter smoke tests
 
 Status: planned.
 
 Goals:
 
-- Implement or document a minimal loader in ThinClaw.
-- Implement or document a minimal loader in NilCore.
-- Implement or document a minimal verifier mapping in CrustCore.
+- Implement or document a minimal optional loader in ThinClaw.
+- Implement or document a minimal optional loader in NilCore.
+- Implement or document a minimal optional verifier mapping in CrustCore.
 - Add adapter smoke-test evidence under `examples/`.
 
 Acceptance gates:
 
-- Each core can load at least one supported flow without per-flow custom parsing.
-- Each core can reject unsupported capabilities.
-- Each core can emit or consume events compatible with `schemas/event.schema.json`.
+- Each participating project can load at least one declared-compatible flow without per-flow custom parsing.
+- Each participating project can reject unsupported capabilities.
+- Each participating project can emit or consume events compatible with `schemas/event.schema.json`.
 
 ## Phase 4: Run evidence and replay
 
@@ -78,10 +82,9 @@ Status: planned.
 
 Goals:
 
-- Define run bundle layout.
-- Validate event streams against source flow metadata.
-- Add `flowctl validate-run` for event streams and required gate evidence.
-- Add example completed runs for feature implementation and human review.
+- Expand run bundle layout for richer artifacts.
+- Validate multi-file event streams against source flow metadata.
+- Add example completed runs for human review and multi-agent supervisor flows.
 
 Acceptance gates:
 
@@ -104,7 +107,7 @@ Acceptance gates:
 
 - Release checklist passes.
 - Changelog has dated release notes.
-- Consuming repos can pin by tag.
+- Consuming projects can pin by tag.
 
 ## Phase 6: Stable flow promotion
 
@@ -113,7 +116,7 @@ Status: planned.
 Goals:
 
 - Promote proven flows from `experimental` or `preview` to `stable`.
-- Require adapter smoke evidence for every listed core.
+- Require adapter smoke evidence for every listed optional consumer.
 - Add deprecation policy for replaced flows.
 
 Acceptance gates:
@@ -128,13 +131,12 @@ Status: planned.
 
 Goals:
 
-- Use `agentic-flows` in ThinClaw, NilCore, and CrustCore project workflows.
+- Optionally use `agentic-flows` in ThinClaw, NilCore, and CrustCore project workflows.
 - Create project-specific flow packs only when a reusable flow is insufficient.
 - Keep custom project logic in consuming repos unless it generalizes.
 
 Acceptance gates:
 
-- Each core has at least one real workflow loaded from this repo.
+- Each participating project has at least one real workflow loaded from this repo.
 - The workflow produces validated run events.
 - Integration lessons are fed back into docs or schema changes.
-
