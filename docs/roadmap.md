@@ -44,7 +44,7 @@ Acceptance gates:
 
 ## Phase 2: Flow quality and catalog maturity
 
-Status: in progress.
+Status: complete.
 
 Goals:
 
@@ -59,6 +59,7 @@ Acceptance gates:
 - Every production flow has a sample input and expected output contract.
 - Every production flow has a maturity rubric with a documented path to promotion.
 - Required gate evidence references are machine-checkable.
+- Semantic validation classes have invalid regression fixtures.
 
 ## Phase 3: Optional adapter smoke tests
 

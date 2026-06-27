@@ -1,0 +1,54 @@
+spec_version: agentic-flows/v1
+id: fixture.invalid-required-gate-missing-evidence-ref
+version: 0.1.0
+title: Invalid missing evidence ref fixture
+summary: A fixture whose required gate does not declare machine-readable evidence refs.
+stability: experimental
+owners:
+  - agentic-flows
+tags:
+  - fixture
+entrypoint: intake
+runtime:
+  supported_cores:
+    - standalone
+  required_capabilities:
+    - validation
+contracts:
+  inputs:
+    - id: task
+      type: text
+      required: true
+  outputs:
+    - id: report
+      type: markdown
+      required: true
+  artifacts:
+    - gate-proof
+nodes:
+  - id: intake
+    type: intake
+    title: Intake
+    description: Capture the task.
+    produces:
+      - scoped-task
+  - id: final
+    type: finalizer
+    title: Final
+    description: Return the result.
+    requires:
+      - scoped-task
+    produces:
+      - report
+edges:
+  - from: intake
+    to: final
+quality_gates:
+  - id: fixture-required-gate
+    title: Required gate
+    type: review
+    required: true
+observability:
+  events:
+    - flow.started
+    - flow.completed

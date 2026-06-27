@@ -66,6 +66,24 @@ def test_undeclared_gate_evidence_ref_is_rejected() -> None:
     assert any("'undeclared-proof' is not declared" in error for error in errors)
 
 
+def test_semantic_validation_fixture_coverage() -> None:
+    schema = load_json(DEFAULT_SCHEMA)
+    cases = [
+        ("tests/fixtures/invalid-command-gate-missing-command.yaml", "command gates require a command"),
+        ("tests/fixtures/invalid-deprecated-missing-migration.yaml", "deprecated flows require migration guidance"),
+        ("tests/fixtures/invalid-duplicate-node.yaml", "duplicate node id 'intake'"),
+        ("tests/fixtures/invalid-entrypoint.yaml", "references missing node 'missing'"),
+        ("tests/fixtures/invalid-migration-missing-deprecated-by.yaml", "migration guidance requires deprecated_by"),
+        ("tests/fixtures/invalid-no-required-gate.yaml", "at least one gate must be required"),
+        ("tests/fixtures/invalid-required-gate-missing-evidence-ref.yaml", "required gates need at least one evidence reference"),
+        ("tests/fixtures/invalid-unreachable-node.yaml", "node 'orphan' is not reachable"),
+    ]
+
+    for fixture, expected in cases:
+        errors = validate_flow_document(load_yaml(Path(fixture)), schema)
+        assert any(expected in error for error in errors), (fixture, errors)
+
+
 def test_sample_event_matches_event_schema() -> None:
     schema = load_json(Path("schemas/event.schema.json"))
     with Path("examples/standalone/event.sample.json").open("r", encoding="utf-8") as handle:

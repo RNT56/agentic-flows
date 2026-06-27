@@ -19,6 +19,7 @@ This project follows semantic versioning for releases and keeps flow compatibili
 - Added sample input and expected-output files for every production flow.
 - Added semantic validation for node requirements and required contract outputs.
 - Added semantic validation for required quality gate `evidence_refs`.
+- Added semantic regression fixtures for graph, gate, evidence, and deprecation validation rules.
 - Added optional `deprecated_by` and `migration` metadata for future flow replacements.
 - Added maturity rubrics to production flow READMEs.
 - Added a completed feature implementation run example.

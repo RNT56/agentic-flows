@@ -1,0 +1,54 @@
+spec_version: agentic-flows/v1
+id: fixture.invalid-no-required-gate
+version: 0.1.0
+title: Invalid no required gate fixture
+summary: A fixture whose quality gates are all optional.
+stability: experimental
+owners:
+  - agentic-flows
+tags:
+  - fixture
+entrypoint: intake
+runtime:
+  supported_cores:
+    - standalone
+  required_capabilities:
+    - validation
+contracts:
+  inputs:
+    - id: task
+      type: text
+      required: true
+  outputs:
+    - id: report
+      type: markdown
+      required: true
+  artifacts:
+    - gate-proof
+nodes:
+  - id: intake
+    type: intake
+    title: Intake
+    description: Capture the task.
+    produces:
+      - scoped-task
+  - id: final
+    type: finalizer
+    title: Final
+    description: Return the result.
+    requires:
+      - scoped-task
+    produces:
+      - report
+edges:
+  - from: intake
+    to: final
+quality_gates:
+  - id: fixture-optional-gate
+    title: Optional gate
+    type: review
+    required: false
+observability:
+  events:
+    - flow.started
+    - flow.completed

@@ -16,6 +16,7 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Add quality gate evidence reference validation.
 - [x] Add maturity rubrics for production flow READMEs.
 - [x] Add optional deprecation and migration metadata.
+- [x] Add semantic regression fixtures for flow quality rules.
 
 ## Flow catalog tasks
 
@@ -32,6 +33,7 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Add semantic validation that node `requires` reference declared artifacts or prior `produces`.
 - [x] Add semantic validation that outputs are produced by reachable nodes.
 - [x] Add semantic validation that quality gate evidence names are declared artifacts or events.
+- [x] Add invalid fixtures for semantic validation classes.
 
 ## Tooling tasks
 

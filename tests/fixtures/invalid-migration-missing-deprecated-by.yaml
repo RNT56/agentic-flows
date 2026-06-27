@@ -1,0 +1,61 @@
+spec_version: agentic-flows/v1
+id: fixture.invalid-migration-missing-deprecated-by
+version: 0.1.0
+title: Invalid migration fixture
+summary: A fixture whose migration guidance does not name a replacement flow.
+stability: experimental
+migration:
+  summary: Move consumers to the replacement flow.
+  steps:
+    - Pin the current flow version.
+    - Validate the replacement flow contract.
+owners:
+  - agentic-flows
+tags:
+  - fixture
+entrypoint: intake
+runtime:
+  supported_cores:
+    - standalone
+  required_capabilities:
+    - validation
+contracts:
+  inputs:
+    - id: task
+      type: text
+      required: true
+  outputs:
+    - id: report
+      type: markdown
+      required: true
+  artifacts:
+    - gate-proof
+nodes:
+  - id: intake
+    type: intake
+    title: Intake
+    description: Capture the task.
+    produces:
+      - scoped-task
+  - id: final
+    type: finalizer
+    title: Final
+    description: Return the result.
+    requires:
+      - scoped-task
+    produces:
+      - report
+edges:
+  - from: intake
+    to: final
+quality_gates:
+  - id: fixture-required-gate
+    title: Required gate
+    type: review
+    required: true
+    evidence_refs:
+      - gate-proof
+observability:
+  events:
+    - flow.started
+    - flow.completed
