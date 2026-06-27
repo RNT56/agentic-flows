@@ -23,6 +23,7 @@ integrations/   ThinClaw, NilCore, CrustCore, and shared adapter contracts.
 examples/       Minimal consumption examples and runbooks.
 docs/           Architecture, spec, roadmap, and integration guidance.
 tests/          CLI and schema regression tests.
+todo-workflows.md  Candidate workflow backlog for future buildout.
 ```
 
 ## Quick start
@@ -57,7 +58,7 @@ The default validation command checks every `flow.yaml` under `flows/` and `temp
 - Flow definitions: YAML with a JSON Schema contract.
 - Validation and export: Python CLI (`flowctl`).
 - CI: GitHub Actions validates schemas, flows, graph export, and tests.
-- Runtime adapters: optional contract-first documentation until an independent consumer project implements a loader.
+- Runtime adapters: optional contract-first docs plus first adapter seams in independent consumer repos.
 
 ## First-class flows
 
@@ -82,7 +83,7 @@ A workflow is ready to use when:
 8. A consuming project records events compatible with `schemas/event.schema.json`.
 9. `flowctl release-check` passes before tagging or promoting a flow to `stable`.
 
-See [docs/project-plan.md](docs/project-plan.md) for the upgraded plan and [docs/core-integration.md](docs/core-integration.md) for runtime expectations.
+See [docs/project-plan.md](docs/project-plan.md) for the upgraded plan, [docs/core-integration.md](docs/core-integration.md) for runtime expectations, and [todo-workflows.md](todo-workflows.md) for the future workflow backlog.
 
 ## Documentation
 
