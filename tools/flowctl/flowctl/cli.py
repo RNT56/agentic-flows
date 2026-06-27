@@ -23,9 +23,11 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SCHEMA = REPO_ROOT / "schemas" / "flow.schema.json"
 DEFAULT_EVENT_SCHEMA = REPO_ROOT / "schemas" / "event.schema.json"
 DEFAULT_RUN_SCHEMA = REPO_ROOT / "schemas" / "run.schema.json"
+DEFAULT_SAMPLE_SCHEMA = REPO_ROOT / "schemas" / "sample.schema.json"
 DEFAULT_SEARCH_ROOTS = [REPO_ROOT / "flows", REPO_ROOT / "templates"]
 DEFAULT_EVENT_SEARCH_ROOTS = [REPO_ROOT / "examples"]
 DEFAULT_RUN_SEARCH_ROOTS = [REPO_ROOT / "examples" / "runs"]
+DEFAULT_SAMPLE_SEARCH_ROOTS = [REPO_ROOT / "examples" / "samples"]
 
 
 def load_yaml(path: Path) -> dict[str, Any]:
@@ -73,13 +75,13 @@ def find_json_files(paths: Iterable[Path]) -> list[Path]:
     for path in selected:
         path = path.resolve()
         if path.is_file():
-            if not path.name.endswith(".run.json"):
+            if not is_structured_example_json(path):
                 files.append(path)
             continue
         if not path.exists():
             files.append(path)
             continue
-        files.extend(path for path in sorted(path.rglob("*.json")) if not path.name.endswith(".run.json"))
+        files.extend(path for path in sorted(path.rglob("*.json")) if not is_structured_example_json(path))
 
     return sorted(dict.fromkeys(files))
 
@@ -101,6 +103,29 @@ def find_run_files(paths: Iterable[Path]) -> list[Path]:
         files.extend(sorted(path.rglob("*.run.json")))
 
     return sorted(dict.fromkeys(files))
+
+
+def find_sample_files(paths: Iterable[Path]) -> list[Path]:
+    selected = list(paths)
+    if not selected:
+        selected = DEFAULT_SAMPLE_SEARCH_ROOTS
+
+    files: list[Path] = []
+    for path in selected:
+        path = path.resolve()
+        if path.is_file():
+            files.append(path)
+            continue
+        if not path.exists():
+            files.append(path)
+            continue
+        files.extend(sorted(path.rglob("*.sample.json")))
+
+    return sorted(dict.fromkeys(files))
+
+
+def is_structured_example_json(path: Path) -> bool:
+    return path.name.endswith(".run.json") or ("samples" in path.parts and path.name.endswith(".sample.json"))
 
 
 def format_error_path(parts: Iterable[Any]) -> str:
@@ -221,6 +246,99 @@ def validate_run_document(
     return errors
 
 
+def validate_sample_document(
+    document: dict[str, Any],
+    sample_schema: dict[str, Any],
+    flow_schema: dict[str, Any],
+    *,
+    sample_path: Path | None = None,
+) -> list[str]:
+    validator = Draft202012Validator(sample_schema, format_checker=FormatChecker())
+    errors = [
+        f"{format_error_path(error.path)}: {error.message}"
+        for error in sorted(validator.iter_errors(document), key=lambda err: list(err.path))
+    ]
+
+    flow_info = document.get("flow", {})
+    if not isinstance(flow_info, dict):
+        return errors
+
+    flow_document: dict[str, Any] | None = None
+    flow_source = flow_info.get("source")
+    if isinstance(flow_source, str):
+        flow_path = resolve_flow_source(flow_source, sample_path)
+        if not flow_path.exists():
+            errors.append(f"$.flow.source: flow file does not exist: {flow_source}")
+        else:
+            try:
+                flow_document = load_yaml(flow_path)
+                for error in validate_flow_document(flow_document, flow_schema):
+                    errors.append(f"$.flow.source({flow_source}): {error}")
+            except Exception as exc:  # noqa: BLE001 - CLI should report sample context
+                errors.append(f"$.flow.source: {exc}")
+
+    if not flow_document:
+        return errors
+
+    if flow_info.get("id") != flow_document.get("id"):
+        errors.append("$.flow.id: does not match source flow id")
+    if flow_info.get("version") != flow_document.get("version"):
+        errors.append("$.flow.version: does not match source flow version")
+
+    inputs = document.get("inputs", {})
+    expected_outputs = document.get("expected_outputs", {})
+    if isinstance(inputs, dict):
+        errors.extend(validate_contract_values(inputs, flow_document.get("contracts", {}).get("inputs", []), "$.inputs"))
+    if isinstance(expected_outputs, dict):
+        errors.extend(
+            validate_contract_values(
+                expected_outputs,
+                flow_document.get("contracts", {}).get("outputs", []),
+                "$.expected_outputs",
+            )
+        )
+
+    return errors
+
+
+def validate_contract_values(values: dict[str, Any], contract_fields: list[Any], path: str) -> list[str]:
+    errors: list[str] = []
+    fields = {field["id"]: field for field in contract_fields if isinstance(field, dict) and isinstance(field.get("id"), str)}
+    required = {field_id for field_id, field in fields.items() if field.get("required") is True}
+
+    for field_id in sorted(required - set(values)):
+        errors.append(f"{path}.{field_id}: required contract field is missing")
+    for field_id in sorted(set(values) - set(fields)):
+        errors.append(f"{path}.{field_id}: is not declared by the source flow contract")
+    for field_id, value in values.items():
+        field = fields.get(field_id)
+        if not field:
+            continue
+        type_error = validate_contract_value_type(value, field.get("type"))
+        if type_error:
+            errors.append(f"{path}.{field_id}: {type_error}")
+
+    return errors
+
+
+def validate_contract_value_type(value: Any, expected_type: Any) -> str | None:
+    if expected_type in {"text", "markdown", "patch", "command", "uri"}:
+        if not isinstance(value, str):
+            return f"expected {expected_type} string"
+        if expected_type == "uri" and not ("://" in value or value.startswith("file:") or value.startswith("artifact:")):
+            return "expected URI-like string"
+        return None
+    if expected_type == "json":
+        if isinstance(value, (dict, list, str, int, float, bool)) or value is None:
+            return None
+        return "expected JSON-compatible value"
+    if expected_type == "boolean":
+        return None if isinstance(value, bool) else "expected boolean"
+    if expected_type == "number":
+        return None if isinstance(value, (int, float)) and not isinstance(value, bool) else "expected number"
+    return None
+
+
 def validate_run_events(
     events: list[Any],
     event_schema: dict[str, Any],
@@ -325,12 +443,16 @@ def validate_semantics(document: dict[str, Any]) -> list[str]:
         return errors
 
     node_ids: list[str] = []
+    produced_by_node: dict[str, set[str]] = {}
     for index, node in enumerate(nodes):
         if not isinstance(node, dict):
             continue
         node_id = node.get("id")
         if isinstance(node_id, str):
             node_ids.append(node_id)
+            produced_by_node[node_id] = {
+                item for item in node.get("produces", []) if isinstance(item, str)
+            }
         else:
             errors.append(f"$.nodes[{index}].id: expected string id")
 
@@ -361,6 +483,7 @@ def validate_semantics(document: dict[str, Any]) -> list[str]:
         unreachable = sorted(node_id_set - reachable)
         for node_id in unreachable:
             errors.append(f"$.nodes: node '{node_id}' is not reachable from entrypoint '{entrypoint}'")
+        errors.extend(validate_requirements_and_outputs(document, nodes, adjacency, entrypoint, produced_by_node, reachable))
 
     gates = document.get("quality_gates", [])
     if isinstance(gates, list):
@@ -374,6 +497,73 @@ def validate_semantics(document: dict[str, Any]) -> list[str]:
                 errors.append(f"$.quality_gates[{index}].command: command gates require a command")
 
     return errors
+
+
+def validate_requirements_and_outputs(
+    document: dict[str, Any],
+    nodes: list[Any],
+    adjacency: dict[str, list[str]],
+    entrypoint: str,
+    produced_by_node: dict[str, set[str]],
+    reachable: set[str],
+) -> list[str]:
+    errors: list[str] = []
+    reverse_adjacency: dict[str, list[str]] = {node_id: [] for node_id in adjacency}
+    for start, ends in adjacency.items():
+        for end in ends:
+            reverse_adjacency.setdefault(end, []).append(start)
+
+    declared_artifacts = {
+        item for item in document.get("contracts", {}).get("artifacts", []) if isinstance(item, str)
+    }
+    contract_inputs = {
+        field["id"]
+        for field in document.get("contracts", {}).get("inputs", [])
+        if isinstance(field, dict) and isinstance(field.get("id"), str)
+    }
+
+    for node_index, node in enumerate(nodes):
+        if not isinstance(node, dict):
+            continue
+        node_id = node.get("id")
+        if not isinstance(node_id, str) or node_id not in reachable:
+            continue
+        available = declared_artifacts | contract_inputs | upstream_produces(node_id, reverse_adjacency, produced_by_node)
+        for requirement in node.get("requires", []):
+            if isinstance(requirement, str) and requirement not in available:
+                errors.append(
+                    f"$.nodes[{node_index}].requires: '{requirement}' is not produced by a reachable upstream node, contract input, or declared artifact"
+                )
+
+    all_reachable_produces = set().union(*(produced_by_node.get(node_id, set()) for node_id in reachable))
+    required_outputs = [
+        field["id"]
+        for field in document.get("contracts", {}).get("outputs", [])
+        if isinstance(field, dict) and field.get("required") is True and isinstance(field.get("id"), str)
+    ]
+    for output_id in required_outputs:
+        if output_id not in all_reachable_produces:
+            errors.append(f"$.contracts.outputs.{output_id}: required output is not produced by a reachable node")
+
+    return errors
+
+
+def upstream_produces(
+    node_id: str,
+    reverse_adjacency: dict[str, list[str]],
+    produced_by_node: dict[str, set[str]],
+) -> set[str]:
+    seen: set[str] = set()
+    stack = list(reverse_adjacency.get(node_id, []))
+    produced: set[str] = set()
+    while stack:
+        current = stack.pop()
+        if current in seen:
+            continue
+        seen.add(current)
+        produced.update(produced_by_node.get(current, set()))
+        stack.extend(reverse_adjacency.get(current, []))
+    return produced
 
 
 def collect_reachable(entrypoint: str, adjacency: dict[str, list[str]]) -> set[str]:
@@ -501,6 +691,68 @@ def cmd_validate_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_validate_samples(args: argparse.Namespace) -> int:
+    sample_schema = load_json(args.sample_schema)
+    flow_schema = load_json(args.schema)
+    sample_files = find_sample_files(args.paths)
+    if not sample_files:
+        print("No flow sample files found", file=sys.stderr)
+        return 1
+
+    failures = 0
+    sampled_flow_ids: set[str] = set()
+    for path in sample_files:
+        if not path.exists():
+            print(f"FAIL {path}: path does not exist", file=sys.stderr)
+            failures += 1
+            continue
+        try:
+            document = load_json(path)
+            errors = validate_sample_document(document, sample_schema, flow_schema, sample_path=path)
+            flow_info = document.get("flow", {})
+            if isinstance(flow_info, dict) and isinstance(flow_info.get("id"), str):
+                sampled_flow_ids.add(flow_info["id"])
+        except Exception as exc:  # noqa: BLE001 - CLI should report file context
+            print(f"FAIL {path}: {exc}", file=sys.stderr)
+            failures += 1
+            continue
+
+        if errors:
+            failures += 1
+            print(f"FAIL {path}", file=sys.stderr)
+            for error in errors:
+                print(f"  - {error}", file=sys.stderr)
+        elif args.verbose:
+            print(f"OK   {path}")
+
+    if not args.paths:
+        missing_flow_ids = production_flow_ids(flow_schema) - sampled_flow_ids
+        if missing_flow_ids:
+            failures += 1
+            print("FAIL examples/samples: missing samples for production flows", file=sys.stderr)
+            for flow_id in sorted(missing_flow_ids):
+                print(f"  - {flow_id}", file=sys.stderr)
+
+    if failures:
+        print(f"{failures} flow sample file(s) failed validation", file=sys.stderr)
+        return 1
+
+    print(f"Validated {len(sample_files)} flow sample file(s)")
+    return 0
+
+
+def production_flow_ids(flow_schema: dict[str, Any]) -> set[str]:
+    flow_ids: set[str] = set()
+    for path in find_flow_files([REPO_ROOT / "flows"]):
+        try:
+            document = load_yaml(path)
+        except Exception:
+            continue
+        if not validate_flow_document(document, flow_schema) and isinstance(document.get("id"), str):
+            flow_ids.add(document["id"])
+    return flow_ids
+
+
 def cmd_list(args: argparse.Namespace) -> int:
     schema = load_json(args.schema)
     rows: list[tuple[str, str, str, str]] = []
@@ -539,6 +791,7 @@ def cmd_report(args: argparse.Namespace) -> int:
     schema = load_json(args.schema)
     entries: list[dict[str, Any]] = []
     failures = 0
+    sampled_flow_ids = load_sampled_flow_ids()
 
     for path in find_flow_files(args.paths):
         try:
@@ -551,8 +804,12 @@ def cmd_report(args: argparse.Namespace) -> int:
 
         issues = list(errors)
         readme_path = path.with_name("README.md")
-        if path.parts[-3:-1] and "flows" in path.parts and not readme_path.exists():
+        is_production_flow = "flows" in path.parts
+        has_sample = document.get("id") in sampled_flow_ids
+        if is_production_flow and not readme_path.exists():
             issues.append("$.readme: reusable flows require a sibling README.md")
+        if is_production_flow and not has_sample:
+            issues.append("$.sample: production flows require an examples/samples/*.sample.json file")
         if document.get("stability") == "stable":
             issues.append("$.stability: stable flows require external adapter evidence before promotion")
 
@@ -573,6 +830,7 @@ def cmd_report(args: argparse.Namespace) -> int:
                 "quality_gates": len(gates),
                 "required_quality_gates": len(required_gates),
                 "has_readme": readme_path.exists(),
+                "has_sample": has_sample,
             }
         )
         if errors:
@@ -589,6 +847,19 @@ def cmd_report(args: argparse.Namespace) -> int:
     if failures:
         return 1
     return 0
+
+
+def load_sampled_flow_ids() -> set[str]:
+    flow_ids: set[str] = set()
+    for sample_path in find_sample_files([]):
+        try:
+            sample = load_json(sample_path)
+        except Exception:
+            continue
+        flow_info = sample.get("flow", {})
+        if isinstance(flow_info, dict) and isinstance(flow_info.get("id"), str):
+            flow_ids.add(flow_info["id"])
+    return flow_ids
 
 
 def build_report_summary(entries: list[dict[str, Any]]) -> dict[str, Any]:
@@ -704,6 +975,12 @@ def build_parser() -> argparse.ArgumentParser:
     validate_run.add_argument("--event-schema", type=Path, default=DEFAULT_EVENT_SCHEMA, help="Path to the event JSON Schema.")
     validate_run.add_argument("-v", "--verbose", action="store_true", help="Print each passing file.")
     validate_run.set_defaults(func=cmd_validate_run)
+
+    validate_samples = subparsers.add_parser("validate-samples", help="Validate flow sample input/output JSON files.")
+    validate_samples.add_argument("paths", nargs="*", type=Path, help="Sample files or directories. Defaults to examples/samples/.")
+    validate_samples.add_argument("--sample-schema", type=Path, default=DEFAULT_SAMPLE_SCHEMA, help="Path to the sample JSON Schema.")
+    validate_samples.add_argument("-v", "--verbose", action="store_true", help="Print each passing file.")
+    validate_samples.set_defaults(func=cmd_validate_samples)
 
     list_cmd = subparsers.add_parser("list", help="List valid flow definitions.")
     list_cmd.add_argument("paths", nargs="*", type=Path, help="Flow files or directories. Defaults to flows/ and templates/.")

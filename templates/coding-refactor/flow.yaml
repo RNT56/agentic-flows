@@ -51,6 +51,8 @@ nodes:
     type: finalizer
     title: Final
     description: Return the refactor summary and remaining risks.
+    produces:
+      - result
 edges:
   - from: intake
     to: baseline
@@ -72,4 +74,3 @@ observability:
     - flow.started
     - node.completed
     - flow.completed
-

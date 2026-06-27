@@ -11,13 +11,13 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Add `flowctl report` for maturity and compatibility summaries.
 - [x] Add completed run bundle examples.
 - [x] Add `flowctl validate-run` for required gate evidence.
-- [ ] Add human review completed run example.
-- [ ] Add multi-agent supervisor completed run example.
+- [x] Add human review completed run example.
+- [x] Add multi-agent supervisor completed run example.
 
 ## Flow catalog tasks
 
-- [ ] Add sample inputs for every production flow.
-- [ ] Add expected outputs for every production flow.
+- [x] Add sample inputs for every production flow.
+- [x] Add expected outputs for every production flow.
 - [ ] Add a flow maturity rubric to each production flow README.
 - [ ] Add flow ownership metadata once real owners exist.
 - [ ] Split any project-specific behavior out of reusable flows.
@@ -26,8 +26,8 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 
 - [ ] Add optional `deprecated_by` and `migration` fields.
 - [x] Add schema coverage for run bundles.
-- [ ] Add semantic validation that node `requires` reference declared artifacts or prior `produces`.
-- [ ] Add semantic validation that outputs are produced by reachable nodes.
+- [x] Add semantic validation that node `requires` reference declared artifacts or prior `produces`.
+- [x] Add semantic validation that outputs are produced by reachable nodes.
 - [ ] Add semantic validation that quality gate evidence names are declared artifacts or events.
 
 ## Tooling tasks

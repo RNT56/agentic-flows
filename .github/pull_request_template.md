@@ -18,7 +18,7 @@
 - [ ] Ran `flowctl validate`.
 - [ ] Ran `flowctl validate-event examples/`.
 - [ ] Ran `flowctl validate-run examples/runs/`.
+- [ ] Ran `flowctl validate-samples`.
 - [ ] Ran `flowctl report`.
 - [ ] Ran `pytest`.
 - [ ] Confirmed independent optional consumers are not described as already integrated.
-

@@ -46,6 +46,8 @@ nodes:
     type: finalizer
     title: Final
     description: Return the implementation summary and evidence.
+    produces:
+      - result
 edges:
   - from: intake
     to: implement
@@ -65,4 +67,3 @@ observability:
     - flow.started
     - node.completed
     - flow.completed
-

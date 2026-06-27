@@ -1,0 +1,53 @@
+spec_version: agentic-flows/v1
+id: fixture.invalid-missing-requirement
+version: 0.1.0
+title: Invalid missing requirement fixture
+summary: A fixture whose node requires a value that is never produced upstream.
+stability: experimental
+owners:
+  - agentic-flows
+tags:
+  - fixture
+entrypoint: intake
+runtime:
+  supported_cores:
+    - standalone
+  required_capabilities:
+    - validation
+contracts:
+  inputs:
+    - id: task
+      type: text
+      required: true
+  outputs:
+    - id: report
+      type: markdown
+      required: true
+nodes:
+  - id: intake
+    type: intake
+    title: Intake
+    description: Capture the task.
+    produces:
+      - scoped-task
+  - id: final
+    type: finalizer
+    title: Final
+    description: Return the result.
+    requires:
+      - never-produced
+    produces:
+      - report
+edges:
+  - from: intake
+    to: final
+quality_gates:
+  - id: fixture-required-gate
+    title: Required gate
+    type: review
+    required: true
+observability:
+  events:
+    - flow.started
+    - flow.completed
+

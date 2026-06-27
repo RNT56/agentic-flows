@@ -40,6 +40,14 @@ flowctl validate-run examples/runs/
 
 Run bundles connect a completed event stream back to the source flow and required gates.
 
+## Validate flow samples
+
+```bash
+flowctl validate-samples
+```
+
+Samples connect declared flow inputs and expected outputs back to the source flow contract.
+
 ## Generate a flow report
 
 ```bash

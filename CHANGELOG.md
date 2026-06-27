@@ -15,7 +15,11 @@ This project follows semantic versioning for releases and keeps flow compatibili
 - Added `schemas/run.schema.json` for completed run bundles.
 - Added `flowctl validate-run` for source-flow, event, output, and gate-evidence validation.
 - Added `flowctl report` for catalog maturity and optional-consumer summaries.
+- Added `flowctl validate-samples` for flow input/output sample validation.
+- Added sample input and expected-output files for every production flow.
+- Added semantic validation for node requirements and required contract outputs.
 - Added a completed feature implementation run example.
+- Added completed standalone run examples for human review and multi-agent supervisor flows.
 - Added a compatibility matrix and run-bundle guidance.
 - Added a release notes template.
 - Added a pull request checklist for validation and independent-consumer framing.

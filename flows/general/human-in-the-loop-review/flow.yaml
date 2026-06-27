@@ -114,8 +114,8 @@ observability:
     - node.completed
     - approval.requested
     - approval.completed
+    - gate.completed
     - flow.completed
   metrics:
     - review.iterations
     - duration.seconds
-

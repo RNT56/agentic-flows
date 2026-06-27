@@ -16,8 +16,8 @@ Current status:
 | `coding.feature-implementation` | target | target | target | run-smoke |
 | `coding.refactor-and-verify` | target | target | target | target |
 | `coding.security-audit` | target | target | target | target |
-| `collaboration.multi-agent-supervisor` | target | target | not-targeted | target |
-| `general.human-in-the-loop-review` | target | target | target | target |
+| `collaboration.multi-agent-supervisor` | target | target | not-targeted | run-smoke |
+| `general.human-in-the-loop-review` | target | target | target | run-smoke |
 | `research.deep-research-report` | target | target | not-targeted | target |
 | `template.coding-feature` | not-targeted | not-targeted | not-targeted | target |
 | `template.coding-refactor` | not-targeted | not-targeted | not-targeted | target |
@@ -33,4 +33,5 @@ Current status:
 ## Current evidence
 
 - `coding.feature-implementation` has a standalone valid run bundle at `examples/runs/feature-implementation.run.json`.
-
+- `general.human-in-the-loop-review` has a standalone valid run bundle at `examples/runs/human-in-the-loop-review.run.json`.
+- `collaboration.multi-agent-supervisor` has a standalone valid run bundle at `examples/runs/multi-agent-supervisor.run.json`.

@@ -10,8 +10,10 @@
 6. Add at least one required quality gate.
 7. Add observability events that a runtime can realistically emit.
 8. Add a README next to any reusable production flow.
-9. Run `flowctl validate <path>`.
-10. Add tests or fixtures when the flow requires new schema behavior.
+9. Add a sample under `examples/samples/` for reusable production flows.
+10. Run `flowctl validate <path>`.
+11. Run `flowctl validate-samples`.
+12. Add tests or fixtures when the flow requires new schema behavior.
 
 ## Flow review checklist
 
@@ -23,6 +25,7 @@
 - Are runtime-specific details isolated under `runtime.adapter_hints`?
 - Does the flow avoid naming implementation details from one core as universal concepts?
 - Does the README explain when to use the flow and how optional consumers could map it?
+- Does the flow have a sample with required inputs and expected outputs?
 
 ## Stability promotion
 

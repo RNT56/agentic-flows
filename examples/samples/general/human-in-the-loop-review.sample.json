@@ -1,0 +1,21 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "general.human-in-the-loop-review",
+    "version": "0.1.0",
+    "source": "flows/general/human-in-the-loop-review/flow.yaml"
+  },
+  "inputs": {
+    "candidate_output": "The agent proposes deleting a deprecated config key and migrating all callers in one change.",
+    "decision_context": "Approve only if the migration plan includes compatibility notes, rollback path, and validation commands. Reject if user data could be lost."
+  },
+  "expected_outputs": {
+    "decision": {
+      "status": "needs_changes",
+      "rationale": "The proposal needs a rollback path and explicit compatibility notes before approval."
+    },
+    "final_output": "A revised proposal that includes migration, rollback, and validation details."
+  },
+  "notes": "Use this sample for approval gates around risky or ambiguous agent output."
+}
+

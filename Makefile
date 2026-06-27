@@ -1,4 +1,4 @@
-.PHONY: install validate validate-event validate-run report list graph test
+.PHONY: install validate validate-event validate-run validate-samples report list graph test
 
 install:
 	python -m pip install -e . pytest
@@ -11,6 +11,9 @@ validate-event:
 
 validate-run:
 	flowctl validate-run examples/runs/
+
+validate-samples:
+	flowctl validate-samples
 
 report:
 	flowctl report

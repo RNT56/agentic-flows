@@ -45,6 +45,8 @@ nodes:
     type: finalizer
     title: Final
     description: Return the report with caveats and citations.
+    produces:
+      - report
 edges:
   - from: intake
     to: gather
@@ -63,4 +65,3 @@ observability:
     - flow.started
     - node.completed
     - flow.completed
-

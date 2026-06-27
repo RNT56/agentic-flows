@@ -1,0 +1,151 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "general.human-in-the-loop-review",
+    "version": "0.1.0",
+    "source": "flows/general/human-in-the-loop-review/flow.yaml"
+  },
+  "run": {
+    "id": "run-human-review-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T14:10:00Z",
+    "completed_at": "2026-06-27T14:12:00Z"
+  },
+  "inputs": {
+    "candidate_output": "The agent proposes deleting a deprecated config key and migrating all callers in one change.",
+    "decision_context": "Approve only if compatibility notes, rollback path, and validation commands are present."
+  },
+  "outputs": {
+    "decision": {
+      "status": "needs_changes",
+      "rationale": "Rollback path and compatibility notes are missing."
+    },
+    "final_output": "Request a revised migration proposal with rollback and validation details."
+  },
+  "artifacts": [
+    {
+      "id": "review-request",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-human-review-0001/review-request.md"
+    },
+    {
+      "id": "decision-record",
+      "kind": "json",
+      "uri": "artifact://runs/run-human-review-0001/decision.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "general.human-in-the-loop-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-human-review-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T14:10:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "general.human-in-the-loop-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-human-review-0001",
+      "node_id": "intake",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:10:20Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "general.human-in-the-loop-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-human-review-0001",
+      "node_id": "assess",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:10:50Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "general.human-in-the-loop-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-human-review-0001",
+      "node_id": "approve",
+      "event": "approval.requested",
+      "timestamp": "2026-06-27T14:11:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "general.human-in-the-loop-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-human-review-0001",
+      "node_id": "approve",
+      "event": "approval.completed",
+      "timestamp": "2026-06-27T14:11:30Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "decision": "needs_changes"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "general.human-in-the-loop-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-human-review-0001",
+      "node_id": "approve",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T14:11:35Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "decision-recorded",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "kind": "decision-record",
+          "uri": "artifact://runs/run-human-review-0001/decision.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "general.human-in-the-loop-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-human-review-0001",
+      "node_id": "approve",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:11:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "general.human-in-the-loop-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-human-review-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:12:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "general.human-in-the-loop-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-human-review-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T14:12:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}
+

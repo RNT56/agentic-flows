@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/RNT56/agentic-flows/schemas/sample.schema.json",
+  "title": "Agentic Flow Sample",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sample_version", "flow", "inputs", "expected_outputs"],
+  "properties": {
+    "sample_version": {
+      "const": "agentic-flows.sample/v1"
+    },
+    "flow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "source"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._/\\-]*[a-z0-9]$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "expected_outputs": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}
+

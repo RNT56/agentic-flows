@@ -1,0 +1,21 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "coding.security-audit",
+    "version": "0.1.0",
+    "source": "flows/coding/security-audit/flow.yaml"
+  },
+  "inputs": {
+    "target": "https://github.com/RNT56/example-agent-tool/pull/12",
+    "threat_model": "Focus on command execution boundaries, token handling, path traversal, and untrusted model output reaching shell commands."
+  },
+  "expected_outputs": {
+    "findings": "A ranked markdown list of verified findings with impact, reproduction notes, and recommended fixes.",
+    "evidence": {
+      "scanner_logs": "artifact://scan-log",
+      "manual_review_notes": "artifact://finding-list"
+    }
+  },
+  "notes": "Use synthetic or already-public targets only. Do not include secrets in sample evidence."
+}
+

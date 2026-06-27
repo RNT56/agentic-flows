@@ -30,6 +30,9 @@ jobs:
       - name: Validate run bundles
         run: flowctl validate-run examples/runs/
 
+      - name: Validate flow samples
+        run: flowctl validate-samples
+
       - name: Generate flow report
         run: flowctl report
 

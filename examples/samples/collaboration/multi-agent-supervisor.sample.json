@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "collaboration.multi-agent-supervisor",
+    "version": "0.1.0",
+    "source": "flows/collaboration/multi-agent-supervisor/flow.yaml"
+  },
+  "inputs": {
+    "objective": "Prepare a release-readiness pass for a repo by splitting docs, tests, and packaging checks into independent lanes.",
+    "constraints": "Do not let workers edit the same file paths. Each lane must report commands run, changed files, blockers, and residual risk."
+  },
+  "expected_outputs": {
+    "consolidated_result": "A markdown merge report with lane owners, evidence, conflicts, blockers, and a final readiness recommendation."
+  },
+  "notes": "Use this sample for supervisor planning, not for assuming a specific project runtime."
+}
+

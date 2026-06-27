@@ -1,0 +1,186 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "collaboration.multi-agent-supervisor",
+    "version": "0.1.0",
+    "source": "flows/collaboration/multi-agent-supervisor/flow.yaml"
+  },
+  "run": {
+    "id": "run-multi-agent-supervisor-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T14:20:00Z",
+    "completed_at": "2026-06-27T14:26:00Z"
+  },
+  "inputs": {
+    "objective": "Prepare a release-readiness pass by splitting docs, tests, and packaging checks into independent lanes.",
+    "constraints": "Workers must not edit overlapping file paths and must return command evidence."
+  },
+  "outputs": {
+    "consolidated_result": "Three lanes completed with no path conflicts. Docs and tests passed. Packaging check identified one follow-up before release."
+  },
+  "artifacts": [
+    {
+      "id": "lane-plan",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-multi-agent-supervisor-0001/lane-plan.md"
+    },
+    {
+      "id": "worker-results",
+      "kind": "json",
+      "uri": "artifact://runs/run-multi-agent-supervisor-0001/worker-results.json"
+    },
+    {
+      "id": "merge-report",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-multi-agent-supervisor-0001/merge-report.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "run-multi-agent-supervisor-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T14:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "run-multi-agent-supervisor-0001",
+      "node_id": "intake",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:20:20Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "run-multi-agent-supervisor-0001",
+      "node_id": "decompose",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:21:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "run-multi-agent-supervisor-0001",
+      "node_id": "dispatch",
+      "event": "worker.dispatched",
+      "timestamp": "2026-06-27T14:21:10Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "lanes": ["docs", "tests", "packaging"]
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "run-multi-agent-supervisor-0001",
+      "node_id": "dispatch",
+      "event": "worker.completed",
+      "timestamp": "2026-06-27T14:24:30Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "completed_lanes": ["docs", "tests", "packaging"]
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "run-multi-agent-supervisor-0001",
+      "node_id": "dispatch",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:24:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "run-multi-agent-supervisor-0001",
+      "node_id": "reconcile",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T14:25:10Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "lanes-non-overlapping",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "kind": "lane-plan",
+          "uri": "artifact://runs/run-multi-agent-supervisor-0001/lane-plan.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "run-multi-agent-supervisor-0001",
+      "node_id": "reconcile",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T14:25:30Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "worker-evidence-present",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "kind": "worker-results",
+          "uri": "artifact://runs/run-multi-agent-supervisor-0001/worker-results.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "run-multi-agent-supervisor-0001",
+      "node_id": "reconcile",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:25:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "run-multi-agent-supervisor-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T14:26:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "collaboration.multi-agent-supervisor",
+      "flow_version": "0.1.0",
+      "run_id": "run-multi-agent-supervisor-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T14:26:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

@@ -32,6 +32,7 @@ One or two sentences describing the release impact.
 - `flowctl validate`
 - `flowctl validate-event examples/`
 - `flowctl validate-run examples/runs/`
+- `flowctl validate-samples`
 - `flowctl report`
 - `pytest`
 - GitHub Actions run:
@@ -42,4 +43,3 @@ One or two sentences describing the release impact.
 ```
 
 Before publishing, copy the relevant section from `CHANGELOG.md` and add validation links.
-

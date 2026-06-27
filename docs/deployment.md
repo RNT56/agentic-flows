@@ -13,6 +13,7 @@ Required gates before pushing:
 flowctl validate
 flowctl validate-event examples/standalone/event.sample.json
 flowctl validate-run examples/runs/
+flowctl validate-samples
 flowctl report
 pytest
 ```

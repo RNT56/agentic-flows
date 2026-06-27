@@ -35,6 +35,7 @@ python -m pip install -e . pytest
 flowctl validate
 flowctl validate-event examples/standalone/event.sample.json
 flowctl validate-run examples/runs/
+flowctl validate-samples
 flowctl report
 flowctl list
 flowctl graph flows/coding/feature-implementation/flow.yaml --format dot

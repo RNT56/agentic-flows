@@ -73,3 +73,17 @@ It verifies:
 - completed runs include `flow.completed`
 - completed runs include required outputs
 - every required quality gate has passed `gate.completed` evidence
+
+## Sample validation
+
+`flowctl validate-samples` checks `*.sample.json` files under `examples/samples/`.
+
+It verifies:
+
+- the referenced source flow exists and validates
+- sample flow id and version match the source flow
+- all required inputs are present
+- all required expected outputs are present
+- unknown input or output ids are rejected
+- sample values match the declared contract field types
+- every production flow under `flows/` has a sample when the command is run with default paths

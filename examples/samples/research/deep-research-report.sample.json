@@ -1,0 +1,23 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "research.deep-research-report",
+    "version": "0.1.0",
+    "source": "flows/research/deep-research-report/flow.yaml"
+  },
+  "inputs": {
+    "question": "What are the current best practices for safely exposing local developer tools to agent workflows?",
+    "constraints": "Prioritize primary documentation and security guidance. Include caveats for stale or vendor-specific claims."
+  },
+  "expected_outputs": {
+    "report": "An answer-first markdown report with findings, caveats, and implementation implications.",
+    "bibliography": [
+      {
+        "title": "Source title",
+        "url": "https://example.com/source",
+        "retrieved_at": "2026-06-27T00:00:00Z"
+      }
+    ]
+  },
+  "notes": "Use this sample when source freshness and evidence reconciliation matter."
+}

@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "coding.feature-implementation",
+    "version": "0.1.0",
+    "source": "flows/coding/feature-implementation/flow.yaml"
+  },
+  "inputs": {
+    "task": "Add a feature.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "expected_outputs": {
+    "patch": "A source diff.",
+    "closeout": "A closeout summary.",
+    "unexpected": "This output is not declared by the flow."
+  }
+}

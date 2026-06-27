@@ -16,6 +16,7 @@ This folder is the operating handbook for `agentic-flows`.
 - [Flow spec](flow-spec.md): required flow fields, node types, gates, and validation semantics.
 - [Workflow authoring](workflow-authoring.md): how to design, review, and maintain flow definitions.
 - [Operating workflows](operating-workflows.md): day-to-day change, review, adapter, and release workflows.
+- [Flow samples](flow-samples.md): sample input and expected-output contract examples.
 - [Run bundles](run-bundles.md): evidence bundle format and validation rules.
 - [Best practices](best-practices.md): rules for safe, reusable, and runtime-neutral flows.
 - [Testing strategy](testing-strategy.md): validation, fixtures, CI, adapter smoke tests, and release gates.
