@@ -41,6 +41,49 @@ DEFAULT_MARKDOWN_SEARCH_ROOTS = [
     REPO_ROOT / "integrations",
 ]
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*]\(([^)]+)\)")
+FLOW_KEY_ORDER = [
+    "spec_version",
+    "id",
+    "version",
+    "title",
+    "summary",
+    "stability",
+    "deprecated_by",
+    "migration",
+    "owners",
+    "tags",
+    "entrypoint",
+    "runtime",
+    "contracts",
+    "nodes",
+    "edges",
+    "quality_gates",
+    "observability",
+]
+MIGRATION_KEY_ORDER = ["summary", "steps"]
+RUNTIME_KEY_ORDER = ["supported_cores", "required_capabilities", "adapter_hints"]
+CONTRACTS_KEY_ORDER = ["inputs", "outputs", "artifacts"]
+CONTRACT_FIELD_KEY_ORDER = ["id", "type", "required", "description"]
+NODE_KEY_ORDER = [
+    "id",
+    "type",
+    "title",
+    "description",
+    "agent",
+    "tool",
+    "timeout_seconds",
+    "requires",
+    "produces",
+    "policy",
+]
+EDGE_KEY_ORDER = ["from", "to", "condition"]
+QUALITY_GATE_KEY_ORDER = ["id", "title", "type", "required", "command", "evidence", "evidence_refs"]
+OBSERVABILITY_KEY_ORDER = ["events", "metrics"]
+
+
+class IndentedSafeDumper(yaml.SafeDumper):
+    def increase_indent(self, flow: bool = False, indentless: bool = False) -> Any:
+        return super().increase_indent(flow, False)
 
 
 def load_yaml(path: Path) -> dict[str, Any]:
@@ -179,6 +222,92 @@ def validate_flow_document(document: dict[str, Any], schema: dict[str, Any]) -> 
     ]
     errors.extend(validate_semantics(document))
     return errors
+
+
+def normalize_flow_document(document: dict[str, Any]) -> dict[str, Any]:
+    return order_mapping(
+        document,
+        FLOW_KEY_ORDER,
+        child_orders={
+            "migration": MIGRATION_KEY_ORDER,
+            "runtime": RUNTIME_KEY_ORDER,
+            "contracts": CONTRACTS_KEY_ORDER,
+            "observability": OBSERVABILITY_KEY_ORDER,
+        },
+        list_child_orders={
+            "inputs": CONTRACT_FIELD_KEY_ORDER,
+            "outputs": CONTRACT_FIELD_KEY_ORDER,
+            "nodes": NODE_KEY_ORDER,
+            "edges": EDGE_KEY_ORDER,
+            "quality_gates": QUALITY_GATE_KEY_ORDER,
+        },
+    )
+
+
+def order_mapping(
+    value: Any,
+    key_order: list[str] | None = None,
+    *,
+    child_orders: dict[str, list[str]] | None = None,
+    list_child_orders: dict[str, list[str]] | None = None,
+) -> Any:
+    if isinstance(value, list):
+        return [order_mapping(item) for item in value]
+    if not isinstance(value, dict):
+        return value
+
+    child_orders = child_orders or {}
+    list_child_orders = list_child_orders or {}
+    ordered: dict[str, Any] = {}
+    keys = list(value)
+    if key_order:
+        keys = [key for key in key_order if key in value] + sorted(key for key in value if key not in key_order)
+    else:
+        keys = sorted(keys)
+
+    for key in keys:
+        item = value[key]
+        if key in child_orders and isinstance(item, dict):
+            ordered[key] = order_mapping(
+                item,
+                child_orders[key],
+                child_orders=child_orders,
+                list_child_orders=list_child_orders,
+            )
+        elif key in list_child_orders and isinstance(item, list):
+            ordered[key] = [
+                order_mapping(
+                    element,
+                    list_child_orders[key],
+                    child_orders=child_orders,
+                    list_child_orders=list_child_orders,
+                )
+                if isinstance(element, dict)
+                else order_mapping(element, child_orders=child_orders, list_child_orders=list_child_orders)
+                for element in item
+            ]
+        elif isinstance(item, dict):
+            ordered[key] = order_mapping(item, child_orders=child_orders, list_child_orders=list_child_orders)
+        elif isinstance(item, list):
+            ordered[key] = [
+                order_mapping(element, child_orders=child_orders, list_child_orders=list_child_orders)
+                for element in item
+            ]
+        else:
+            ordered[key] = item
+
+    return ordered
+
+
+def dump_yaml(document: dict[str, Any]) -> str:
+    dumped = yaml.dump(
+        document,
+        Dumper=IndentedSafeDumper,
+        sort_keys=False,
+        allow_unicode=False,
+        width=120,
+    )
+    return dumped if dumped.endswith("\n") else dumped + "\n"
 
 
 def validate_event_document(document: dict[str, Any], schema: dict[str, Any]) -> list[str]:
@@ -712,6 +841,61 @@ def cmd_validate(args: argparse.Namespace) -> int:
         return 1
 
     print(f"Validated {len(flow_files)} flow file(s)")
+    return 0
+
+
+def cmd_normalize(args: argparse.Namespace) -> int:
+    schema = load_json(args.schema)
+    flow_files = find_flow_files(args.paths)
+    if not flow_files:
+        print("No flow.yaml files found", file=sys.stderr)
+        return 1
+
+    failures = 0
+    changed = 0
+    for path in flow_files:
+        if not path.exists():
+            print(f"FAIL {path}: path does not exist", file=sys.stderr)
+            failures += 1
+            continue
+        try:
+            document = load_yaml(path)
+            errors = validate_flow_document(document, schema)
+            if errors:
+                failures += 1
+                print(f"FAIL {path}", file=sys.stderr)
+                for error in errors:
+                    print(f"  - {error}", file=sys.stderr)
+                continue
+            normalized = dump_yaml(normalize_flow_document(document))
+            current = path.read_text(encoding="utf-8")
+        except Exception as exc:  # noqa: BLE001 - CLI should report file context
+            print(f"FAIL {path}: {exc}", file=sys.stderr)
+            failures += 1
+            continue
+
+        if normalized == current:
+            if args.verbose:
+                print(f"OK   {path}")
+            continue
+
+        changed += 1
+        if args.write:
+            path.write_text(normalized, encoding="utf-8")
+            if args.verbose:
+                print(f"WROTE {path}")
+        else:
+            print(f"FAIL {path}: not normalized", file=sys.stderr)
+            failures += 1
+
+    if failures:
+        print(f"{failures} flow file(s) failed normalization", file=sys.stderr)
+        return 1
+
+    if args.write:
+        print(f"Normalized {changed} of {len(flow_files)} flow file(s)")
+    else:
+        print(f"Checked normalization for {len(flow_files)} flow file(s)")
     return 0
 
 
@@ -1300,6 +1484,12 @@ def build_parser() -> argparse.ArgumentParser:
     validate.add_argument("paths", nargs="*", type=Path, help="Flow files or directories. Defaults to flows/ and templates/.")
     validate.add_argument("-v", "--verbose", action="store_true", help="Print each passing file.")
     validate.set_defaults(func=cmd_validate)
+
+    normalize = subparsers.add_parser("normalize", help="Check or rewrite flow.yaml files into canonical YAML order.")
+    normalize.add_argument("paths", nargs="*", type=Path, help="Flow files or directories. Defaults to flows/ and templates/.")
+    normalize.add_argument("--write", action="store_true", help="Rewrite files instead of checking them.")
+    normalize.add_argument("-v", "--verbose", action="store_true", help="Print each passing or written file.")
+    normalize.set_defaults(func=cmd_normalize)
 
     validate_event = subparsers.add_parser("validate-event", help="Validate event JSON files.")
     validate_event.add_argument("paths", nargs="*", type=Path, help="Event files or directories. Defaults to examples/.")

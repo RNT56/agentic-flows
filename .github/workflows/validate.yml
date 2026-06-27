@@ -24,6 +24,9 @@ jobs:
       - name: Validate flow definitions
         run: flowctl validate
 
+      - name: Check flow normalization
+        run: flowctl normalize
+
       - name: Validate event examples
         run: flowctl validate-event examples/
 

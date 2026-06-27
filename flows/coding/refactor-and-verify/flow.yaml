@@ -114,7 +114,7 @@ quality_gates:
     title: Checks pass after refactor
     type: command
     required: true
-    command: "make test || npm test || cargo test || go test ./..."
+    command: make test || npm test || cargo test || go test ./...
     evidence: Post-refactor check output.
     evidence_refs:
       - post-refactor-log

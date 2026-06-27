@@ -6,6 +6,7 @@ Run before pushing:
 
 ```bash
 flowctl validate
+flowctl normalize
 flowctl validate-event examples/standalone/event.sample.json
 flowctl validate-run examples/runs/
 flowctl replay examples/runs/feature-implementation.run.json --json
@@ -35,6 +36,7 @@ The GitHub Actions workflow should run:
 
 - package installation
 - flow validation
+- flow normalization check
 - event validation
 - run bundle validation
 - run bundle replay

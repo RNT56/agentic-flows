@@ -12,9 +12,10 @@
 8. Add observability events that a runtime can realistically emit.
 9. Add a README with a maturity rubric next to any reusable production flow.
 10. Add a sample under `examples/samples/` for reusable production flows.
-11. Run `flowctl validate <path>`.
-12. Run `flowctl validate-samples`.
-13. Add tests or fixtures when the flow requires new schema behavior.
+11. Run `flowctl normalize --write <path>`.
+12. Run `flowctl validate <path>`.
+13. Run `flowctl validate-samples`.
+14. Add tests or fixtures when the flow requires new schema behavior.
 
 ## Flow review checklist
 

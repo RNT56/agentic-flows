@@ -24,10 +24,10 @@ runtime:
     - evidence.capture
     - human.review
   adapter_hints:
-    nilcore:
-      execution_mode: sandboxed-worker
     crustcore:
       proof_surface: verified-patch
+    nilcore:
+      execution_mode: sandboxed-worker
     thinclaw:
       routine_type: operator-supervised
 contracts:
@@ -139,7 +139,7 @@ quality_gates:
     title: Project checks pass
     type: command
     required: true
-    command: "make test || npm test || cargo test || go test ./..."
+    command: make test || npm test || cargo test || go test ./...
     evidence: Test, build, or lint output selected by the runtime.
     evidence_refs:
       - test-log

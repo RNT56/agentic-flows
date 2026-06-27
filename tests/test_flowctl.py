@@ -6,6 +6,7 @@ from flowctl.cli import (
     DEFAULT_SCHEMA,
     build_replay_summary,
     build_report_summary,
+    dump_yaml,
     find_flow_files,
     find_json_files,
     find_markdown_files,
@@ -13,6 +14,7 @@ from flowctl.cli import (
     find_sample_files,
     load_json,
     load_yaml,
+    normalize_flow_document,
     validate_event_document,
     validate_flow_document,
     validate_changelog,
@@ -30,6 +32,18 @@ def test_repository_flows_are_valid() -> None:
         errors = validate_flow_document(load_yaml(path), schema)
         if errors:
             failures.append(f"{path}: {errors}")
+
+    assert failures == []
+
+
+def test_repository_flows_are_normalized() -> None:
+    failures: list[str] = []
+
+    for path in find_flow_files([]):
+        document = load_yaml(path)
+        normalized = dump_yaml(normalize_flow_document(document))
+        if path.read_text(encoding="utf-8") != normalized:
+            failures.append(str(path))
 
     assert failures == []
 

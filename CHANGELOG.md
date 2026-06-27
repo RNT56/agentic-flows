@@ -25,6 +25,7 @@ This project follows semantic versioning for releases and keeps flow compatibili
 - Added run evidence ids and validation that passed gate evidence matches declared gate `evidence_refs`.
 - Added `flowctl replay` for validated run-bundle timelines.
 - Added `flowctl changelog-check` and `flowctl check-links` with CI coverage.
+- Added `flowctl normalize` for deterministic flow YAML ordering with CI coverage.
 - Added a completed feature implementation run example.
 - Added completed standalone run examples for human review and multi-agent supervisor flows.
 - Added a compatibility matrix and run-bundle guidance.

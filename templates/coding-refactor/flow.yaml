@@ -69,7 +69,7 @@ quality_gates:
     title: Equivalence checks
     type: command
     required: true
-    command: "make test"
+    command: make test
     evidence: Replace with the project-specific equivalence check.
     evidence_refs:
       - equivalence-report

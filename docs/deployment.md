@@ -11,6 +11,7 @@ Required gates before pushing:
 
 ```bash
 flowctl validate
+flowctl normalize
 flowctl validate-event examples/standalone/event.sample.json
 flowctl validate-run examples/runs/
 flowctl replay examples/runs/feature-implementation.run.json --json

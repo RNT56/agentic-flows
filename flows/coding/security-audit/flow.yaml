@@ -125,7 +125,7 @@ quality_gates:
     title: Scanners run or explained
     type: command
     required: true
-    command: "make security || npm audit || cargo audit || go test ./..."
+    command: make security || npm audit || cargo audit || go test ./...
     evidence: Scanner output or a clear explanation why a scanner was unavailable.
     evidence_refs:
       - scan-log

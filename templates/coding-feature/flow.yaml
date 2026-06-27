@@ -62,7 +62,7 @@ quality_gates:
     title: Project checks
     type: command
     required: true
-    command: "make test"
+    command: make test
     evidence: Replace with the project-specific validation command.
     evidence_refs:
       - test-log
