@@ -8,12 +8,13 @@
 4. Declare required capabilities before writing nodes.
 5. Write the graph from entrypoint to finalizer.
 6. Add at least one required quality gate.
-7. Add observability events that a runtime can realistically emit.
-8. Add a README next to any reusable production flow.
-9. Add a sample under `examples/samples/` for reusable production flows.
-10. Run `flowctl validate <path>`.
-11. Run `flowctl validate-samples`.
-12. Add tests or fixtures when the flow requires new schema behavior.
+7. Add `evidence_refs` to every required gate, pointing only to declared artifacts or events.
+8. Add observability events that a runtime can realistically emit.
+9. Add a README with a maturity rubric next to any reusable production flow.
+10. Add a sample under `examples/samples/` for reusable production flows.
+11. Run `flowctl validate <path>`.
+12. Run `flowctl validate-samples`.
+13. Add tests or fixtures when the flow requires new schema behavior.
 
 ## Flow review checklist
 
@@ -22,9 +23,11 @@
 - Does every edge reference a real node?
 - Is every node reachable from the entrypoint?
 - Are quality gates specific and required where needed?
+- Do required gates name machine-checkable `evidence_refs`?
 - Are runtime-specific details isolated under `runtime.adapter_hints`?
 - Does the flow avoid naming implementation details from one core as universal concepts?
 - Does the README explain when to use the flow and how optional consumers could map it?
+- Does the README include a maturity rubric with evidence and promotion gaps?
 - Does the flow have a sample with required inputs and expected outputs?
 
 ## Stability promotion
@@ -51,4 +54,4 @@ Deprecated flows should include:
 - Why they are deprecated.
 - What replaces them.
 - Which release will remove them.
-- Migration notes for consuming projects.
+- `deprecated_by` plus `migration.summary` and `migration.steps`.

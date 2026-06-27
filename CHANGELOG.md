@@ -18,6 +18,9 @@ This project follows semantic versioning for releases and keeps flow compatibili
 - Added `flowctl validate-samples` for flow input/output sample validation.
 - Added sample input and expected-output files for every production flow.
 - Added semantic validation for node requirements and required contract outputs.
+- Added semantic validation for required quality gate `evidence_refs`.
+- Added optional `deprecated_by` and `migration` metadata for future flow replacements.
+- Added maturity rubrics to production flow READMEs.
 - Added a completed feature implementation run example.
 - Added completed standalone run examples for human review and multi-agent supervisor flows.
 - Added a compatibility matrix and run-bundle guidance.

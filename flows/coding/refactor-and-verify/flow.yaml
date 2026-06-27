@@ -44,7 +44,9 @@ contracts:
   artifacts:
     - plan
     - diff
-    - test-log
+    - baseline-log
+    - post-refactor-log
+    - equivalence-report
 nodes:
   - id: intake
     type: intake
@@ -86,6 +88,7 @@ nodes:
     requires:
       - patch
     produces:
+      - post-refactor-log
       - equivalence-report
   - id: final
     type: finalizer
@@ -113,11 +116,15 @@ quality_gates:
     required: true
     command: "make test || npm test || cargo test || go test ./..."
     evidence: Post-refactor check output.
+    evidence_refs:
+      - post-refactor-log
   - id: no-intended-behavior-change
     title: No intended behavior change
     type: review
     required: true
     evidence: Verifier comparison against declared invariants.
+    evidence_refs:
+      - equivalence-report
 observability:
   events:
     - flow.started
@@ -127,4 +134,3 @@ observability:
   metrics:
     - duration.seconds
     - changed.files
-

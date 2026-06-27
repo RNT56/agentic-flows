@@ -69,7 +69,9 @@ A workflow is ready to use when:
 3. Every edge references an existing node.
 4. Every node is reachable from the entrypoint.
 5. At least one required quality gate is present.
-6. A consuming project records events compatible with `schemas/event.schema.json`.
+6. Required quality gates name declared artifact or event evidence refs.
+7. The flow README includes a maturity rubric.
+8. A consuming project records events compatible with `schemas/event.schema.json`.
 
 See [docs/project-plan.md](docs/project-plan.md) for the upgraded plan and [docs/core-integration.md](docs/core-integration.md) for runtime expectations.
 

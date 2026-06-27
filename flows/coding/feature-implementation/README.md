@@ -12,3 +12,13 @@ The core shape is:
 6. Close out with evidence.
 
 If those independent projects choose to consume this flow, NilCore can map the execution work to sandboxed jobs, CrustCore can map the gates to verifier-backed proof, and ThinClaw can map approvals and closeout to operator-facing routine state.
+
+## Maturity rubric
+
+| Area | Status | Evidence |
+| --- | --- | --- |
+| Schema validity | Ready | `flowctl validate` covers graph, contract outputs, and required gate evidence refs. |
+| Sample contract | Ready | `examples/samples/coding/feature-implementation.sample.json` covers required inputs and expected outputs. |
+| Run evidence | Ready | `examples/runs/feature-implementation.run.json` includes completed gate and output evidence. |
+| Optional consumers | Preview | ThinClaw, NilCore, and CrustCore support is declared as optional adapter intent only. |
+| Promotion gate | Open | Needs one real adapter smoke result per listed optional consumer before `stable`. |

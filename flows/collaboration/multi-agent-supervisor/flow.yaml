@@ -107,11 +107,15 @@ quality_gates:
     type: review
     required: true
     evidence: Lane plan declares owners, paths, and integration boundaries.
+    evidence_refs:
+      - lane-plan
   - id: worker-evidence-present
     title: Worker evidence present
     type: artifact
     required: true
     evidence: Each lane includes output, checks, and residual risk.
+    evidence_refs:
+      - worker-results
 observability:
   events:
     - flow.started
@@ -124,4 +128,3 @@ observability:
     - lanes.count
     - workers.count
     - duration.seconds
-

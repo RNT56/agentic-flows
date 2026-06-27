@@ -57,6 +57,15 @@ def test_missing_node_requirement_is_rejected() -> None:
     assert any("'never-produced' is not produced" in error for error in errors)
 
 
+def test_undeclared_gate_evidence_ref_is_rejected() -> None:
+    schema = load_json(DEFAULT_SCHEMA)
+    invalid = load_yaml(Path("tests/fixtures/invalid-gate-evidence-ref.yaml"))
+
+    errors = validate_flow_document(invalid, schema)
+
+    assert any("'undeclared-proof' is not declared" in error for error in errors)
+
+
 def test_sample_event_matches_event_schema() -> None:
     schema = load_json(Path("schemas/event.schema.json"))
     with Path("examples/standalone/event.sample.json").open("r", encoding="utf-8") as handle:

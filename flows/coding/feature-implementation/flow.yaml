@@ -141,11 +141,15 @@ quality_gates:
     required: true
     command: "make test || npm test || cargo test || go test ./..."
     evidence: Test, build, or lint output selected by the runtime.
+    evidence_refs:
+      - test-log
   - id: acceptance-covered
     title: Acceptance criteria covered
     type: review
     required: true
     evidence: Verifier notes mapping implementation to acceptance criteria.
+    evidence_refs:
+      - review-notes
 observability:
   events:
     - flow.started
@@ -157,4 +161,3 @@ observability:
     - duration.seconds
     - changed.files
     - tests.executed
-

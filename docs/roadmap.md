@@ -44,7 +44,7 @@ Acceptance gates:
 
 ## Phase 2: Flow quality and catalog maturity
 
-Status: planned.
+Status: in progress.
 
 Goals:
 
@@ -57,7 +57,8 @@ Acceptance gates:
 
 - `flowctl report` can summarize flow maturity and optional consumers.
 - Every production flow has a sample input and expected output contract.
-- Every preview flow has a documented path to stability.
+- Every production flow has a maturity rubric with a documented path to promotion.
+- Required gate evidence references are machine-checkable.
 
 ## Phase 3: Optional adapter smoke tests
 

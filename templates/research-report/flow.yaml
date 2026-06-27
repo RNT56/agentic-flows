@@ -27,6 +27,8 @@ contracts:
       type: markdown
       required: true
       description: Evidence-backed research report.
+  artifacts:
+    - source-log
 nodes:
   - id: intake
     type: intake
@@ -60,6 +62,8 @@ quality_gates:
     type: artifact
     required: true
     evidence: Final report links claims to sources.
+    evidence_refs:
+      - source-log
 observability:
   events:
     - flow.started

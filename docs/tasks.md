@@ -13,22 +13,25 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Add `flowctl validate-run` for required gate evidence.
 - [x] Add human review completed run example.
 - [x] Add multi-agent supervisor completed run example.
+- [x] Add quality gate evidence reference validation.
+- [x] Add maturity rubrics for production flow READMEs.
+- [x] Add optional deprecation and migration metadata.
 
 ## Flow catalog tasks
 
 - [x] Add sample inputs for every production flow.
 - [x] Add expected outputs for every production flow.
-- [ ] Add a flow maturity rubric to each production flow README.
+- [x] Add a flow maturity rubric to each production flow README.
 - [ ] Add flow ownership metadata once real owners exist.
 - [ ] Split any project-specific behavior out of reusable flows.
 
 ## Schema tasks
 
-- [ ] Add optional `deprecated_by` and `migration` fields.
+- [x] Add optional `deprecated_by` and `migration` fields.
 - [x] Add schema coverage for run bundles.
 - [x] Add semantic validation that node `requires` reference declared artifacts or prior `produces`.
 - [x] Add semantic validation that outputs are produced by reachable nodes.
-- [ ] Add semantic validation that quality gate evidence names are declared artifacts or events.
+- [x] Add semantic validation that quality gate evidence names are declared artifacts or events.
 
 ## Tooling tasks
 

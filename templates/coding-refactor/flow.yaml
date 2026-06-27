@@ -28,6 +28,8 @@ contracts:
       type: markdown
       required: true
       description: Refactor summary and equivalence evidence.
+  artifacts:
+    - equivalence-report
 nodes:
   - id: intake
     type: intake
@@ -69,6 +71,8 @@ quality_gates:
     required: true
     command: "make test"
     evidence: Replace with the project-specific equivalence check.
+    evidence_refs:
+      - equivalence-report
 observability:
   events:
     - flow.started

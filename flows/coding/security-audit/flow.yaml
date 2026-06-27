@@ -119,12 +119,16 @@ quality_gates:
     type: review
     required: true
     evidence: Each finding has file, line, command, trace, or dependency evidence.
+    evidence_refs:
+      - finding-list
   - id: scanners-run-or-explained
     title: Scanners run or explained
     type: command
     required: true
     command: "make security || npm audit || cargo audit || go test ./..."
     evidence: Scanner output or a clear explanation why a scanner was unavailable.
+    evidence_refs:
+      - scan-log
 observability:
   events:
     - flow.started
@@ -134,4 +138,3 @@ observability:
   metrics:
     - duration.seconds
     - findings.count
-

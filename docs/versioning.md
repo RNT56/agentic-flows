@@ -27,6 +27,16 @@ Increment:
 - Minor for additive nodes, gates, outputs, or capabilities.
 - Major when inputs, outputs, core support, or required gates change incompatibly.
 
+## Deprecation metadata
+
+Use `deprecated_by` when a flow has a replacement. Add `migration.summary` and `migration.steps` in the same change so optional consumers can move without guessing.
+
+Deprecation rules:
+
+- Do not delete a published flow until at least one tagged release has included the replacement and migration guidance.
+- Keep deprecated flows valid under `flowctl validate`.
+- Keep samples and run evidence available until the replacement has equivalent evidence.
+
 ## Stability levels
 
 - `experimental`: Safe to iterate; optional consumers should pin exact commits.

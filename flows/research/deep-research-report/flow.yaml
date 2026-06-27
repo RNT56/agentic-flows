@@ -112,11 +112,15 @@ quality_gates:
     type: artifact
     required: true
     evidence: Report contains source references and bibliography metadata.
+    evidence_refs:
+      - source-log
   - id: conflicting-evidence-addressed
     title: Conflicting evidence addressed
     type: review
     required: true
     evidence: Synthesis notes identify unresolved disagreements or gaps.
+    evidence_refs:
+      - synthesis-notes
 observability:
   events:
     - flow.started
@@ -126,4 +130,3 @@ observability:
   metrics:
     - sources.count
     - duration.seconds
-

@@ -108,6 +108,8 @@ quality_gates:
     type: artifact
     required: true
     evidence: Operator decision includes rationale and timestamp.
+    evidence_refs:
+      - decision-record
 observability:
   events:
     - flow.started

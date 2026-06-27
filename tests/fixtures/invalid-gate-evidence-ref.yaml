@@ -1,8 +1,8 @@
 spec_version: agentic-flows/v1
-id: fixture.invalid-missing-requirement
+id: fixture.invalid-gate-evidence-ref
 version: 0.1.0
-title: Invalid missing requirement fixture
-summary: A fixture whose node requires a value that is never produced upstream.
+title: Invalid gate evidence reference fixture
+summary: A fixture whose required gate references evidence that is not declared.
 stability: experimental
 owners:
   - agentic-flows
@@ -24,7 +24,7 @@ contracts:
       type: markdown
       required: true
   artifacts:
-    - gate-proof
+    - declared-proof
 nodes:
   - id: intake
     type: intake
@@ -37,7 +37,7 @@ nodes:
     title: Final
     description: Return the result.
     requires:
-      - never-produced
+      - scoped-task
     produces:
       - report
 edges:
@@ -49,7 +49,7 @@ quality_gates:
     type: review
     required: true
     evidence_refs:
-      - gate-proof
+      - undeclared-proof
 observability:
   events:
     - flow.started

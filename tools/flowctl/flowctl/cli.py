@@ -438,6 +438,11 @@ def is_rfc3339_datetime(value: str) -> bool:
 def validate_semantics(document: dict[str, Any]) -> list[str]:
     errors: list[str] = []
 
+    if "deprecated_by" in document and "migration" not in document:
+        errors.append("$.migration: deprecated flows require migration guidance")
+    if "migration" in document and "deprecated_by" not in document:
+        errors.append("$.deprecated_by: migration guidance requires deprecated_by")
+
     nodes = document.get("nodes", [])
     if not isinstance(nodes, list):
         return errors
@@ -495,6 +500,33 @@ def validate_semantics(document: dict[str, Any]) -> list[str]:
                 continue
             if gate.get("type") == "command" and not gate.get("command"):
                 errors.append(f"$.quality_gates[{index}].command: command gates require a command")
+            errors.extend(validate_quality_gate_evidence_refs(document, gate, index))
+
+    return errors
+
+
+def validate_quality_gate_evidence_refs(document: dict[str, Any], gate: dict[str, Any], index: int) -> list[str]:
+    errors: list[str] = []
+    evidence_refs = gate.get("evidence_refs")
+    if gate.get("required") is True and not evidence_refs:
+        errors.append(f"$.quality_gates[{index}].evidence_refs: required gates need at least one evidence reference")
+        return errors
+    if not isinstance(evidence_refs, list):
+        return errors
+
+    declared_artifacts = {
+        item for item in document.get("contracts", {}).get("artifacts", []) if isinstance(item, str)
+    }
+    declared_events = {
+        item for item in document.get("observability", {}).get("events", []) if isinstance(item, str)
+    }
+    allowed_refs = declared_artifacts | declared_events
+
+    for ref in evidence_refs:
+        if isinstance(ref, str) and ref not in allowed_refs:
+            errors.append(
+                f"$.quality_gates[{index}].evidence_refs: '{ref}' is not declared in contracts.artifacts or observability.events"
+            )
 
     return errors
 
@@ -806,8 +838,11 @@ def cmd_report(args: argparse.Namespace) -> int:
         readme_path = path.with_name("README.md")
         is_production_flow = "flows" in path.parts
         has_sample = document.get("id") in sampled_flow_ids
+        has_maturity_rubric = readme_path.exists() and readme_has_maturity_rubric(readme_path)
         if is_production_flow and not readme_path.exists():
             issues.append("$.readme: reusable flows require a sibling README.md")
+        if is_production_flow and readme_path.exists() and not has_maturity_rubric:
+            issues.append("$.readme: production flow README requires a maturity rubric")
         if is_production_flow and not has_sample:
             issues.append("$.sample: production flows require an examples/samples/*.sample.json file")
         if document.get("stability") == "stable":
@@ -830,6 +865,7 @@ def cmd_report(args: argparse.Namespace) -> int:
                 "quality_gates": len(gates),
                 "required_quality_gates": len(required_gates),
                 "has_readme": readme_path.exists(),
+                "has_maturity_rubric": has_maturity_rubric,
                 "has_sample": has_sample,
             }
         )
@@ -860,6 +896,14 @@ def load_sampled_flow_ids() -> set[str]:
         if isinstance(flow_info, dict) and isinstance(flow_info.get("id"), str):
             flow_ids.add(flow_info["id"])
     return flow_ids
+
+
+def readme_has_maturity_rubric(path: Path) -> bool:
+    try:
+        content = path.read_text(encoding="utf-8").lower()
+    except OSError:
+        return False
+    return "## maturity rubric" in content
 
 
 def build_report_summary(entries: list[dict[str, Any]]) -> dict[str, Any]:

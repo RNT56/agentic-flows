@@ -22,6 +22,7 @@ Unit tests should cover:
 - valid repository flows
 - invalid schema fixtures
 - invalid semantic fixtures
+- required gate evidence reference fixtures
 - event schema validation
 - CLI command behavior
 

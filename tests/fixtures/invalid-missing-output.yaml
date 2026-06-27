@@ -23,6 +23,8 @@ contracts:
     - id: report
       type: markdown
       required: true
+  artifacts:
+    - gate-proof
 nodes:
   - id: intake
     type: intake
@@ -44,8 +46,9 @@ quality_gates:
     title: Required gate
     type: review
     required: true
+    evidence_refs:
+      - gate-proof
 observability:
   events:
     - flow.started
     - flow.completed
-

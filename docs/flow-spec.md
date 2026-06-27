@@ -10,6 +10,8 @@ The current spec version is `agentic-flows/v1`.
 - `title`: Human-readable flow name.
 - `summary`: Short purpose statement.
 - `stability`: `experimental`, `preview`, or `stable`.
+- `deprecated_by`: Optional replacement flow id when this flow is deprecated.
+- `migration`: Optional migration summary and steps. Required when `deprecated_by` is set.
 - `owners`: People or teams responsible for the flow.
 - `tags`: Search and grouping terms.
 - `entrypoint`: First node id.
@@ -36,6 +38,8 @@ The current spec version is `agentic-flows/v1`.
 
 Every flow must include at least one required quality gate.
 
+Use `evidence` for human-readable guidance. Use `evidence_refs` for machine-readable references to declared `contracts.artifacts` entries or `observability.events` names.
+
 Gate types:
 
 - `command`: A command or check the runtime should run or translate.
@@ -53,6 +57,9 @@ Gate types:
 - Every node is reachable from the entrypoint.
 - At least one quality gate is required.
 - Command gates include a command.
+- Required quality gates include `evidence_refs`.
+- Quality gate `evidence_refs` point to declared artifacts or events.
+- Deprecated flows include migration guidance.
 
 ## Event validation
 
