@@ -30,6 +30,9 @@ jobs:
       - name: Validate event examples
         run: flowctl validate-event examples/
 
+      - name: Validate event streams
+        run: flowctl validate-stream examples/streams/
+
       - name: Validate run bundles
         run: flowctl validate-run examples/runs/
 

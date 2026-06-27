@@ -80,7 +80,7 @@ Acceptance gates:
 
 ## Phase 4: Run evidence and replay
 
-Status: in progress.
+Status: complete.
 
 Goals:
 
@@ -94,6 +94,7 @@ Acceptance gates:
 - Missing required gate evidence fails validation.
 - Flow version mismatches fail validation.
 - Passed gate evidence matches declared gate evidence refs.
+- Multi-file event streams validate against source flow metadata.
 
 ## Phase 5: Release packaging
 

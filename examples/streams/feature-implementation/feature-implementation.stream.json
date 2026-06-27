@@ -1,0 +1,26 @@
+{
+  "event_stream_version": "agentic-flows.event-stream/v1",
+  "flow": {
+    "id": "coding.feature-implementation",
+    "version": "0.1.0",
+    "source": "flows/coding/feature-implementation/flow.yaml"
+  },
+  "run": {
+    "id": "stream-feature-implementation-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T16:00:00Z",
+    "completed_at": "2026-06-27T16:05:00Z"
+  },
+  "outputs": {
+    "patch": "artifact://streams/stream-feature-implementation-0001/diff.patch",
+    "closeout": "artifact://streams/stream-feature-implementation-0001/closeout.md"
+  },
+  "events": [
+    "events/001-flow-started.json",
+    "events/002-project-checks-pass.json",
+    "events/003-acceptance-covered.json",
+    "events/004-flow-completed.json"
+  ],
+  "notes": "Example of validating a run from separate event files instead of one run bundle."
+}

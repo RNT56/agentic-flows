@@ -1,0 +1,10 @@
+{
+  "event_version": "agentic-flows.events/v1",
+  "flow_id": "coding.feature-implementation",
+  "flow_version": "0.1.0",
+  "run_id": "stream-feature-implementation-0001",
+  "event": "flow.started",
+  "timestamp": "2026-06-27T16:00:00Z",
+  "core": "standalone",
+  "severity": "info"
+}

@@ -1,0 +1,22 @@
+{
+  "event_version": "agentic-flows.events/v1",
+  "flow_id": "coding.feature-implementation",
+  "flow_version": "0.1.0",
+  "run_id": "stream-feature-implementation-0001",
+  "node_id": "verify",
+  "event": "gate.completed",
+  "timestamp": "2026-06-27T16:04:30Z",
+  "core": "standalone",
+  "severity": "info",
+  "payload": {
+    "gate_id": "acceptance-covered",
+    "status": "passed"
+  },
+  "evidence": [
+    {
+      "id": "review-notes",
+      "kind": "markdown",
+      "uri": "artifact://streams/stream-feature-implementation-0001/review-notes.md"
+    }
+  ]
+}

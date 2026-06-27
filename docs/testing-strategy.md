@@ -8,6 +8,7 @@ Run before pushing:
 flowctl validate
 flowctl normalize
 flowctl validate-event examples/standalone/event.sample.json
+flowctl validate-stream examples/streams/
 flowctl validate-run examples/runs/
 flowctl replay examples/runs/feature-implementation.run.json --json
 flowctl validate-samples
@@ -38,6 +39,7 @@ The GitHub Actions workflow should run:
 - flow validation
 - flow normalization check
 - event validation
+- event stream validation
 - run bundle validation
 - run bundle replay
 - flow sample validation

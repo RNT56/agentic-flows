@@ -3,10 +3,12 @@ from pathlib import Path
 import json
 
 from flowctl.cli import (
+    DEFAULT_EVENT_STREAM_SCHEMA,
     DEFAULT_SCHEMA,
     build_replay_summary,
     build_report_summary,
     dump_yaml,
+    find_event_stream_files,
     find_flow_files,
     find_json_files,
     find_markdown_files,
@@ -16,6 +18,7 @@ from flowctl.cli import (
     load_yaml,
     normalize_flow_document,
     validate_event_document,
+    validate_event_stream_document,
     validate_flow_document,
     validate_changelog,
     validate_markdown_links,
@@ -128,6 +131,14 @@ def test_event_discovery_excludes_run_bundles() -> None:
     assert Path("examples/standalone/event.sample.json").resolve() in paths
     assert Path("examples/runs/feature-implementation.run.json").resolve() not in paths
     assert Path("examples/samples/coding/feature-implementation.sample.json").resolve() not in paths
+    assert Path("examples/streams/feature-implementation/feature-implementation.stream.json").resolve() not in paths
+    assert Path("examples/streams/feature-implementation/events/001-flow-started.json").resolve() in paths
+
+
+def test_event_stream_discovery_finds_stream_manifests() -> None:
+    paths = find_event_stream_files([Path("examples/streams")])
+
+    assert Path("examples/streams/feature-implementation/feature-implementation.stream.json").resolve() in paths
 
 
 def test_sample_discovery_finds_flow_samples() -> None:
@@ -161,6 +172,26 @@ def test_repository_run_bundles_are_valid() -> None:
 
     for path in find_run_files([Path("examples/runs")]):
         errors = validate_run_document(load_json(path), run_schema, event_schema, flow_schema, run_path=path)
+        if errors:
+            failures.append(f"{path}: {errors}")
+
+    assert failures == []
+
+
+def test_repository_event_streams_are_valid() -> None:
+    stream_schema = load_json(DEFAULT_EVENT_STREAM_SCHEMA)
+    event_schema = load_json(Path("schemas/event.schema.json"))
+    flow_schema = load_json(DEFAULT_SCHEMA)
+    failures: list[str] = []
+
+    for path in find_event_stream_files([Path("examples/streams")]):
+        errors = validate_event_stream_document(
+            load_json(path),
+            stream_schema,
+            event_schema,
+            flow_schema,
+            stream_path=path,
+        )
         if errors:
             failures.append(f"{path}: {errors}")
 
@@ -257,6 +288,24 @@ def test_run_bundle_wrong_gate_evidence_ref_is_rejected() -> None:
     )
 
     assert any("needs evidence id or kind matching one of: test-log" in error for error in errors)
+
+
+def test_event_stream_version_mismatch_is_rejected() -> None:
+    stream_schema = load_json(DEFAULT_EVENT_STREAM_SCHEMA)
+    event_schema = load_json(Path("schemas/event.schema.json"))
+    flow_schema = load_json(DEFAULT_SCHEMA)
+    stream = load_json(Path("tests/fixtures/invalid-event-stream-version-mismatch.stream.json"))
+
+    errors = validate_event_stream_document(
+        stream,
+        stream_schema,
+        event_schema,
+        flow_schema,
+        stream_path=Path("tests/fixtures/invalid-event-stream-version-mismatch.stream.json"),
+    )
+
+    assert any("$.flow.version: does not match source flow version" in error for error in errors)
+    assert any("$.events[0].flow_version: does not match run flow version" in error for error in errors)
 
 
 def test_report_summary_counts_stability_and_cores() -> None:

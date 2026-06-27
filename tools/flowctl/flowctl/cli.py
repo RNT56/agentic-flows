@@ -24,10 +24,12 @@ except ImportError as exc:  # pragma: no cover - exercised by users without deps
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SCHEMA = REPO_ROOT / "schemas" / "flow.schema.json"
 DEFAULT_EVENT_SCHEMA = REPO_ROOT / "schemas" / "event.schema.json"
+DEFAULT_EVENT_STREAM_SCHEMA = REPO_ROOT / "schemas" / "event-stream.schema.json"
 DEFAULT_RUN_SCHEMA = REPO_ROOT / "schemas" / "run.schema.json"
 DEFAULT_SAMPLE_SCHEMA = REPO_ROOT / "schemas" / "sample.schema.json"
 DEFAULT_SEARCH_ROOTS = [REPO_ROOT / "flows", REPO_ROOT / "templates"]
 DEFAULT_EVENT_SEARCH_ROOTS = [REPO_ROOT / "examples"]
+DEFAULT_EVENT_STREAM_SEARCH_ROOTS = [REPO_ROOT / "examples" / "streams"]
 DEFAULT_RUN_SEARCH_ROOTS = [REPO_ROOT / "examples" / "runs"]
 DEFAULT_SAMPLE_SEARCH_ROOTS = [REPO_ROOT / "examples" / "samples"]
 DEFAULT_MARKDOWN_SEARCH_ROOTS = [
@@ -161,6 +163,25 @@ def find_run_files(paths: Iterable[Path]) -> list[Path]:
     return sorted(dict.fromkeys(files))
 
 
+def find_event_stream_files(paths: Iterable[Path]) -> list[Path]:
+    selected = list(paths)
+    if not selected:
+        selected = DEFAULT_EVENT_STREAM_SEARCH_ROOTS
+
+    files: list[Path] = []
+    for path in selected:
+        path = path.resolve()
+        if path.is_file():
+            files.append(path)
+            continue
+        if not path.exists():
+            files.append(path)
+            continue
+        files.extend(sorted(path.rglob("*.stream.json")))
+
+    return sorted(dict.fromkeys(files))
+
+
 def find_sample_files(paths: Iterable[Path]) -> list[Path]:
     selected = list(paths)
     if not selected:
@@ -201,7 +222,11 @@ def find_markdown_files(paths: Iterable[Path]) -> list[Path]:
 
 
 def is_structured_example_json(path: Path) -> bool:
-    return path.name.endswith(".run.json") or ("samples" in path.parts and path.name.endswith(".sample.json"))
+    return (
+        path.name.endswith(".run.json")
+        or path.name.endswith(".stream.json")
+        or ("samples" in path.parts and path.name.endswith(".sample.json"))
+    )
 
 
 def format_error_path(parts: Iterable[Any]) -> str:
@@ -406,6 +431,111 @@ def validate_run_document(
                     errors.append(f"$.outputs.{output_id}: required output is missing")
 
     return errors
+
+
+def validate_event_stream_document(
+    document: dict[str, Any],
+    stream_schema: dict[str, Any],
+    event_schema: dict[str, Any],
+    flow_schema: dict[str, Any],
+    *,
+    stream_path: Path | None = None,
+) -> list[str]:
+    validator = Draft202012Validator(stream_schema, format_checker=FormatChecker())
+    errors = [
+        f"{format_error_path(error.path)}: {error.message}"
+        for error in sorted(validator.iter_errors(document), key=lambda err: list(err.path))
+    ]
+
+    run_info = document.get("run", {})
+    flow_info = document.get("flow", {})
+    if not isinstance(run_info, dict) or not isinstance(flow_info, dict):
+        return errors
+
+    if run_info.get("status") == "completed" and "completed_at" not in run_info:
+        errors.append("$.run.completed_at: completed event streams require completed_at")
+    for field in ("started_at", "completed_at"):
+        value = run_info.get(field)
+        if isinstance(value, str) and not is_rfc3339_datetime(value):
+            errors.append(f"$.run.{field}: expected RFC 3339 date-time")
+    if isinstance(run_info.get("started_at"), str) and isinstance(run_info.get("completed_at"), str):
+        started = parse_rfc3339(run_info["started_at"])
+        completed = parse_rfc3339(run_info["completed_at"])
+        if started and completed and completed < started:
+            errors.append("$.run.completed_at: must be greater than or equal to started_at")
+
+    flow_document: dict[str, Any] | None = None
+    flow_source = flow_info.get("source")
+    if isinstance(flow_source, str):
+        flow_path = resolve_flow_source(flow_source, stream_path)
+        if not flow_path.exists():
+            errors.append(f"$.flow.source: flow file does not exist: {flow_source}")
+        else:
+            try:
+                flow_document = load_yaml(flow_path)
+                for error in validate_flow_document(flow_document, flow_schema):
+                    errors.append(f"$.flow.source({flow_source}): {error}")
+            except Exception as exc:  # noqa: BLE001 - CLI should report stream context
+                errors.append(f"$.flow.source: {exc}")
+
+    if flow_document:
+        if flow_info.get("id") != flow_document.get("id"):
+            errors.append("$.flow.id: does not match source flow id")
+        if flow_info.get("version") != flow_document.get("version"):
+            errors.append("$.flow.version: does not match source flow version")
+        supported_cores = flow_document.get("runtime", {}).get("supported_cores", [])
+        if run_info.get("core") not in supported_cores:
+            errors.append("$.run.core: is not listed in source flow runtime.supported_cores")
+
+    events = load_event_stream_events(document.get("events", []), stream_path, errors)
+    if events:
+        errors.extend(
+            validate_run_events(
+                events,
+                event_schema,
+                flow_document=flow_document,
+                flow_id=flow_info.get("id"),
+                flow_version=flow_info.get("version"),
+                run_id=run_info.get("id"),
+                core=run_info.get("core"),
+                status=run_info.get("status"),
+            )
+        )
+
+    if flow_document and run_info.get("status") == "completed":
+        required_outputs = [
+            field["id"]
+            for field in flow_document.get("contracts", {}).get("outputs", [])
+            if isinstance(field, dict) and field.get("required") is True
+        ]
+        outputs = document.get("outputs", {})
+        if not isinstance(outputs, dict):
+            errors.append("$.outputs: completed event streams require an outputs object")
+        else:
+            for output_id in required_outputs:
+                if output_id not in outputs:
+                    errors.append(f"$.outputs.{output_id}: required output is missing")
+
+    return errors
+
+
+def load_event_stream_events(event_sources: Any, stream_path: Path | None, errors: list[str]) -> list[dict[str, Any]]:
+    events: list[dict[str, Any]] = []
+    if not isinstance(event_sources, list):
+        return events
+
+    for index, event_source in enumerate(event_sources):
+        if not isinstance(event_source, str):
+            continue
+        event_path = resolve_stream_event_source(event_source, stream_path)
+        if not event_path.exists():
+            errors.append(f"$.events[{index}]: event file does not exist: {event_source}")
+            continue
+        try:
+            events.append(load_json(event_path))
+        except Exception as exc:  # noqa: BLE001 - CLI should report stream context
+            errors.append(f"$.events[{index}]({event_source}): {exc}")
+    return events
 
 
 def validate_sample_document(
@@ -619,6 +749,16 @@ def resolve_flow_source(source: str, run_path: Path | None) -> Path:
     if repo_relative.exists() or run_path is None:
         return repo_relative
     return run_path.parent / source_path
+
+
+def resolve_stream_event_source(source: str, stream_path: Path | None) -> Path:
+    source_path = Path(source)
+    if source_path.is_absolute():
+        return source_path
+    repo_relative = REPO_ROOT / source_path
+    if repo_relative.exists() or stream_path is None:
+        return repo_relative
+    return stream_path.parent / source_path
 
 
 def parse_rfc3339(value: str) -> datetime | None:
@@ -933,6 +1073,51 @@ def cmd_validate_event(args: argparse.Namespace) -> int:
         return 1
 
     print(f"Validated {len(event_files)} event file(s)")
+    return 0
+
+
+def cmd_validate_stream(args: argparse.Namespace) -> int:
+    stream_schema = load_json(args.stream_schema)
+    event_schema = load_json(args.event_schema)
+    flow_schema = load_json(args.schema)
+    stream_files = find_event_stream_files(args.paths)
+    if not stream_files:
+        print("No event stream manifest files found", file=sys.stderr)
+        return 1
+
+    failures = 0
+    for path in stream_files:
+        if not path.exists():
+            print(f"FAIL {path}: path does not exist", file=sys.stderr)
+            failures += 1
+            continue
+        try:
+            document = load_json(path)
+            errors = validate_event_stream_document(
+                document,
+                stream_schema,
+                event_schema,
+                flow_schema,
+                stream_path=path,
+            )
+        except Exception as exc:  # noqa: BLE001 - CLI should report file context
+            print(f"FAIL {path}: {exc}", file=sys.stderr)
+            failures += 1
+            continue
+
+        if errors:
+            failures += 1
+            print(f"FAIL {path}", file=sys.stderr)
+            for error in errors:
+                print(f"  - {error}", file=sys.stderr)
+        elif args.verbose:
+            print(f"OK   {path}")
+
+    if failures:
+        print(f"{failures} event stream file(s) failed validation", file=sys.stderr)
+        return 1
+
+    print(f"Validated {len(stream_files)} event stream file(s)")
     return 0
 
 
@@ -1496,6 +1681,13 @@ def build_parser() -> argparse.ArgumentParser:
     validate_event.add_argument("--event-schema", type=Path, default=DEFAULT_EVENT_SCHEMA, help="Path to the event JSON Schema.")
     validate_event.add_argument("-v", "--verbose", action="store_true", help="Print each passing file.")
     validate_event.set_defaults(func=cmd_validate_event)
+
+    validate_stream = subparsers.add_parser("validate-stream", help="Validate multi-file event stream manifests.")
+    validate_stream.add_argument("paths", nargs="*", type=Path, help="Stream files or directories. Defaults to examples/streams/.")
+    validate_stream.add_argument("--stream-schema", type=Path, default=DEFAULT_EVENT_STREAM_SCHEMA, help="Path to the event stream JSON Schema.")
+    validate_stream.add_argument("--event-schema", type=Path, default=DEFAULT_EVENT_SCHEMA, help="Path to the event JSON Schema.")
+    validate_stream.add_argument("-v", "--verbose", action="store_true", help="Print each passing file.")
+    validate_stream.set_defaults(func=cmd_validate_stream)
 
     validate_run = subparsers.add_parser("validate-run", help="Validate completed run bundle JSON files.")
     validate_run.add_argument("paths", nargs="*", type=Path, help="Run bundle files or directories. Defaults to examples/runs/.")

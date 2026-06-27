@@ -21,6 +21,7 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Match passed gate evidence to declared gate evidence refs.
 - [x] Add changelog and local Markdown link checks.
 - [x] Add deterministic flow normalization.
+- [x] Add multi-file event stream validation.
 
 ## Flow catalog tasks
 
@@ -69,4 +70,4 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 
 - [x] Validate passed gate evidence against source flow `evidence_refs`.
 - [x] Add replay summaries for run bundles.
-- [ ] Validate external multi-file event streams.
+- [x] Validate external multi-file event streams.

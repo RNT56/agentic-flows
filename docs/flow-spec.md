@@ -67,6 +67,18 @@ Gate types:
 
 It also applies semantic timestamp validation so event examples and run artifacts fail when `timestamp` is not an RFC 3339 date-time.
 
+## Event stream validation
+
+`flowctl validate-stream` checks multi-file event stream manifests against `schemas/event-stream.schema.json`, the event schema, and the source flow.
+
+It verifies:
+
+- referenced event files exist
+- event metadata matches stream metadata
+- event names and node ids are declared by the source flow
+- completed streams include required outputs
+- completed streams include passed evidence for every required quality gate
+
 ## Run validation
 
 `flowctl validate-run` checks completed run bundles against `schemas/run.schema.json`, the event schema, and the source flow.

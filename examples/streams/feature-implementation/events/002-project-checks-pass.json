@@ -1,0 +1,22 @@
+{
+  "event_version": "agentic-flows.events/v1",
+  "flow_id": "coding.feature-implementation",
+  "flow_version": "0.1.0",
+  "run_id": "stream-feature-implementation-0001",
+  "node_id": "verify",
+  "event": "gate.completed",
+  "timestamp": "2026-06-27T16:04:00Z",
+  "core": "standalone",
+  "severity": "info",
+  "payload": {
+    "gate_id": "project-checks-pass",
+    "status": "passed"
+  },
+  "evidence": [
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://streams/stream-feature-implementation-0001/test.log"
+    }
+  ]
+}

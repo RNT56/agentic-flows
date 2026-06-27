@@ -1,0 +1,25 @@
+{
+  "event_stream_version": "agentic-flows.event-stream/v1",
+  "flow": {
+    "id": "coding.feature-implementation",
+    "version": "9.9.9",
+    "source": "flows/coding/feature-implementation/flow.yaml"
+  },
+  "run": {
+    "id": "stream-feature-implementation-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T16:00:00Z",
+    "completed_at": "2026-06-27T16:05:00Z"
+  },
+  "outputs": {
+    "patch": "artifact://streams/stream-feature-implementation-0001/diff.patch",
+    "closeout": "artifact://streams/stream-feature-implementation-0001/closeout.md"
+  },
+  "events": [
+    "examples/streams/feature-implementation/events/001-flow-started.json",
+    "examples/streams/feature-implementation/events/002-project-checks-pass.json",
+    "examples/streams/feature-implementation/events/003-acceptance-covered.json",
+    "examples/streams/feature-implementation/events/004-flow-completed.json"
+  ]
+}
