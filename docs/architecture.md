@@ -36,13 +36,13 @@ The independent consuming project is responsible for execution, state, permissio
 
 ## Optional consumer responsibilities
 
-These are possible mappings for independent projects. They are not claims that the projects already share a runtime or adapter layer.
+These are optional mappings for independent projects. They are not claims that the projects share a runtime.
 
 | Consumer | Possible responsibility | Optional integration path |
 | --- | --- | --- |
-| ThinClaw | Routines, memory, channels, operator control | Load flows as durable routines and preserve decisions if an adapter exists. |
-| NilCore | Worker execution, supervision, sandboxed checks | Dispatch `agent_task` and `tool` nodes if an adapter exists. |
-| CrustCore | Proof, audit, verifier-owned completion | Validate gates and emit proof artifacts if an adapter exists. |
+| ThinClaw | Routines, memory, channels, operator control | Load selected flow references as durable routines and preserve approval metadata. |
+| NilCore | Worker execution, supervision, sandboxed checks | Dispatch `agent_task` nodes and run `tool` plans through its sandbox boundary. |
+| CrustCore | Proof, audit, verifier-owned completion | Validate required gates and reject incomplete completion evidence. |
 | Standalone | Local development and examples | Validate and inspect flows without a full runtime. |
 
 ## Data flow

@@ -63,21 +63,22 @@ Acceptance gates:
 
 ## Phase 3: Optional adapter smoke tests
 
-Status: in progress.
+Status: complete.
 
 Goals:
 
-- Implement or document a minimal optional loader in ThinClaw.
-- Implement or document a minimal optional loader in NilCore.
-- Implement or document a minimal optional verifier mapping in CrustCore.
+- Implement a minimal optional loader in ThinClaw.
+- Implement a minimal optional worker and sandbox mapping in NilCore.
+- Implement a minimal optional verifier mapping in CrustCore.
 - Add adapter smoke-test evidence under `examples/`.
 
 Acceptance gates:
 
 - Repo-local adapter smoke manifests validate for ThinClaw, NilCore, and CrustCore.
-- Each participating project can load at least one declared-compatible flow without per-flow custom parsing.
-- Each participating project can reject unsupported capabilities.
-- Each participating project can emit or consume events compatible with `schemas/event.schema.json`.
+- ThinClaw can create routine state from a selected flow and persist approval metadata with the source flow version.
+- NilCore can dispatch `agent_task` nodes as subtasks and run `tool` plans through its sandbox boundary.
+- CrustCore can map required gates to verifier-owned criteria and reject incomplete completion evidence.
+- Full product deployment and long-lived event emission remain Phase 7 work.
 
 ## Phase 4: Run evidence and replay
 

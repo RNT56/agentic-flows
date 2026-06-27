@@ -24,14 +24,15 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Add multi-file event stream validation.
 - [x] Add repo-local adapter smoke manifests.
 - [x] Add release package build command.
+- [x] Implement first optional adapter seams in ThinClaw, NilCore, and CrustCore.
 
 ## Flow catalog tasks
 
 - [x] Add sample inputs for every production flow.
 - [x] Add expected outputs for every production flow.
 - [x] Add a flow maturity rubric to each production flow README.
-- [ ] Add flow ownership metadata once real owners exist.
-- [ ] Split any project-specific behavior out of reusable flows.
+- [x] Add flow ownership metadata once real owners exist.
+- [x] Split any project-specific behavior out of reusable flows.
 
 ## Schema tasks
 
@@ -57,12 +58,12 @@ Use this file as the project-level task board. Keep tasks small enough to finish
 - [x] Add repo-local ThinClaw adapter smoke manifest.
 - [x] Add repo-local NilCore adapter smoke manifest.
 - [x] Add repo-local CrustCore adapter smoke manifest.
-- [ ] ThinClaw: optionally load a flow into routine state.
-- [ ] ThinClaw: persist approval decisions with source flow version.
-- [ ] NilCore: optionally dispatch `agent_task` nodes as worker jobs.
-- [ ] NilCore: run `tool` nodes in sandboxed execution.
-- [ ] CrustCore: optionally map required gates to verifier-owned completion criteria.
-- [ ] CrustCore: reject patch completion when evidence is incomplete.
+- [x] ThinClaw: optionally load a flow into routine state.
+- [x] ThinClaw: persist approval decisions with source flow version.
+- [x] NilCore: optionally dispatch `agent_task` nodes as worker jobs.
+- [x] NilCore: run `tool` nodes in sandboxed execution.
+- [x] CrustCore: optionally map required gates to verifier-owned completion criteria.
+- [x] CrustCore: reject patch completion when evidence is incomplete.
 
 ## Release tasks
 

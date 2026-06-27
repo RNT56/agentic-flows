@@ -10,7 +10,7 @@ flowctl validate-adapter-smoke examples/adapters/
 
 ## Purpose
 
-ThinClaw, NilCore, and CrustCore are independent projects. This repository cannot prove that those projects have implemented adapters until their own repos adopt the contract.
+ThinClaw, NilCore, and CrustCore are independent projects. This repository proves portable contract coverage through smoke manifests; compiled adapter behavior is tested in each independent project repo.
 
 The smoke manifests here prove the portable parts:
 
@@ -67,3 +67,11 @@ Every adapter smoke manifest must include:
 - `thinclaw-human-review.adapter-smoke.json`
 - `nilcore-multi-agent-supervisor.adapter-smoke.json`
 - `crustcore-feature-implementation.adapter-smoke.json`
+
+## External validation
+
+The first external adapter seams are validated by focused tests in their owning repos:
+
+- ThinClaw: `cargo test -p thinclaw-agent agentic_flows`
+- NilCore: `go test ./internal/agenticflows`
+- CrustCore: `cargo test -p crustcore-flow agentic_flows`

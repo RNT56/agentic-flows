@@ -1,6 +1,6 @@
 # Adapter implementation plan
 
-This plan tracks how independent projects such as ThinClaw, NilCore, and CrustCore could choose to consume `agentic-flows`.
+This plan tracks how independent projects such as ThinClaw, NilCore, and CrustCore can consume `agentic-flows` while staying separate projects.
 
 ## Shared sequence
 
@@ -25,18 +25,32 @@ Run:
 flowctl validate-adapter-smoke examples/adapters/
 ```
 
-These manifests prove contract coverage in this repo. They do not prove that ThinClaw, NilCore, or CrustCore have implemented adapters in their own repositories.
+These manifests prove contract coverage in this repo. The first external adapter seams now live in the independent repositories; this repo still validates only its portable contracts and smoke evidence.
+
+## First external adapter status
+
+The first implementation pass is intentionally narrow:
+
+| Project | External module | Verified behavior | Focused validation |
+| --- | --- | --- | --- |
+| ThinClaw | `crates/thinclaw-agent/src/agentic_flows.rs` | Builds a manual routine from a selected flow reference and records approval metadata with flow id, version, and source. | `cargo test -p thinclaw-agent agentic_flows` |
+| NilCore | `internal/agenticflows/` | Maps `agent_task` nodes to spawn subtasks, reports unsupported capabilities, and executes `tool` plans only through `sandbox.Sandbox`. | `go test ./internal/agenticflows` |
+| CrustCore | `crates/crustcore-flow/src/agentic_flows.rs` | Maps required gates to verifier-owned criteria and rejects patch completion when evidence refs are missing. | `cargo test -p crustcore-flow agentic_flows` |
+
+These adapters do not make the projects dependent on one another. Each adapter is optional, local to its repo, and consumes a decoded or selected flow shape instead of embedding a new runtime in `agentic-flows`.
 
 ## ThinClaw lane
 
 Goal: optionally load flows as durable routines.
 
+Status: first adapter seam implemented in ThinClaw.
+
 Tasks:
 
-- Add a loader for validated flow documents.
-- Map `intake`, `plan`, `approval`, and `finalizer` nodes to routine state.
-- Persist operator decisions with `flow_id`, `flow_version`, `run_id`, and node id.
-- Add a smoke test using `general.human-in-the-loop-review`.
+- Build routine state from a selected, validated flow reference.
+- Map approval decisions to durable metadata that includes flow id, version, and source.
+- Keep direct YAML loading outside the routine builder so ThinClaw can choose vendoring or pinned-source loading later.
+- Test with `general.human-in-the-loop-review`-style metadata.
 
 Acceptance gate:
 
@@ -46,13 +60,15 @@ Acceptance gate:
 
 Goal: optionally use flows as supervised worker plans.
 
+Status: first adapter seam implemented in NilCore.
+
 Tasks:
 
-- Add a loader for validated flow documents.
+- Consume a decoded flow subset from a pinned or vendored source.
 - Dispatch `agent_task` nodes as worker jobs.
-- Run `tool` nodes in a configured sandbox.
-- Route `verifier` nodes through supervisor checks.
-- Add a smoke test using `collaboration.multi-agent-supervisor`.
+- Run `tool` nodes through a configured sandbox.
+- Reject unsupported capabilities before dispatch.
+- Test with `collaboration.multi-agent-supervisor`-style worker plans.
 
 Acceptance gate:
 
@@ -62,13 +78,15 @@ Acceptance gate:
 
 Goal: optionally use flows as verifier and proof contracts.
 
+Status: first adapter seam implemented in CrustCore.
+
 Tasks:
 
-- Add a loader for validated flow documents.
 - Map `quality_gates` to verifier-owned criteria.
 - Require evidence for required gates.
-- Tie patch outputs to proof artifacts.
-- Add a smoke test using `coding.feature-implementation`.
+- Reject patch completion when required evidence is incomplete.
+- Keep imported flow metadata advisory until CrustCore verifier evidence exists.
+- Test with `coding.feature-implementation`-style gate evidence.
 
 Acceptance gate:
 

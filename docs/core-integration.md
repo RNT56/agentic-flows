@@ -1,6 +1,14 @@
 # Core integration
 
-This repository is a shared workflow definition layer for independent projects. ThinClaw, NilCore, and CrustCore may consume it later through small adapters, vendored schemas, or copied templates. No adapter is assumed to exist yet.
+This repository is a shared workflow definition layer for independent projects. ThinClaw, NilCore, and CrustCore consume it only through optional adapters, vendored schemas, or copied templates; the runtimes remain separate.
+
+The first adapter seams now live in the independent repositories. They prove the initial mapping shape, not a hard dependency on this repo:
+
+| Project | Current adapter seam |
+| --- | --- |
+| ThinClaw | Routine construction and approval metadata from a selected flow reference. |
+| NilCore | `agent_task` dispatch mapping and sandbox-only `tool` execution plans. |
+| CrustCore | Required gate mapping to verifier-owned completion evidence. |
 
 ## Shared adapter contract
 
@@ -25,7 +33,7 @@ Recommended mapping:
 - `approval` -> explicit operator decision.
 - `finalizer` -> durable closeout entry.
 
-If implemented, ThinClaw should preserve decisions, rejected outputs, and final evidence so future routines can learn from prior operator choices.
+ThinClaw should preserve decisions, rejected outputs, and final evidence so future routines can learn from prior operator choices.
 
 ## NilCore
 
@@ -38,7 +46,7 @@ Recommended mapping:
 - `verifier` -> supervisor verification step.
 - `handoff` -> lane or worker transfer.
 
-If implemented, NilCore can own concurrency, sandbox boundaries, retries, and worker result collection.
+NilCore owns concurrency, sandbox boundaries, retries, and worker result collection.
 
 ## CrustCore
 
@@ -51,7 +59,7 @@ Recommended mapping:
 - `approval` nodes -> audit boundary.
 - `observability.events` -> proof timeline.
 
-If implemented, CrustCore should reject completion when required gates are missing or evidence cannot be tied to the claimed output.
+CrustCore should reject completion when required gates are missing or evidence cannot be tied to the claimed output.
 
 ## Compatibility rule
 

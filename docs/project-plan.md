@@ -68,9 +68,9 @@ Acceptance gate:
 
 Implement thin adapters only inside consuming repos that choose to opt in.
 
-- ThinClaw could load flows as durable routines and record operator decisions.
-- NilCore could dispatch node execution as sandboxed worker jobs.
-- CrustCore could consume verifier gates and emit patch/audit proof.
+- ThinClaw loads selected flow references as durable routines and records operator decisions with source-flow metadata.
+- NilCore dispatches node execution as sandboxed worker jobs.
+- CrustCore consumes verifier gates and rejects incomplete completion evidence.
 
 Acceptance gate:
 
@@ -103,6 +103,6 @@ Acceptance gate:
 ## Current limitations
 
 - The repo validates definitions; it does not execute nodes.
-- Optional-consumer-specific APIs are documented as contracts, not compiled adapters.
+- Optional-consumer-specific APIs are compiled and tested in their independent repos, not vendored into this catalog repo.
 - Command gates are declarative. The consuming project decides how and where to run them.
 - Cross-core compatibility should be proven with real adapters before any flow is marked `stable`.
