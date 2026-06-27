@@ -1,0 +1,130 @@
+spec_version: agentic-flows/v1
+id: coding.refactor-and-verify
+version: 0.1.0
+title: Refactor and verify
+summary: Change internal structure without intended behavior changes, then prove equivalence through tests and review.
+stability: preview
+owners:
+  - RNT56
+tags:
+  - coding
+  - refactor
+  - verification
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - patch.apply
+    - command.run
+    - evidence.capture
+contracts:
+  inputs:
+    - id: task
+      type: markdown
+      required: true
+      description: Refactor target, constraints, and non-goals.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target.
+  outputs:
+    - id: patch
+      type: patch
+      required: true
+      description: Refactor diff.
+    - id: equivalence_report
+      type: markdown
+      required: true
+      description: Evidence that behavior remained stable.
+  artifacts:
+    - plan
+    - diff
+    - test-log
+nodes:
+  - id: intake
+    type: intake
+    title: Intake refactor target
+    description: Capture target modules, explicit behavior invariants, and forbidden changes.
+    produces:
+      - refactor-scope
+  - id: baseline
+    type: tool
+    title: Capture baseline checks
+    description: Run available checks before the refactor when practical.
+    tool: command-runner
+    requires:
+      - refactor-scope
+    produces:
+      - baseline-log
+  - id: plan
+    type: plan
+    title: Plan internal rewrite
+    description: Identify the smallest internal changes that preserve public behavior.
+    requires:
+      - refactor-scope
+      - baseline-log
+    produces:
+      - refactor-plan
+  - id: implement
+    type: agent_task
+    title: Apply refactor
+    description: Modify internals without broadening scope or changing user-visible behavior.
+    agent: coding-worker
+    requires:
+      - refactor-plan
+    produces:
+      - patch
+  - id: verify
+    type: verifier
+    title: Verify behavior preservation
+    description: Run checks and compare expected public behavior with the baseline.
+    requires:
+      - patch
+    produces:
+      - equivalence-report
+  - id: final
+    type: finalizer
+    title: Close out refactor
+    description: Return the diff, checks, and remaining behavioral risk.
+    requires:
+      - equivalence-report
+    produces:
+      - equivalence_report
+edges:
+  - from: intake
+    to: baseline
+  - from: baseline
+    to: plan
+  - from: plan
+    to: implement
+  - from: implement
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: checks-pass-after-refactor
+    title: Checks pass after refactor
+    type: command
+    required: true
+    command: "make test || npm test || cargo test || go test ./..."
+    evidence: Post-refactor check output.
+  - id: no-intended-behavior-change
+    title: No intended behavior change
+    type: review
+    required: true
+    evidence: Verifier comparison against declared invariants.
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds
+    - changed.files
+

@@ -1,0 +1,68 @@
+spec_version: agentic-flows/v1
+id: template.coding-feature
+version: 0.1.0
+title: Coding feature template
+summary: Starter workflow for implementing a project-specific feature with verification.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - template
+  - coding
+entrypoint: intake
+runtime:
+  supported_cores:
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - patch.apply
+    - command.run
+contracts:
+  inputs:
+    - id: task
+      type: markdown
+      required: true
+      description: Feature request and acceptance criteria.
+  outputs:
+    - id: result
+      type: markdown
+      required: true
+      description: Implementation summary and verification evidence.
+nodes:
+  - id: intake
+    type: intake
+    title: Intake
+    description: Capture the project-specific request and constraints.
+  - id: implement
+    type: agent_task
+    title: Implement
+    description: Apply the scoped implementation.
+    agent: coding-worker
+  - id: verify
+    type: verifier
+    title: Verify
+    description: Check the result against acceptance criteria.
+  - id: final
+    type: finalizer
+    title: Final
+    description: Return the implementation summary and evidence.
+edges:
+  - from: intake
+    to: implement
+  - from: implement
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: project-checks
+    title: Project checks
+    type: command
+    required: true
+    command: "make test"
+    evidence: Replace with the project-specific validation command.
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - flow.completed
+

@@ -1,0 +1,137 @@
+spec_version: agentic-flows/v1
+id: coding.security-audit
+version: 0.1.0
+title: Security audit
+summary: Inspect a repository or change set for security risks and produce prioritized findings with evidence.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - coding
+  - security
+  - audit
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - command.run
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: target
+      type: uri
+      required: true
+      description: Repository, branch, diff, or package target.
+    - id: threat_model
+      type: markdown
+      required: false
+      description: Optional threat model or security boundary to emphasize.
+  outputs:
+    - id: findings
+      type: markdown
+      required: true
+      description: Ranked findings with reproduction and impact notes.
+    - id: evidence
+      type: json
+      required: true
+      description: Machine-readable evidence and tool output references.
+  artifacts:
+    - finding-list
+    - scan-log
+nodes:
+  - id: intake
+    type: intake
+    title: Intake audit scope
+    description: Capture audit target, trust boundaries, secrets policy, and known risk areas.
+    produces:
+      - audit-scope
+  - id: enumerate
+    type: agent_task
+    title: Enumerate attack surface
+    description: Identify entrypoints, external inputs, dependency boundaries, and privileged operations.
+    agent: security-reviewer
+    requires:
+      - audit-scope
+    produces:
+      - attack-surface
+  - id: scan
+    type: tool
+    title: Run available scanners
+    description: Run dependency, static, or policy checks supported by the target repository.
+    tool: command-runner
+    requires:
+      - attack-surface
+    produces:
+      - scan-log
+  - id: analyze
+    type: verifier
+    title: Analyze findings
+    description: Deduplicate scanner output, verify exploitability, and rank findings by severity.
+    requires:
+      - attack-surface
+      - scan-log
+    produces:
+      - finding-list
+  - id: review
+    type: approval
+    title: Human severity review
+    description: Ask an operator to confirm high-risk or disclosure-sensitive findings.
+    requires:
+      - finding-list
+    policy:
+      human_required_when:
+        - critical_finding
+        - secret_exposure
+        - coordinated_disclosure
+  - id: final
+    type: finalizer
+    title: Close out audit
+    description: Return prioritized findings, evidence, and recommended next actions.
+    requires:
+      - finding-list
+    produces:
+      - findings
+      - evidence
+edges:
+  - from: intake
+    to: enumerate
+  - from: enumerate
+    to: scan
+  - from: scan
+    to: analyze
+  - from: analyze
+    to: review
+    condition: high-risk-finding
+  - from: analyze
+    to: final
+    condition: no-human-review-needed
+  - from: review
+    to: final
+quality_gates:
+  - id: findings-evidenced
+    title: Findings include evidence
+    type: review
+    required: true
+    evidence: Each finding has file, line, command, trace, or dependency evidence.
+  - id: scanners-run-or-explained
+    title: Scanners run or explained
+    type: command
+    required: true
+    command: "make security || npm audit || cargo audit || go test ./..."
+    evidence: Scanner output or a clear explanation why a scanner was unavailable.
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds
+    - findings.count
+

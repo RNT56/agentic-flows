@@ -1,0 +1,66 @@
+spec_version: agentic-flows/v1
+id: template.research-report
+version: 0.1.0
+title: Research report template
+summary: Starter workflow for an evidence-backed research answer with source reconciliation.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - template
+  - research
+entrypoint: intake
+runtime:
+  supported_cores:
+    - standalone
+  required_capabilities:
+    - web.research
+    - source.citation
+contracts:
+  inputs:
+    - id: question
+      type: markdown
+      required: true
+      description: Research question and audience.
+  outputs:
+    - id: report
+      type: markdown
+      required: true
+      description: Evidence-backed research report.
+nodes:
+  - id: intake
+    type: intake
+    title: Intake
+    description: Capture the research question and constraints.
+  - id: gather
+    type: agent_task
+    title: Gather sources
+    description: Collect relevant sources with retrieval metadata.
+    agent: research-worker
+  - id: reconcile
+    type: verifier
+    title: Reconcile evidence
+    description: Compare source quality and conflicting claims.
+  - id: final
+    type: finalizer
+    title: Final
+    description: Return the report with caveats and citations.
+edges:
+  - from: intake
+    to: gather
+  - from: gather
+    to: reconcile
+  - from: reconcile
+    to: final
+quality_gates:
+  - id: source-citations
+    title: Source citations
+    type: artifact
+    required: true
+    evidence: Final report links claims to sources.
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - flow.completed
+

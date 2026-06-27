@@ -1,0 +1,75 @@
+spec_version: agentic-flows/v1
+id: template.coding-refactor
+version: 0.1.0
+title: Coding refactor template
+summary: Starter workflow for a behavior-preserving refactor with baseline and post-change checks.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - template
+  - refactor
+entrypoint: intake
+runtime:
+  supported_cores:
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - patch.apply
+    - command.run
+contracts:
+  inputs:
+    - id: task
+      type: markdown
+      required: true
+      description: Refactor target and invariants.
+  outputs:
+    - id: result
+      type: markdown
+      required: true
+      description: Refactor summary and equivalence evidence.
+nodes:
+  - id: intake
+    type: intake
+    title: Intake
+    description: Capture target modules and behavior invariants.
+  - id: baseline
+    type: tool
+    title: Baseline
+    description: Run baseline checks before changing code.
+    tool: command-runner
+  - id: implement
+    type: agent_task
+    title: Refactor
+    description: Apply the internal behavior-preserving change.
+    agent: coding-worker
+  - id: verify
+    type: verifier
+    title: Verify
+    description: Prove that behavior remained stable.
+  - id: final
+    type: finalizer
+    title: Final
+    description: Return the refactor summary and remaining risks.
+edges:
+  - from: intake
+    to: baseline
+  - from: baseline
+    to: implement
+  - from: implement
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: equivalence-checks
+    title: Equivalence checks
+    type: command
+    required: true
+    command: "make test"
+    evidence: Replace with the project-specific equivalence check.
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - flow.completed
+

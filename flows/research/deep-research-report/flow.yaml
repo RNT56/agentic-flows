@@ -1,0 +1,129 @@
+spec_version: agentic-flows/v1
+id: research.deep-research-report
+version: 0.1.0
+title: Deep research report
+summary: Gather, compare, and synthesize sources into an evidence-backed report with caveats.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - research
+  - report
+  - evidence
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - standalone
+  required_capabilities:
+    - web.research
+    - source.citation
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: question
+      type: markdown
+      required: true
+      description: Research question, audience, and decision context.
+    - id: constraints
+      type: markdown
+      required: false
+      description: Time, source, or citation constraints.
+  outputs:
+    - id: report
+      type: markdown
+      required: true
+      description: Answer-first report with evidence and caveats.
+    - id: bibliography
+      type: json
+      required: true
+      description: Structured list of sources and retrieval metadata.
+  artifacts:
+    - source-log
+    - synthesis-notes
+nodes:
+  - id: intake
+    type: intake
+    title: Intake question
+    description: Clarify the decision, audience, source constraints, and freshness requirements.
+    produces:
+      - research-brief
+  - id: gather
+    type: agent_task
+    title: Gather sources
+    description: Collect primary and high-quality secondary sources with retrieval metadata.
+    agent: research-worker
+    requires:
+      - research-brief
+    produces:
+      - source-log
+  - id: compare
+    type: verifier
+    title: Compare evidence
+    description: Reconcile conflicting claims and identify confidence, gaps, and source quality issues.
+    requires:
+      - source-log
+    produces:
+      - synthesis-notes
+  - id: write
+    type: agent_task
+    title: Draft report
+    description: Produce an answer-first report with citations, caveats, and decision implications.
+    agent: report-writer
+    requires:
+      - synthesis-notes
+    produces:
+      - report-draft
+  - id: review
+    type: approval
+    title: Human factuality review
+    description: Request human review when the report supports a high-impact decision.
+    requires:
+      - report-draft
+  - id: final
+    type: finalizer
+    title: Close out research
+    description: Return the final report and structured bibliography.
+    requires:
+      - report-draft
+    produces:
+      - report
+      - bibliography
+edges:
+  - from: intake
+    to: gather
+  - from: gather
+    to: compare
+  - from: compare
+    to: write
+  - from: write
+    to: review
+    condition: high-impact-decision
+  - from: write
+    to: final
+    condition: review-not-required
+  - from: review
+    to: final
+quality_gates:
+  - id: citations-present
+    title: Citations present
+    type: artifact
+    required: true
+    evidence: Report contains source references and bibliography metadata.
+  - id: conflicting-evidence-addressed
+    title: Conflicting evidence addressed
+    type: review
+    required: true
+    evidence: Synthesis notes identify unresolved disagreements or gaps.
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - sources.count
+    - duration.seconds
+

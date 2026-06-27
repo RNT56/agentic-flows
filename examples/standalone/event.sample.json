@@ -1,0 +1,22 @@
+{
+  "event_version": "agentic-flows.events/v1",
+  "flow_id": "coding.feature-implementation",
+  "flow_version": "0.1.0",
+  "run_id": "run-0001",
+  "node_id": "verify",
+  "event": "gate.completed",
+  "timestamp": "2026-06-27T14:00:00Z",
+  "core": "standalone",
+  "severity": "info",
+  "payload": {
+    "gate_id": "acceptance-covered",
+    "status": "passed"
+  },
+  "evidence": [
+    {
+      "kind": "test-log",
+      "uri": "file:///tmp/agentic-flow-run/test.log"
+    }
+  ]
+}
+

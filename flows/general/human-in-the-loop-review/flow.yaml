@@ -1,0 +1,121 @@
+spec_version: agentic-flows/v1
+id: general.human-in-the-loop-review
+version: 0.1.0
+title: Human-in-the-loop review
+summary: Route risky or ambiguous agent output through an operator decision before finalization.
+stability: preview
+owners:
+  - RNT56
+tags:
+  - general
+  - review
+  - approval
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - evidence.capture
+    - human.review
+    - decision.record
+contracts:
+  inputs:
+    - id: candidate_output
+      type: markdown
+      required: true
+      description: Agent output that requires human review.
+    - id: decision_context
+      type: markdown
+      required: true
+      description: Criteria and risk context for review.
+  outputs:
+    - id: decision
+      type: json
+      required: true
+      description: Approved, rejected, or needs-changes decision with rationale.
+    - id: final_output
+      type: markdown
+      required: false
+      description: Output after approved review or requested edits.
+  artifacts:
+    - review-request
+    - decision-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake review request
+    description: Capture candidate output, decision criteria, and known risk boundaries.
+    produces:
+      - review-request
+  - id: assess
+    type: verifier
+    title: Pre-assess output
+    description: Check the candidate output against the criteria before asking a human.
+    requires:
+      - review-request
+    produces:
+      - assessment
+  - id: approve
+    type: approval
+    title: Operator decision
+    description: Record an explicit human decision and rationale.
+    requires:
+      - assessment
+    produces:
+      - decision-record
+    policy:
+      allowed_decisions:
+        - approve
+        - reject
+        - needs_changes
+  - id: revise
+    type: agent_task
+    title: Revise when requested
+    description: Apply requested edits when the operator chooses needs_changes.
+    agent: revision-worker
+    requires:
+      - decision-record
+    produces:
+      - revised-output
+  - id: final
+    type: finalizer
+    title: Close out decision
+    description: Return the decision record and any approved final output.
+    requires:
+      - decision-record
+    produces:
+      - decision
+      - final_output
+edges:
+  - from: intake
+    to: assess
+  - from: assess
+    to: approve
+  - from: approve
+    to: final
+    condition: approve-or-reject
+  - from: approve
+    to: revise
+    condition: needs-changes
+  - from: revise
+    to: assess
+quality_gates:
+  - id: decision-recorded
+    title: Decision recorded
+    type: artifact
+    required: true
+    evidence: Operator decision includes rationale and timestamp.
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - approval.requested
+    - approval.completed
+    - flow.completed
+  metrics:
+    - review.iterations
+    - duration.seconds
+

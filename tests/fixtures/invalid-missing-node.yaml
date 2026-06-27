@@ -1,0 +1,49 @@
+spec_version: agentic-flows/v1
+id: fixture.invalid-missing-node
+version: 0.1.0
+title: Invalid missing node fixture
+summary: A fixture that references a node that is not declared.
+stability: experimental
+owners:
+  - agentic-flows
+tags:
+  - fixture
+entrypoint: intake
+runtime:
+  supported_cores:
+    - standalone
+  required_capabilities:
+    - validation
+contracts:
+  inputs:
+    - id: task
+      type: text
+      required: true
+  outputs:
+    - id: report
+      type: markdown
+      required: true
+nodes:
+  - id: intake
+    type: intake
+    title: Intake
+    description: Capture the task.
+  - id: final
+    type: finalizer
+    title: Final
+    description: Return the result.
+edges:
+  - from: intake
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: fixture-required-gate
+    title: Required gate
+    type: review
+    required: true
+observability:
+  events:
+    - flow.started
+    - flow.completed
+

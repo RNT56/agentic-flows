@@ -1,0 +1,127 @@
+spec_version: agentic-flows/v1
+id: collaboration.multi-agent-supervisor
+version: 0.1.0
+title: Multi-agent supervisor
+summary: Split a larger project into owned lanes, supervise worker outputs, and merge evidence-backed results.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - collaboration
+  - supervisor
+  - multi-agent
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - standalone
+  required_capabilities:
+    - task.decompose
+    - worker.dispatch
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: objective
+      type: markdown
+      required: true
+      description: Project objective and success criteria.
+    - id: constraints
+      type: markdown
+      required: false
+      description: Ownership, concurrency, or repository constraints.
+  outputs:
+    - id: consolidated_result
+      type: markdown
+      required: true
+      description: Merged result with lane-level evidence and unresolved blockers.
+  artifacts:
+    - lane-plan
+    - worker-results
+    - merge-report
+nodes:
+  - id: intake
+    type: intake
+    title: Intake objective
+    description: Capture the objective, success gates, ownership constraints, and unsafe overlaps.
+    produces:
+      - objective
+  - id: decompose
+    type: plan
+    title: Decompose lanes
+    description: Split the objective into independently executable lanes with clear acceptance gates.
+    requires:
+      - objective
+    produces:
+      - lane-plan
+  - id: dispatch
+    type: agent_task
+    title: Dispatch workers
+    description: Assign non-overlapping lanes to workers and record ownership.
+    agent: supervisor
+    requires:
+      - lane-plan
+    produces:
+      - worker-results
+  - id: reconcile
+    type: verifier
+    title: Reconcile worker results
+    description: Check worker outputs for conflicts, missing gates, and integration risk.
+    requires:
+      - worker-results
+    produces:
+      - merge-report
+  - id: approve
+    type: approval
+    title: Human merge decision
+    description: Ask for operator approval when worker outputs conflict or change shared boundaries.
+    requires:
+      - merge-report
+  - id: final
+    type: finalizer
+    title: Close out supervision
+    description: Return merged results, lane evidence, blockers, and next steps.
+    requires:
+      - merge-report
+    produces:
+      - consolidated_result
+edges:
+  - from: intake
+    to: decompose
+  - from: decompose
+    to: dispatch
+  - from: dispatch
+    to: reconcile
+  - from: reconcile
+    to: approve
+    condition: conflicts-or-shared-boundaries
+  - from: reconcile
+    to: final
+    condition: no-approval-needed
+  - from: approve
+    to: final
+quality_gates:
+  - id: lanes-non-overlapping
+    title: Lanes are non-overlapping
+    type: review
+    required: true
+    evidence: Lane plan declares owners, paths, and integration boundaries.
+  - id: worker-evidence-present
+    title: Worker evidence present
+    type: artifact
+    required: true
+    evidence: Each lane includes output, checks, and residual risk.
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - worker.dispatched
+    - worker.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - lanes.count
+    - workers.count
+    - duration.seconds
+

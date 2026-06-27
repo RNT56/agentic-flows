@@ -1,0 +1,160 @@
+spec_version: agentic-flows/v1
+id: coding.feature-implementation
+version: 0.1.0
+title: Feature implementation
+summary: Implement a scoped feature with planning, execution, verification, and human review gates.
+stability: preview
+owners:
+  - RNT56
+tags:
+  - coding
+  - feature
+  - verification
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - patch.apply
+    - command.run
+    - evidence.capture
+    - human.review
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+    crustcore:
+      proof_surface: verified-patch
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: task
+      type: markdown
+      required: true
+      description: User-visible feature request and acceptance criteria.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target.
+  outputs:
+    - id: patch
+      type: patch
+      required: true
+      description: Source changes implementing the accepted scope.
+    - id: closeout
+      type: markdown
+      required: true
+      description: Summary of changed files, validation, and residual risk.
+  artifacts:
+    - plan
+    - diff
+    - test-log
+    - review-notes
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the user request, repo target, constraints, and acceptance criteria.
+    produces:
+      - scoped-task
+  - id: plan
+    type: plan
+    title: Build implementation plan
+    description: Identify touched modules, verification strategy, and likely integration risks.
+    requires:
+      - scoped-task
+    produces:
+      - implementation-plan
+  - id: implement
+    type: agent_task
+    title: Implement scoped change
+    description: Apply the smallest coherent code and documentation changes needed for the feature.
+    agent: coding-worker
+    requires:
+      - implementation-plan
+    produces:
+      - patch
+    policy:
+      preserve_user_changes: true
+  - id: test
+    type: tool
+    title: Run relevant checks
+    description: Run focused tests, linters, or build commands selected during planning.
+    tool: command-runner
+    requires:
+      - patch
+    produces:
+      - test-log
+  - id: verify
+    type: verifier
+    title: Verify acceptance gates
+    description: Compare results against acceptance criteria and collect evidence for completion.
+    requires:
+      - patch
+      - test-log
+    produces:
+      - verification-result
+  - id: approval
+    type: approval
+    title: Human review decision
+    description: Request operator approval when behavior, public API, or deployment risk changed.
+    requires:
+      - verification-result
+    policy:
+      human_required_when:
+        - public_api_change
+        - destructive_migration
+        - production_deploy
+  - id: final
+    type: finalizer
+    title: Close out implementation
+    description: Return the patch summary, validation evidence, and any follow-up work.
+    requires:
+      - verification-result
+    produces:
+      - closeout
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: implement
+  - from: implement
+    to: test
+  - from: test
+    to: verify
+  - from: verify
+    to: approval
+    condition: approval-required
+  - from: verify
+    to: final
+    condition: approval-not-required
+  - from: approval
+    to: final
+quality_gates:
+  - id: project-checks-pass
+    title: Project checks pass
+    type: command
+    required: true
+    command: "make test || npm test || cargo test || go test ./..."
+    evidence: Test, build, or lint output selected by the runtime.
+  - id: acceptance-covered
+    title: Acceptance criteria covered
+    type: review
+    required: true
+    evidence: Verifier notes mapping implementation to acceptance criteria.
+observability:
+  events:
+    - flow.started
+    - node.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds
+    - changed.files
+    - tests.executed
+
