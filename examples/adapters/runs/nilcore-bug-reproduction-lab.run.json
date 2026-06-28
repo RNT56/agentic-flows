@@ -1,0 +1,115 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.bug-reproduction-lab",
+    "version": "0.1.0",
+    "source": "flows/engineering/bug-reproduction-lab/flow.yaml"
+  },
+  "run": {
+    "id": "run-nilcore-bug-reproduction-lab-0001",
+    "core": "nilcore",
+    "status": "completed",
+    "started_at": "2026-06-28T12:20:00Z",
+    "completed_at": "2026-06-28T12:22:30Z"
+  },
+  "inputs": {
+    "bug_report": "parse_date crashes on empty string. Expected: returns None. Observed: ValueError.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "outputs": {
+    "reproduction": "Reproduced in the sandbox: parse_date(\"\") raises ValueError.",
+    "failing_test": "artifact://failing-test"
+  },
+  "artifacts": [
+    {
+      "id": "repro-notes",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-nilcore-bug-reproduction-lab-0001/repro-notes.md"
+    },
+    {
+      "id": "repro-evidence",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-nilcore-bug-reproduction-lab-0001/test-fails.log"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.bug-reproduction-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-bug-reproduction-lab-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T12:20:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.bug-reproduction-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-bug-reproduction-lab-0001",
+      "node_id": "decide",
+      "event": "decision.recorded",
+      "timestamp": "2026-06-28T12:21:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "reproduced": true
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.bug-reproduction-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-bug-reproduction-lab-0001",
+      "node_id": "decide",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T12:21:05Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "repro-or-impossibility",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "repro-notes",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-nilcore-bug-reproduction-lab-0001/repro-notes.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.bug-reproduction-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-bug-reproduction-lab-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T12:22:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "test-fails-before-fix",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "repro-evidence",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-nilcore-bug-reproduction-lab-0001/test-fails.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.bug-reproduction-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-bug-reproduction-lab-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T12:22:30Z",
+      "core": "nilcore",
+      "severity": "info"
+    }
+  ]
+}

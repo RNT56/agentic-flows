@@ -1,0 +1,144 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.dependency-upgrade",
+    "version": "0.1.0",
+    "source": "flows/engineering/dependency-upgrade/flow.yaml"
+  },
+  "run": {
+    "id": "run-dependency-upgrade-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T13:00:00Z",
+    "completed_at": "2026-06-28T13:04:00Z"
+  },
+  "inputs": {
+    "dependency": "pydantic from 1.10 to 2.7",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "outputs": {
+    "upgrade_patch": "artifact://upgrade-diff",
+    "release_notes": "Upgrade pydantic 1.10 -> 2.7. Migrated validators to v2 API. Tests pass. Rationale: v1 is end-of-life."
+  },
+  "artifacts": [
+    {
+      "id": "version-record",
+      "kind": "json",
+      "uri": "artifact://runs/run-dependency-upgrade-0001/versions.json"
+    },
+    {
+      "id": "upgrade-diff",
+      "kind": "patch",
+      "uri": "artifact://runs/run-dependency-upgrade-0001/upgrade.patch"
+    },
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-dependency-upgrade-0001/test.log"
+    },
+    {
+      "id": "compatibility-notes",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-dependency-upgrade-0001/compatibility.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dependency-upgrade",
+      "flow_version": "0.1.0",
+      "run_id": "run-dependency-upgrade-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T13:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dependency-upgrade",
+      "flow_version": "0.1.0",
+      "run_id": "run-dependency-upgrade-0001",
+      "node_id": "upgrade",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T13:01:30Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dependency-upgrade",
+      "flow_version": "0.1.0",
+      "run_id": "run-dependency-upgrade-0001",
+      "node_id": "test",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T13:02:30Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dependency-upgrade",
+      "flow_version": "0.1.0",
+      "run_id": "run-dependency-upgrade-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T13:03:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "versions-recorded",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "version-record",
+          "kind": "json",
+          "uri": "artifact://runs/run-dependency-upgrade-0001/versions.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dependency-upgrade",
+      "flow_version": "0.1.0",
+      "run_id": "run-dependency-upgrade-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T13:03:15Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "tests-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-dependency-upgrade-0001/test.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dependency-upgrade",
+      "flow_version": "0.1.0",
+      "run_id": "run-dependency-upgrade-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T13:04:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dependency-upgrade",
+      "flow_version": "0.1.0",
+      "run_id": "run-dependency-upgrade-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T13:04:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

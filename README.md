@@ -10,7 +10,7 @@ Versioned workflow contracts for agentic systems that must plan, act, verify, ap
 | --- | --- |
 | Latest release | `v0.1.1` |
 | Flow spec | `agentic-flows/v1` |
-| Catalog size | 17 reusable workflows, 3 starter templates |
+| Catalog size | 23 reusable workflows, 3 starter templates |
 | Tooling | Python CLI, JSON Schema, YAML flow definitions |
 | Evidence model | Events, streams, run bundles, adapter smoke manifests |
 | CI gate | Schema validation, normalization, samples, runs, links, changelog, package build, tests |
@@ -57,7 +57,7 @@ flowchart LR
 
 - A versioned YAML workflow format backed by JSON Schema.
 - `flowctl`, a repo-local CLI for validation, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
-- Seventeen reusable workflow definitions across coding, engineering, research, security, collaboration, operations, proof, orchestration, and human review.
+- Twenty-three reusable workflow definitions across coding, engineering, research, security, collaboration, operations, proof, orchestration, documentation, and human review.
 - Three copyable starter templates for project-specific workflows.
 - Event and run-bundle schemas for evidence-backed execution.
 - Adapter smoke manifest schemas and examples for independent optional consumers.
@@ -87,6 +87,12 @@ flowchart LR
 | [`security.supply-chain-audit`](flows/security/supply-chain-audit/README.md) | Experimental | Audit dependencies for advisories and license conflicts and draft remediation. | NilCore, CrustCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
 | [`orchestration.parallel-work-claiming`](flows/orchestration/parallel-work-claiming/README.md) | Experimental | Divide an objective into lanes, claim ownership, and avoid path collisions. | ThinClaw, NilCore, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
 | [`research.source-backed-brief`](flows/research/source-backed-brief/README.md) | Experimental | Answer a question with cited sources, bounded quotes, caveats, and confidence. | ThinClaw, NilCore, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
+| [`engineering.bug-reproduction-lab`](flows/engineering/bug-reproduction-lab/README.md) | Experimental | Turn a bug report into a minimal reproduction and a test that fails before the fix. | NilCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
+| [`engineering.dependency-upgrade`](flows/engineering/dependency-upgrade/README.md) | Experimental | Upgrade a dependency, adapt code, confirm checks, and record versions with rationale. | NilCore, CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
+| [`docs.decision-record`](flows/docs/decision-record/README.md) | Experimental | Capture a decision with alternatives, owner, date, and consequences. | ThinClaw, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
+| [`docs.postmortem`](flows/docs/postmortem/README.md) | Experimental | Produce a blameless postmortem with a sourced timeline and owned action items. | ThinClaw, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
+| [`orchestration.handoff-and-resume`](flows/orchestration/handoff-and-resume/README.md) | Experimental | Compact work into a handoff packet so another agent or run can resume cleanly. | ThinClaw, NilCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
+| [`security.threat-modeling`](flows/security/threat-modeling/README.md) | Experimental | Enumerate assets, actors, boundaries, and abuse paths, and map mitigations. | ThinClaw, NilCore, CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
 
 ## Starter templates
 

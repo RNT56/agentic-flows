@@ -1,0 +1,122 @@
+spec_version: agentic-flows/v1
+id: docs.decision-record
+version: 0.1.0
+title: Decision record
+summary: Capture an architectural or product decision with alternatives, owner, date, and consequences.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - docs
+  - decision
+  - adr
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - standalone
+  required_capabilities:
+    - decision.record
+    - evidence.capture
+  adapter_hints:
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: decision_context
+      type: markdown
+      required: true
+      description: The decision to capture and the options under consideration.
+    - id: owner
+      type: text
+      required: true
+      description: The accountable decision owner.
+  outputs:
+    - id: decision_record
+      type: markdown
+      required: true
+      description: The decision record with decision, alternatives, and consequences.
+    - id: decision_metadata
+      type: json
+      required: true
+      description: Owner, date, and status of the decision.
+  artifacts:
+    - options-analysis
+    - decision-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake decision context
+    description: Capture the decision, the owner, and the options under consideration.
+    produces:
+      - decision-context
+  - id: analyze
+    type: agent_task
+    title: Analyze options
+    description: Lay out the candidate options with trade-offs and the rejected alternatives.
+    agent: analyst
+    requires:
+      - decision-context
+    produces:
+      - options-analysis
+  - id: record
+    type: agent_task
+    title: Write the decision record
+    description: Write the decision, chosen option, consequences, owner, and date.
+    agent: writer
+    requires:
+      - options-analysis
+    produces:
+      - decision-record
+  - id: verify
+    type: verifier
+    title: Verify completeness
+    description: Confirm the owner and date are present and rejected alternatives are documented.
+    requires:
+      - decision-record
+    produces:
+      - decision-check
+  - id: final
+    type: finalizer
+    title: Close out decision
+    description: Return the decision record and its metadata.
+    requires:
+      - decision-record
+      - decision-check
+    produces:
+      - decision_record
+      - decision_metadata
+edges:
+  - from: intake
+    to: analyze
+  - from: analyze
+    to: record
+  - from: record
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: owner-and-date-present
+    title: Owner and date present
+    type: artifact
+    required: true
+    evidence: The decision record names an owner and a decision date.
+    evidence_refs:
+      - decision-record
+  - id: alternatives-documented
+    title: Rejected alternatives documented
+    type: review
+    required: true
+    evidence: The options analysis documents the rejected alternatives and why.
+    evidence_refs:
+      - options-analysis
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - decision.recorded
+    - gate.completed
+    - flow.completed
+  metrics:
+    - options.count
+    - duration.seconds

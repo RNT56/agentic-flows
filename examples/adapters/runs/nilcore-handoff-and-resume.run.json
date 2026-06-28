@@ -1,0 +1,103 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "orchestration.handoff-and-resume",
+    "version": "0.1.0",
+    "source": "flows/orchestration/handoff-and-resume/flow.yaml"
+  },
+  "run": {
+    "id": "run-nilcore-handoff-and-resume-0001",
+    "core": "nilcore",
+    "status": "completed",
+    "started_at": "2026-06-28T16:20:00Z",
+    "completed_at": "2026-06-28T16:21:40Z"
+  },
+  "inputs": {
+    "session_state": {
+      "task": "Add five reusable flows to the catalog",
+      "done": ["bug-reproduction-lab", "dependency-upgrade"],
+      "remaining": ["decision-record", "postmortem", "handoff-and-resume"],
+      "blockers": []
+    },
+    "next_owner": "nilcore-worker-2"
+  },
+  "outputs": {
+    "handoff_packet": "## State\nTwo of five flows added. ## Blockers\nNone. ## Validation\nflowctl green. ## Next commands\nSee checklist.",
+    "resume_checklist": {
+      "steps": [
+        "Author the remaining three flows",
+        "Run flowctl validate && pytest -q"
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "handoff-packet",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-nilcore-handoff-and-resume-0001/handoff.md"
+    },
+    {
+      "id": "resume-checklist",
+      "kind": "json",
+      "uri": "artifact://runs/run-nilcore-handoff-and-resume-0001/resume.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.handoff-and-resume",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-handoff-and-resume-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T16:20:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.handoff-and-resume",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-handoff-and-resume-0001",
+      "node_id": "handoff",
+      "event": "handoff.recorded",
+      "timestamp": "2026-06-28T16:21:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "next_owner": "nilcore-worker-2"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.handoff-and-resume",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-handoff-and-resume-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T16:21:20Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "state-preserved",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "handoff-packet",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-nilcore-handoff-and-resume-0001/handoff.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.handoff-and-resume",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-handoff-and-resume-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T16:21:40Z",
+      "core": "nilcore",
+      "severity": "info"
+    }
+  ]
+}

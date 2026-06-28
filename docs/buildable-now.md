@@ -44,11 +44,14 @@ The integration spine plus the two product anchors. The first three are shipped 
 5. `proof.verified-patch-acceptance` — shipped (canonical CrustCore verifier-completion pattern).
 6. `ops.adapter-certification` — shipped (its deliverable is the adapter-smoke artifact itself).
 
-The entire recommended first batch is now in the catalog, along with a second wave:
-`engineering.ci-failure-diagnosis`, `engineering.pr-review-and-risk-notes`, `orchestration.parallel-work-claiming`,
-`security.supply-chain-audit`, and `research.source-backed-brief`. Seventeen reusable flows now ship end-to-end.
-The next strongest build-now candidates are `engineering.bug-reproduction-lab`, `engineering.dependency-upgrade`,
-`docs.decision-record`, `docs.postmortem`, `orchestration.handoff-and-resume`, and `security.threat-modeling`.
+The recommended first batch and two further waves are now in the catalog: the integration spine, the engineering
+loop (`issue-to-verified-pr`, `ci-failure-diagnosis`, `pr-review-and-risk-notes`, `bug-reproduction-lab`,
+`dependency-upgrade`), proof (`verified-patch-acceptance`), security (`supply-chain-audit`, `threat-modeling`),
+orchestration (`parallel-work-claiming`, `handoff-and-resume`), research (`source-backed-brief`), and documentation
+(`decision-record`, `postmortem`). Twenty-three reusable flows now ship end-to-end. Of the 46 build-now-e2e
+candidates, roughly half remain; the next strongest are `engineering.docs-from-diff`, `engineering.schema-evolution`,
+`engineering.dead-code-retirement`, `research.codebase-orientation`, `research.library-evaluation`,
+`security.connector-grant-review`, `proof.evidence-bundle-export`, and `orchestration.agent-quality-review`.
 
 ## Honesty corrections to the official build order
 

@@ -1,0 +1,147 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.bug-reproduction-lab",
+    "version": "0.1.0",
+    "source": "flows/engineering/bug-reproduction-lab/flow.yaml"
+  },
+  "run": {
+    "id": "run-bug-reproduction-lab-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T12:00:00Z",
+    "completed_at": "2026-06-28T12:02:30Z"
+  },
+  "inputs": {
+    "bug_report": "parse_date crashes on empty string. Expected: returns None. Observed: ValueError.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "outputs": {
+    "reproduction": "Reproduced: call parse_date(\"\") in a Python shell; it raises ValueError instead of returning None.",
+    "failing_test": "artifact://failing-test"
+  },
+  "artifacts": [
+    {
+      "id": "repro-command",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-bug-reproduction-lab-0001/repro.log"
+    },
+    {
+      "id": "repro-notes",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-bug-reproduction-lab-0001/repro-notes.md"
+    },
+    {
+      "id": "failing-test",
+      "kind": "patch",
+      "uri": "artifact://runs/run-bug-reproduction-lab-0001/failing-test.patch"
+    },
+    {
+      "id": "repro-evidence",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-bug-reproduction-lab-0001/test-fails.log"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.bug-reproduction-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-bug-reproduction-lab-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T12:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.bug-reproduction-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-bug-reproduction-lab-0001",
+      "node_id": "attempt",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:00:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.bug-reproduction-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-bug-reproduction-lab-0001",
+      "node_id": "decide",
+      "event": "decision.recorded",
+      "timestamp": "2026-06-28T12:01:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "reproduced": true
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.bug-reproduction-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-bug-reproduction-lab-0001",
+      "node_id": "decide",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T12:01:05Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "repro-or-impossibility",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "repro-notes",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-bug-reproduction-lab-0001/repro-notes.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.bug-reproduction-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-bug-reproduction-lab-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T12:02:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "test-fails-before-fix",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "repro-evidence",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-bug-reproduction-lab-0001/test-fails.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.bug-reproduction-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-bug-reproduction-lab-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:02:30Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.bug-reproduction-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-bug-reproduction-lab-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T12:02:30Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

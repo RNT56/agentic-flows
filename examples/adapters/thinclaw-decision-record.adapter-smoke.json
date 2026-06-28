@@ -1,0 +1,25 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "thinclaw",
+  "flow": {
+    "id": "docs.decision-record",
+    "version": "0.1.0",
+    "source": "flows/docs/decision-record/flow.yaml"
+  },
+  "capability_support": [
+    "decision.record",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "decision context intake",
+    "agent_task": "options and record writer",
+    "verifier": "completeness verifier",
+    "finalizer": "decision closeout"
+  },
+  "run_bundle": "runs/thinclaw-decision-record.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible ThinClaw decision-record adapter."
+}

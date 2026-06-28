@@ -1,0 +1,26 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "orchestration.handoff-and-resume",
+    "version": "0.1.0",
+    "source": "flows/orchestration/handoff-and-resume/flow.yaml"
+  },
+  "capability_support": [
+    "state.compact",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "session state intake",
+    "agent_task": "state compactor",
+    "handoff": "handoff packet assembler",
+    "verifier": "handoff completeness verifier",
+    "finalizer": "handoff closeout"
+  },
+  "run_bundle": "runs/nilcore-handoff-and-resume.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore handoff-and-resume adapter."
+}

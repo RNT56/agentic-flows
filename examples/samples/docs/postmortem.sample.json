@@ -1,0 +1,24 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "docs.postmortem",
+    "version": "0.1.0",
+    "source": "flows/docs/postmortem/flow.yaml"
+  },
+  "inputs": {
+    "incident": "The validate CI job failed for 40 minutes after a schema change landed on main.",
+    "sources": {
+      "events": ["ci-run-991 logs", "commit abc123", "incident chat thread"]
+    }
+  },
+  "expected_outputs": {
+    "postmortem": "# Postmortem: validate CI red for 40m\n\nTimeline: 14:02 schema change merged [commit abc123]; 14:05 validate job fails [ci-run-991]; 14:42 revert merged. Impact: main red 40m, no release blocked. Causes: sample not updated with schema. Unknown: why pre-merge CI passed. Action items below.",
+    "action_items": {
+      "items": [
+        {"action": "Add a sample-vs-schema check to pre-merge CI", "owner": "RNT56"},
+        {"action": "Investigate why pre-merge CI was green", "owner": "RNT56"}
+      ]
+    }
+  },
+  "notes": "Produces a blameless, source-cited postmortem with owned action items."
+}

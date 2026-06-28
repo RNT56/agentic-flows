@@ -1,0 +1,28 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "orchestration.handoff-and-resume",
+    "version": "0.1.0",
+    "source": "flows/orchestration/handoff-and-resume/flow.yaml"
+  },
+  "inputs": {
+    "session_state": {
+      "task": "Add five reusable flows to the catalog",
+      "done": ["bug-reproduction-lab", "dependency-upgrade"],
+      "remaining": ["decision-record", "postmortem", "handoff-and-resume"],
+      "blockers": []
+    },
+    "next_owner": "agent-resume-1"
+  },
+  "expected_outputs": {
+    "handoff_packet": "## State\nTwo of five flows added and validated. ## Decisions\nOne contract-smoke per flow. ## Blockers\nNone. ## Validation\nflowctl + pytest green. ## Next commands\nSee resume checklist.",
+    "resume_checklist": {
+      "steps": [
+        "Author flows/docs/decision-record with full artifact set",
+        "Author flows/docs/postmortem with full artifact set",
+        "Run flowctl validate && pytest -q"
+      ]
+    }
+  },
+  "notes": "Compacts work state into a handoff packet with an ordered resume checklist."
+}

@@ -1,0 +1,21 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "docs.decision-record",
+    "version": "0.1.0",
+    "source": "flows/docs/decision-record/flow.yaml"
+  },
+  "inputs": {
+    "decision_context": "Choose a storage backend for run bundles: local files, SQLite, or object storage.",
+    "owner": "RNT56"
+  },
+  "expected_outputs": {
+    "decision_record": "# Decision: store run bundles as local JSON files\n\nDecision: use local JSON files. Alternatives: SQLite (rejected: adds a dependency for little gain at this scale), object storage (rejected: premature for a contract repo). Consequences: simple diffs and validation, revisit if volume grows.",
+    "decision_metadata": {
+      "owner": "RNT56",
+      "date": "2026-06-28",
+      "status": "accepted"
+    }
+  },
+  "notes": "Captures a decision with documented alternatives, owner, and date."
+}

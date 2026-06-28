@@ -18,7 +18,11 @@ Current status:
 | `coding.refactor-and-verify` | target | target | target | target |
 | `coding.security-audit` | target | target | target | target |
 | `collaboration.multi-agent-supervisor` | target | contract-smoke | not-targeted | run-smoke |
+| `docs.decision-record` | contract-smoke | not-targeted | not-targeted | run-smoke |
+| `docs.postmortem` | contract-smoke | not-targeted | not-targeted | run-smoke |
+| `engineering.bug-reproduction-lab` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `engineering.ci-failure-diagnosis` | not-targeted | contract-smoke | target | run-smoke |
+| `engineering.dependency-upgrade` | not-targeted | target | contract-smoke | run-smoke |
 | `engineering.issue-to-verified-pr` | target | contract-smoke | target | run-smoke |
 | `engineering.pr-review-and-risk-notes` | not-targeted | target | contract-smoke | run-smoke |
 | `general.human-in-the-loop-review` | contract-smoke | target | target | run-smoke |
@@ -26,11 +30,13 @@ Current status:
 | `ops.flow-intake-and-routing` | contract-smoke | target | not-targeted | run-smoke |
 | `ops.capability-negotiation` | target | target | contract-smoke | run-smoke |
 | `ops.event-and-evidence-bridge` | target | contract-smoke | target | run-smoke |
+| `orchestration.handoff-and-resume` | target | contract-smoke | not-targeted | run-smoke |
 | `orchestration.parallel-work-claiming` | contract-smoke | target | not-targeted | run-smoke |
 | `proof.verified-patch-acceptance` | not-targeted | not-targeted | contract-smoke | run-smoke |
 | `research.deep-research-report` | target | target | not-targeted | target |
 | `research.source-backed-brief` | contract-smoke | target | not-targeted | run-smoke |
 | `security.supply-chain-audit` | not-targeted | contract-smoke | target | run-smoke |
+| `security.threat-modeling` | target | target | contract-smoke | run-smoke |
 | `template.coding-feature` | not-targeted | not-targeted | not-targeted | target |
 | `template.coding-refactor` | not-targeted | not-targeted | not-targeted | target |
 | `template.research-report` | not-targeted | not-targeted | not-targeted | target |
@@ -59,4 +65,10 @@ Current status:
 - `orchestration.parallel-work-claiming` has a standalone valid run bundle at `examples/runs/parallel-work-claiming.run.json`.
 - `security.supply-chain-audit` has a standalone valid run bundle at `examples/runs/supply-chain-audit.run.json`.
 - `research.source-backed-brief` has a standalone valid run bundle at `examples/runs/source-backed-brief.run.json`.
+- `engineering.bug-reproduction-lab` has a standalone valid run bundle at `examples/runs/bug-reproduction-lab.run.json`.
+- `engineering.dependency-upgrade` has a standalone valid run bundle at `examples/runs/dependency-upgrade.run.json`.
+- `docs.decision-record` has a standalone valid run bundle at `examples/runs/decision-record.run.json`.
+- `docs.postmortem` has a standalone valid run bundle at `examples/runs/postmortem.run.json`.
+- `orchestration.handoff-and-resume` has a standalone valid run bundle at `examples/runs/handoff-and-resume.run.json`.
+- `security.threat-modeling` has a standalone valid run bundle at `examples/runs/threat-modeling.run.json`.
 - Repo-local adapter smoke manifests live under `examples/adapters/`.

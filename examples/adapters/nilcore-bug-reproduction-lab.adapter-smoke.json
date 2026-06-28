@@ -1,0 +1,29 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "engineering.bug-reproduction-lab",
+    "version": "0.1.0",
+    "source": "flows/engineering/bug-reproduction-lab/flow.yaml"
+  },
+  "capability_support": [
+    "repo.checkout",
+    "command.run",
+    "test.author",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "bug report intake",
+    "tool": "sandboxed reproduction runner",
+    "decision": "reproducible-or-not decision",
+    "agent_task": "failing test author",
+    "verifier": "test-fails verifier",
+    "finalizer": "reproduction closeout"
+  },
+  "run_bundle": "runs/nilcore-bug-reproduction-lab.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore bug-reproduction worker adapter."
+}

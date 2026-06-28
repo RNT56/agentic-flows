@@ -1,0 +1,26 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "crustcore",
+  "flow": {
+    "id": "security.threat-modeling",
+    "version": "0.1.0",
+    "source": "flows/security/threat-modeling/flow.yaml"
+  },
+  "capability_support": [
+    "asset.enumerate",
+    "threat.analyze",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "system description intake",
+    "agent_task": "threat modeler",
+    "verifier": "coverage verifier",
+    "finalizer": "threat model closeout"
+  },
+  "run_bundle": "runs/crustcore-threat-modeling.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible CrustCore threat-model adapter."
+}

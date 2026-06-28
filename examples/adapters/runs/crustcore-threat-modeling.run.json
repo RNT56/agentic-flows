@@ -1,0 +1,116 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "security.threat-modeling",
+    "version": "0.1.0",
+    "source": "flows/security/threat-modeling/flow.yaml"
+  },
+  "run": {
+    "id": "run-crustcore-threat-modeling-0001",
+    "core": "crustcore",
+    "status": "completed",
+    "started_at": "2026-06-28T17:20:00Z",
+    "completed_at": "2026-06-28T17:22:30Z"
+  },
+  "inputs": {
+    "system_description": "A webhook receiver that runs agent workflows from GitHub PR comments.",
+    "scope": "Trust boundary is the public webhook endpoint. Out of scope: GitHub's own auth."
+  },
+  "outputs": {
+    "threat_model": "Assets, actors, boundary, and abuse paths enumerated; verifier confirmed each abuse path maps to a mitigation.",
+    "mitigations": {
+      "map": [
+        {"abuse_path": "comment injection", "mitigation": "require maintainer label to run"}
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "threat-analysis",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-crustcore-threat-modeling-0001/threats.md"
+    },
+    {
+      "id": "mitigation-map",
+      "kind": "json",
+      "uri": "artifact://runs/run-crustcore-threat-modeling-0001/mitigations.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.threat-modeling",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-threat-modeling-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T17:20:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.threat-modeling",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-threat-modeling-0001",
+      "node_id": "analyze",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T17:21:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.threat-modeling",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-threat-modeling-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T17:21:55Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "elements-enumerated",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "threat-analysis",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-crustcore-threat-modeling-0001/threats.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.threat-modeling",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-threat-modeling-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T17:22:05Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "mitigations-mapped",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "mitigation-map",
+          "kind": "json",
+          "uri": "artifact://runs/run-crustcore-threat-modeling-0001/mitigations.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.threat-modeling",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-threat-modeling-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T17:22:30Z",
+      "core": "crustcore",
+      "severity": "info"
+    }
+  ]
+}
