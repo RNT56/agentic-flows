@@ -1,0 +1,93 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "proof.evidence-bundle-export",
+    "version": "0.1.0",
+    "source": "flows/proof/evidence-bundle-export/flow.yaml"
+  },
+  "run": {
+    "id": "run-crustcore-evidence-bundle-export-0001",
+    "core": "crustcore",
+    "status": "completed",
+    "started_at": "2026-06-28T18:20:00Z",
+    "completed_at": "2026-06-28T18:21:40Z"
+  },
+  "inputs": {
+    "run_bundle": "file://examples/runs/feature-implementation.run.json",
+    "verifier_outcome": {
+      "verdict": "accepted",
+      "verifier": "crustcore"
+    }
+  },
+  "outputs": {
+    "proof_bundle": {
+      "flow": "coding.feature-implementation@0.1.0",
+      "events": 10,
+      "gates": ["project-checks-pass", "acceptance-covered"],
+      "verdict": "accepted"
+    },
+    "export_manifest": "Verifier-owned proof bundle exported for run-feature-implementation-0001."
+  },
+  "artifacts": [
+    {
+      "id": "proof-bundle",
+      "kind": "json",
+      "uri": "artifact://runs/run-crustcore-evidence-bundle-export-0001/proof-bundle.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.evidence-bundle-export",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-evidence-bundle-export-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T18:20:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.evidence-bundle-export",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-evidence-bundle-export-0001",
+      "node_id": "assemble",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T18:21:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.evidence-bundle-export",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-evidence-bundle-export-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T18:21:20Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "bundle-complete",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "proof-bundle",
+          "kind": "json",
+          "uri": "artifact://runs/run-crustcore-evidence-bundle-export-0001/proof-bundle.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.evidence-bundle-export",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-evidence-bundle-export-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T18:21:40Z",
+      "core": "crustcore",
+      "severity": "info"
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "security.connector-grant-review",
+    "version": "0.1.0",
+    "source": "flows/security/connector-grant-review/flow.yaml"
+  },
+  "run": {
+    "id": "run-thinclaw-connector-grant-review-0001",
+    "core": "thinclaw",
+    "status": "completed",
+    "started_at": "2026-06-28T23:20:00Z",
+    "completed_at": "2026-06-28T23:22:00Z"
+  },
+  "inputs": {
+    "connector": "GitHub connector requests: repo read, repo write, and delete_repo.",
+    "policy": "Grant least privilege. Any delete or admin scope is destructive and requires approval."
+  },
+  "outputs": {
+    "grant_decision": {
+      "granted": ["repo:read", "repo:write"],
+      "denied": ["delete_repo"],
+      "scope": "least-privilege",
+      "destructive_present": true
+    },
+    "review_notes": "delete_repo denied; repo:write approved by operator."
+  },
+  "artifacts": [
+    {
+      "id": "grant-decision",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-connector-grant-review-0001/decision.json"
+    },
+    {
+      "id": "approval-record",
+      "kind": "decision-record",
+      "uri": "artifact://runs/run-thinclaw-connector-grant-review-0001/approval.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.connector-grant-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-connector-grant-review-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T23:20:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.connector-grant-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-connector-grant-review-0001",
+      "node_id": "decide",
+      "event": "decision.recorded",
+      "timestamp": "2026-06-28T23:21:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "destructive_present": true
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.connector-grant-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-connector-grant-review-0001",
+      "node_id": "decide",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T23:21:15Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "least-privilege-recorded",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "grant-decision",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-connector-grant-review-0001/decision.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.connector-grant-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-connector-grant-review-0001",
+      "node_id": "approval",
+      "event": "approval.completed",
+      "timestamp": "2026-06-28T23:21:40Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "decision": "approve"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.connector-grant-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-connector-grant-review-0001",
+      "node_id": "approval",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T23:21:45Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "destructive-ops-approved",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "approval-record",
+          "kind": "decision-record",
+          "uri": "artifact://runs/run-thinclaw-connector-grant-review-0001/approval.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.connector-grant-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-connector-grant-review-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T23:22:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "engineering.dead-code-retirement",
+    "version": "0.1.0",
+    "source": "flows/engineering/dead-code-retirement/flow.yaml"
+  },
+  "capability_support": [
+    "repo.checkout",
+    "code.search",
+    "patch.apply",
+    "command.run",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "retirement target intake",
+    "tool": "reference search and check runner",
+    "decision": "unused-or-referenced decision",
+    "agent_task": "code removal worker",
+    "verifier": "impact verifier",
+    "finalizer": "retirement closeout"
+  },
+  "run_bundle": "runs/nilcore-dead-code-retirement.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore dead-code-retirement worker adapter."
+}

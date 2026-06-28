@@ -1,0 +1,22 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "security.connector-grant-review",
+    "version": "0.1.0",
+    "source": "flows/security/connector-grant-review/flow.yaml"
+  },
+  "inputs": {
+    "connector": "GitHub connector requests: repo read, repo write, and delete_repo.",
+    "policy": "Grant least privilege. Any delete or admin scope is destructive and requires approval."
+  },
+  "expected_outputs": {
+    "grant_decision": {
+      "granted": ["repo:read", "repo:write"],
+      "denied": ["delete_repo"],
+      "scope": "least-privilege",
+      "destructive_present": true
+    },
+    "review_notes": "delete_repo is destructive and not needed for the connector's stated use; denied. repo:write approved by operator after review."
+  },
+  "notes": "Scopes a connector to least privilege and gates the destructive delete_repo on approval."
+}

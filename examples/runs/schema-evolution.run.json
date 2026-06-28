@@ -1,0 +1,150 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.schema-evolution",
+    "version": "0.1.0",
+    "source": "flows/engineering/schema-evolution/flow.yaml"
+  },
+  "run": {
+    "id": "run-schema-evolution-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T21:00:00Z",
+    "completed_at": "2026-06-28T21:03:30Z"
+  },
+  "inputs": {
+    "schema_change": "Add a required 'severity' field to the event schema with an enum of debug/info/warning/error.",
+    "repo": "https://github.com/RNT56/agentic-flows"
+  },
+  "outputs": {
+    "migration": "Migration: existing events without severity become invalid; producers must set severity. Added an invalid fixture missing severity.",
+    "schema_patch": "artifact://schema-diff"
+  },
+  "artifacts": [
+    {
+      "id": "migration-plan",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-schema-evolution-0001/migration.md"
+    },
+    {
+      "id": "schema-diff",
+      "kind": "patch",
+      "uri": "artifact://runs/run-schema-evolution-0001/schema.patch"
+    },
+    {
+      "id": "fixture-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-schema-evolution-0001/fixtures.log"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.schema-evolution",
+      "flow_version": "0.1.0",
+      "run_id": "run-schema-evolution-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T21:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.schema-evolution",
+      "flow_version": "0.1.0",
+      "run_id": "run-schema-evolution-0001",
+      "node_id": "plan",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T21:00:50Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.schema-evolution",
+      "flow_version": "0.1.0",
+      "run_id": "run-schema-evolution-0001",
+      "node_id": "apply",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T21:01:50Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.schema-evolution",
+      "flow_version": "0.1.0",
+      "run_id": "run-schema-evolution-0001",
+      "node_id": "test",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T21:02:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.schema-evolution",
+      "flow_version": "0.1.0",
+      "run_id": "run-schema-evolution-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T21:03:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "migration-path-exists",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "migration-plan",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-schema-evolution-0001/migration.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.schema-evolution",
+      "flow_version": "0.1.0",
+      "run_id": "run-schema-evolution-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T21:03:15Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "fixtures-cover-failures",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "fixture-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-schema-evolution-0001/fixtures.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.schema-evolution",
+      "flow_version": "0.1.0",
+      "run_id": "run-schema-evolution-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T21:03:30Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.schema-evolution",
+      "flow_version": "0.1.0",
+      "run_id": "run-schema-evolution-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T21:03:30Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

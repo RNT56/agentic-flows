@@ -1,0 +1,111 @@
+spec_version: agentic-flows/v1
+id: orchestration.agent-quality-review
+version: 0.1.0
+title: Agent quality review
+summary: Review an agent's work for hallucinated claims, missed validation, and unsafe edits with cited findings.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - orchestration
+  - quality
+  - review
+entrypoint: intake
+runtime:
+  supported_cores:
+    - crustcore
+    - standalone
+  required_capabilities:
+    - work.read
+    - claim.verify
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: quality-review
+contracts:
+  inputs:
+    - id: agent_work
+      type: markdown
+      required: true
+      description: The agent's output and the claims it made.
+    - id: evidence_refs
+      type: json
+      required: true
+      description: The evidence the agent cited for its claims.
+  outputs:
+    - id: review_report
+      type: markdown
+      required: true
+      description: Review summary with confirmed issues and explicit residual risk.
+    - id: findings
+      type: json
+      required: true
+      description: Hallucinated claims, missed validation, and unsafe edits with citations.
+  artifacts:
+    - claim-check
+    - review-findings
+nodes:
+  - id: intake
+    type: intake
+    title: Intake agent work
+    description: Capture the agent output, its claims, and the evidence it cited.
+    produces:
+      - review-input
+  - id: check
+    type: agent_task
+    title: Check claims against evidence
+    description: Test each claim against its cited evidence and flag unsafe edits and missed validation.
+    agent: quality-reviewer
+    requires:
+      - review-input
+    produces:
+      - claim-check
+  - id: assess
+    type: verifier
+    title: Assess findings
+    description: Confirm each finding cites evidence, drop false positives, and state residual risk.
+    requires:
+      - claim-check
+    produces:
+      - review-findings
+  - id: final
+    type: finalizer
+    title: Close out review
+    description: Return the review report and the cited findings.
+    requires:
+      - claim-check
+      - review-findings
+    produces:
+      - review_report
+      - findings
+edges:
+  - from: intake
+    to: check
+  - from: check
+    to: assess
+  - from: assess
+    to: final
+quality_gates:
+  - id: findings-cite-evidence
+    title: Findings cite evidence
+    type: review
+    required: true
+    evidence: Every finding cites the evidence it rests on and false positives are dropped.
+    evidence_refs:
+      - review-findings
+  - id: residual-risk-explicit
+    title: Residual risk is explicit
+    type: review
+    required: false
+    evidence: The report states the residual risk that remains after review.
+    evidence_refs:
+      - review-findings
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - findings.count
+    - duration.seconds

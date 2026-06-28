@@ -22,19 +22,25 @@ Current status:
 | `docs.postmortem` | contract-smoke | not-targeted | not-targeted | run-smoke |
 | `engineering.bug-reproduction-lab` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `engineering.ci-failure-diagnosis` | not-targeted | contract-smoke | target | run-smoke |
+| `engineering.dead-code-retirement` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `engineering.dependency-upgrade` | not-targeted | target | contract-smoke | run-smoke |
 | `engineering.issue-to-verified-pr` | target | contract-smoke | target | run-smoke |
 | `engineering.pr-review-and-risk-notes` | not-targeted | target | contract-smoke | run-smoke |
+| `engineering.schema-evolution` | not-targeted | contract-smoke | target | run-smoke |
 | `general.human-in-the-loop-review` | contract-smoke | target | target | run-smoke |
 | `ops.adapter-certification` | target | target | contract-smoke | run-smoke |
 | `ops.flow-intake-and-routing` | contract-smoke | target | not-targeted | run-smoke |
 | `ops.capability-negotiation` | target | target | contract-smoke | run-smoke |
 | `ops.event-and-evidence-bridge` | target | contract-smoke | target | run-smoke |
+| `orchestration.agent-quality-review` | not-targeted | not-targeted | contract-smoke | run-smoke |
 | `orchestration.handoff-and-resume` | target | contract-smoke | not-targeted | run-smoke |
 | `orchestration.parallel-work-claiming` | contract-smoke | target | not-targeted | run-smoke |
+| `proof.evidence-bundle-export` | not-targeted | not-targeted | contract-smoke | run-smoke |
 | `proof.verified-patch-acceptance` | not-targeted | not-targeted | contract-smoke | run-smoke |
+| `research.codebase-orientation` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `research.deep-research-report` | target | target | not-targeted | target |
 | `research.source-backed-brief` | contract-smoke | target | not-targeted | run-smoke |
+| `security.connector-grant-review` | contract-smoke | not-targeted | target | run-smoke |
 | `security.supply-chain-audit` | not-targeted | contract-smoke | target | run-smoke |
 | `security.threat-modeling` | target | target | contract-smoke | run-smoke |
 | `template.coding-feature` | not-targeted | not-targeted | not-targeted | target |
@@ -71,4 +77,10 @@ Current status:
 - `docs.postmortem` has a standalone valid run bundle at `examples/runs/postmortem.run.json`.
 - `orchestration.handoff-and-resume` has a standalone valid run bundle at `examples/runs/handoff-and-resume.run.json`.
 - `security.threat-modeling` has a standalone valid run bundle at `examples/runs/threat-modeling.run.json`.
+- `proof.evidence-bundle-export` has a standalone valid run bundle at `examples/runs/evidence-bundle-export.run.json`.
+- `orchestration.agent-quality-review` has a standalone valid run bundle at `examples/runs/agent-quality-review.run.json`.
+- `research.codebase-orientation` has a standalone valid run bundle at `examples/runs/codebase-orientation.run.json`.
+- `engineering.schema-evolution` has a standalone valid run bundle at `examples/runs/schema-evolution.run.json`.
+- `engineering.dead-code-retirement` has a standalone valid run bundle at `examples/runs/dead-code-retirement.run.json`.
+- `security.connector-grant-review` has a standalone valid run bundle at `examples/runs/connector-grant-review.run.json`.
 - Repo-local adapter smoke manifests live under `examples/adapters/`.

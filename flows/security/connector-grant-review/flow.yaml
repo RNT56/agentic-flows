@@ -1,0 +1,137 @@
+spec_version: agentic-flows/v1
+id: security.connector-grant-review
+version: 0.1.0
+title: Connector grant review
+summary: Review a connector's requested permissions for least privilege and gate destructive grants on approval.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - security
+  - permissions
+  - connector
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - crustcore
+    - standalone
+  required_capabilities:
+    - grant.read
+    - policy.evaluate
+    - human.review
+    - decision.record
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: grant-policy
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: connector
+      type: markdown
+      required: true
+      description: The connector and the permissions it requests.
+    - id: policy
+      type: markdown
+      required: true
+      description: The least-privilege policy to review against.
+  outputs:
+    - id: grant_decision
+      type: json
+      required: true
+      description: The approved least-privilege scope and per-permission decision.
+    - id: review_notes
+      type: markdown
+      required: true
+      description: Rationale and any flagged destructive operations.
+  artifacts:
+    - permission-analysis
+    - grant-decision
+    - approval-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake grant request
+    description: Capture the connector, its requested permissions, and the policy.
+    produces:
+      - grant-request
+  - id: analyze
+    type: agent_task
+    title: Analyze permissions
+    description: Compare requested permissions against least privilege and flag destructive operations.
+    agent: grant-reviewer
+    requires:
+      - grant-request
+    produces:
+      - permission-analysis
+  - id: decide
+    type: decision
+    title: Scope the grant
+    description: Decide the least-privilege scope and whether destructive operations are present.
+    requires:
+      - permission-analysis
+    produces:
+      - grant-decision
+  - id: approval
+    type: approval
+    title: Approve destructive grants
+    description: Require an explicit operator approval before granting any destructive operation.
+    requires:
+      - grant-decision
+    produces:
+      - approval-record
+    policy:
+      human_required_when:
+        - destructive_operation
+        - broad_scope
+  - id: final
+    type: finalizer
+    title: Close out review
+    description: Return the grant decision and the review notes.
+    requires:
+      - grant-decision
+    produces:
+      - grant_decision
+      - review_notes
+edges:
+  - from: intake
+    to: analyze
+  - from: analyze
+    to: decide
+  - from: decide
+    to: approval
+    condition: destructive-ops-present
+  - from: decide
+    to: final
+    condition: least-privilege-only
+  - from: approval
+    to: final
+quality_gates:
+  - id: least-privilege-recorded
+    title: Least-privilege decision recorded
+    type: artifact
+    required: true
+    evidence: The grant decision records a least-privilege scope per requested permission.
+    evidence_refs:
+      - grant-decision
+  - id: destructive-ops-approved
+    title: Destructive operations require approval
+    type: policy
+    required: false
+    evidence: Any destructive operation captures an explicit operator approval.
+    evidence_refs:
+      - approval-record
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - decision.recorded
+    - approval.requested
+    - approval.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - permissions.requested
+    - duration.seconds

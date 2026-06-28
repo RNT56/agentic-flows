@@ -44,14 +44,19 @@ The integration spine plus the two product anchors. The first three are shipped 
 5. `proof.verified-patch-acceptance` — shipped (canonical CrustCore verifier-completion pattern).
 6. `ops.adapter-certification` — shipped (its deliverable is the adapter-smoke artifact itself).
 
-The recommended first batch and two further waves are now in the catalog: the integration spine, the engineering
+The recommended first batch and three further waves are now in the catalog: the integration spine; the engineering
 loop (`issue-to-verified-pr`, `ci-failure-diagnosis`, `pr-review-and-risk-notes`, `bug-reproduction-lab`,
-`dependency-upgrade`), proof (`verified-patch-acceptance`), security (`supply-chain-audit`, `threat-modeling`),
-orchestration (`parallel-work-claiming`, `handoff-and-resume`), research (`source-backed-brief`), and documentation
-(`decision-record`, `postmortem`). Twenty-three reusable flows now ship end-to-end. Of the 46 build-now-e2e
-candidates, roughly half remain; the next strongest are `engineering.docs-from-diff`, `engineering.schema-evolution`,
-`engineering.dead-code-retirement`, `research.codebase-orientation`, `research.library-evaluation`,
-`security.connector-grant-review`, `proof.evidence-bundle-export`, and `orchestration.agent-quality-review`.
+`dependency-upgrade`, `schema-evolution`, `dead-code-retirement`); proof (`verified-patch-acceptance`,
+`evidence-bundle-export`); security (`supply-chain-audit`, `threat-modeling`, `connector-grant-review`);
+orchestration (`parallel-work-claiming`, `handoff-and-resume`, `agent-quality-review`); research
+(`source-backed-brief`, `codebase-orientation`); and documentation (`decision-record`, `postmortem`).
+Twenty-nine reusable flows now ship end-to-end (23 of the 46 build-now-e2e backlog candidates). The next strongest
+remaining candidates are `engineering.docs-from-diff`, `engineering.api-contract-change`,
+`engineering.large-refactor-safe-plan`, `engineering.flaky-test-stabilization`, `research.library-evaluation`,
+`research.paper-to-implementation-plan`, `research.market-and-user-value`, `orchestration.swarm-execution`,
+`orchestration.tool-creation`, `orchestration.skill-authoring`, `security.policy-exception`,
+`docs.operating-handbook`, `docs.api-reference-refresh`, `docs.migration-guide`, `proof.patch-risk-classification`,
+and the three honestly-local `personal.*` flows.
 
 ## Honesty corrections to the official build order
 

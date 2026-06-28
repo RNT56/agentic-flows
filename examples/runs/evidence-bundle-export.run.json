@@ -1,0 +1,121 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "proof.evidence-bundle-export",
+    "version": "0.1.0",
+    "source": "flows/proof/evidence-bundle-export/flow.yaml"
+  },
+  "run": {
+    "id": "run-evidence-bundle-export-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T18:00:00Z",
+    "completed_at": "2026-06-28T18:01:40Z"
+  },
+  "inputs": {
+    "run_bundle": "file://examples/runs/feature-implementation.run.json",
+    "verifier_outcome": {
+      "verdict": "accepted",
+      "verifier": "crustcore"
+    }
+  },
+  "outputs": {
+    "proof_bundle": {
+      "flow": "coding.feature-implementation@0.1.0",
+      "events": 10,
+      "gates": ["project-checks-pass", "acceptance-covered"],
+      "artifacts": ["diff", "test-log", "review-notes", "closeout"],
+      "verdict": "accepted"
+    },
+    "export_manifest": "Proof bundle for run-feature-implementation-0001: flow version, 10 events, 2 passed gates, 4 artifact refs, verdict accepted."
+  },
+  "artifacts": [
+    {
+      "id": "bundle-index",
+      "kind": "json",
+      "uri": "artifact://runs/run-evidence-bundle-export-0001/index.json"
+    },
+    {
+      "id": "proof-bundle",
+      "kind": "json",
+      "uri": "artifact://runs/run-evidence-bundle-export-0001/proof-bundle.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.evidence-bundle-export",
+      "flow_version": "0.1.0",
+      "run_id": "run-evidence-bundle-export-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T18:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.evidence-bundle-export",
+      "flow_version": "0.1.0",
+      "run_id": "run-evidence-bundle-export-0001",
+      "node_id": "collect",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T18:00:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.evidence-bundle-export",
+      "flow_version": "0.1.0",
+      "run_id": "run-evidence-bundle-export-0001",
+      "node_id": "assemble",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T18:01:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.evidence-bundle-export",
+      "flow_version": "0.1.0",
+      "run_id": "run-evidence-bundle-export-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T18:01:20Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "bundle-complete",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "proof-bundle",
+          "kind": "json",
+          "uri": "artifact://runs/run-evidence-bundle-export-0001/proof-bundle.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.evidence-bundle-export",
+      "flow_version": "0.1.0",
+      "run_id": "run-evidence-bundle-export-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T18:01:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.evidence-bundle-export",
+      "flow_version": "0.1.0",
+      "run_id": "run-evidence-bundle-export-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T18:01:40Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

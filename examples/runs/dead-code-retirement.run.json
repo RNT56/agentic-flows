@@ -1,0 +1,153 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.dead-code-retirement",
+    "version": "0.1.0",
+    "source": "flows/engineering/dead-code-retirement/flow.yaml"
+  },
+  "run": {
+    "id": "run-dead-code-retirement-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T22:00:00Z",
+    "completed_at": "2026-06-28T22:03:00Z"
+  },
+  "inputs": {
+    "target": "The legacy_export() helper in app/io.py looks unused.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "outputs": {
+    "removal_patch": "artifact://removal-diff",
+    "impact_report": "References: 0 internal callers; not exported in __all__. Public API impact: none. Tests: pass after removal."
+  },
+  "artifacts": [
+    {
+      "id": "reference-search",
+      "kind": "json",
+      "uri": "artifact://runs/run-dead-code-retirement-0001/references.json"
+    },
+    {
+      "id": "removal-diff",
+      "kind": "patch",
+      "uri": "artifact://runs/run-dead-code-retirement-0001/removal.patch"
+    },
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-dead-code-retirement-0001/test.log"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dead-code-retirement",
+      "flow_version": "0.1.0",
+      "run_id": "run-dead-code-retirement-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T22:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dead-code-retirement",
+      "flow_version": "0.1.0",
+      "run_id": "run-dead-code-retirement-0001",
+      "node_id": "search",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T22:00:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dead-code-retirement",
+      "flow_version": "0.1.0",
+      "run_id": "run-dead-code-retirement-0001",
+      "node_id": "search",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T22:00:50Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "references-searched",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "reference-search",
+          "kind": "json",
+          "uri": "artifact://runs/run-dead-code-retirement-0001/references.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dead-code-retirement",
+      "flow_version": "0.1.0",
+      "run_id": "run-dead-code-retirement-0001",
+      "node_id": "decide",
+      "event": "decision.recorded",
+      "timestamp": "2026-06-28T22:01:10Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "decision": "confirmed-unused"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dead-code-retirement",
+      "flow_version": "0.1.0",
+      "run_id": "run-dead-code-retirement-0001",
+      "node_id": "test",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T22:02:30Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dead-code-retirement",
+      "flow_version": "0.1.0",
+      "run_id": "run-dead-code-retirement-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T22:02:45Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "tests-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-dead-code-retirement-0001/test.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dead-code-retirement",
+      "flow_version": "0.1.0",
+      "run_id": "run-dead-code-retirement-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T22:03:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dead-code-retirement",
+      "flow_version": "0.1.0",
+      "run_id": "run-dead-code-retirement-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T22:03:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

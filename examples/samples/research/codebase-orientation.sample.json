@@ -1,0 +1,20 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "research.codebase-orientation",
+    "version": "0.1.0",
+    "source": "flows/research/codebase-orientation/flow.yaml"
+  },
+  "inputs": {
+    "repo": "https://github.com/RNT56/agentic-flows",
+    "focus": "I need to add a new flowctl subcommand. Where do commands live and how are they tested?"
+  },
+  "expected_outputs": {
+    "orientation_map": "Entrypoints: tools/flowctl/flowctl/cli.py (build_parser adds subcommands). Tests: tests/test_flowctl.py. Build/test: pip install -e . then pytest. Ownership: schemas/ owns contracts, flows/ owns definitions. Risks: normalization and release-check both gate CI.",
+    "commands": {
+      "build": "python -m pip install -e .",
+      "test": "pytest -q"
+    }
+  },
+  "notes": "Maps an unfamiliar repo with verified build and test commands before changes."
+}

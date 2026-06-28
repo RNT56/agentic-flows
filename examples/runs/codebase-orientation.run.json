@@ -1,0 +1,142 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "research.codebase-orientation",
+    "version": "0.1.0",
+    "source": "flows/research/codebase-orientation/flow.yaml"
+  },
+  "run": {
+    "id": "run-codebase-orientation-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T20:00:00Z",
+    "completed_at": "2026-06-28T20:02:40Z"
+  },
+  "inputs": {
+    "repo": "https://github.com/RNT56/agentic-flows",
+    "focus": "I need to add a new flowctl subcommand. Where do commands live and how are they tested?"
+  },
+  "outputs": {
+    "orientation_map": "Entrypoints: tools/flowctl/flowctl/cli.py. Tests: tests/test_flowctl.py. Build/test: pip install -e . then pytest. Risks: normalization and release-check gate CI.",
+    "commands": {
+      "build": "python -m pip install -e .",
+      "test": "pytest -q"
+    }
+  },
+  "artifacts": [
+    {
+      "id": "repo-scan",
+      "kind": "json",
+      "uri": "artifact://runs/run-codebase-orientation-0001/scan.json"
+    },
+    {
+      "id": "command-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-codebase-orientation-0001/commands.log"
+    },
+    {
+      "id": "orientation-notes",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-codebase-orientation-0001/orientation.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-codebase-orientation-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T20:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-codebase-orientation-0001",
+      "node_id": "scan",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T20:00:50Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-codebase-orientation-0001",
+      "node_id": "probe",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T20:01:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-codebase-orientation-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T20:02:10Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "commands-verified",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "command-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-codebase-orientation-0001/commands.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-codebase-orientation-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T20:02:20Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "map-complete",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "orientation-notes",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-codebase-orientation-0001/orientation.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-codebase-orientation-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T20:02:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-codebase-orientation-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T20:02:40Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

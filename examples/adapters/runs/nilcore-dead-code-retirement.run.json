@@ -1,0 +1,115 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.dead-code-retirement",
+    "version": "0.1.0",
+    "source": "flows/engineering/dead-code-retirement/flow.yaml"
+  },
+  "run": {
+    "id": "run-nilcore-dead-code-retirement-0001",
+    "core": "nilcore",
+    "status": "completed",
+    "started_at": "2026-06-28T22:20:00Z",
+    "completed_at": "2026-06-28T22:23:00Z"
+  },
+  "inputs": {
+    "target": "The legacy_export() helper in app/io.py looks unused.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "outputs": {
+    "removal_patch": "artifact://removal-diff",
+    "impact_report": "References: 0 callers; public API impact none; tests pass after removal."
+  },
+  "artifacts": [
+    {
+      "id": "reference-search",
+      "kind": "json",
+      "uri": "artifact://runs/run-nilcore-dead-code-retirement-0001/references.json"
+    },
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-nilcore-dead-code-retirement-0001/test.log"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dead-code-retirement",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-dead-code-retirement-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T22:20:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dead-code-retirement",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-dead-code-retirement-0001",
+      "node_id": "search",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T22:20:50Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "references-searched",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "reference-search",
+          "kind": "json",
+          "uri": "artifact://runs/run-nilcore-dead-code-retirement-0001/references.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dead-code-retirement",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-dead-code-retirement-0001",
+      "node_id": "decide",
+      "event": "decision.recorded",
+      "timestamp": "2026-06-28T22:21:10Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "decision": "confirmed-unused"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dead-code-retirement",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-dead-code-retirement-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T22:22:45Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "tests-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-nilcore-dead-code-retirement-0001/test.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.dead-code-retirement",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-dead-code-retirement-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T22:23:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    }
+  ]
+}
