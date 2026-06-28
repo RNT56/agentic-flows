@@ -273,6 +273,7 @@ def is_structured_example_json(path: Path) -> bool:
         or path.name.endswith(".adapter-smoke.json")
         or path.name.endswith(".stream.json")
         or ("samples" in path.parts and path.name.endswith(".sample.json"))
+        or "artifacts" in path.parts
     )
 
 

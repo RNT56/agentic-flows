@@ -16,6 +16,10 @@ This project follows semantic versioning for releases and keeps flow compatibili
 - Added `flowctl run` regression tests covering command execution, gate evidence, bundle validity, command-failure handling, and needs-handler reporting.
 - Rolled the substance layer across the remaining 62 flows: every node now carries operational `instructions`, each intake node declares an `inputs_schema` mirroring its contract inputs, tool nodes that map to a concrete portable command carry a `command`, `parameters`, and `on_failure`, and critical verifier nodes carry failure policies. The change is additive (no contract, edge, gate, observability, runtime, or metadata changes), so all existing sample, run-bundle, and adapter-smoke fixtures still validate.
 - Made three more flows runnable end-to-end under `flowctl run` and committed their real run bundles under `examples/runs/real/`: `ops.adapter-certification` (runs `flowctl validate-adapter-smoke`), `proof.verified-patch-acceptance` (runs the verifier-owned test command), and `ops.capability-negotiation` (no-command fail-closed comparison). Added a "Runnable flows today" table to `docs/runnable-flows.md` and a "Runnable" section to each flow's README.
+
+### Fixed
+
+- `flowctl validate-event` no longer treats run-bundle artifacts (intake records and command logs under an `artifacts/` directory) as standalone event documents, so produced run bundles can live under `examples/` without breaking event validation.
 - Added the `ops.flow-intake-and-routing` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
 - Added the `ops.capability-negotiation` reusable flow with a standalone run bundle and a CrustCore contract smoke.
 - Added the `ops.event-and-evidence-bridge` reusable flow with a standalone run bundle, a multi-file event stream, and a NilCore contract smoke.

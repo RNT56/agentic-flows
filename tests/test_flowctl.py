@@ -146,6 +146,11 @@ def test_event_discovery_excludes_run_bundles() -> None:
     assert Path("examples/samples/coding/feature-implementation.sample.json").resolve() not in paths
     assert Path("examples/streams/feature-implementation/feature-implementation.stream.json").resolve() not in paths
     assert Path("examples/streams/feature-implementation/events/001-flow-started.json").resolve() in paths
+    # Run-bundle artifacts (intake records, command logs) are not standalone events.
+    assert (
+        Path("examples/runs/real/codebase-orientation/artifacts/orientation-request.json").resolve()
+        not in paths
+    )
 
 
 def test_adapter_smoke_discovery_finds_manifests() -> None:
