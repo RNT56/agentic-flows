@@ -1,0 +1,177 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.issue-to-verified-pr",
+    "version": "0.1.0",
+    "source": "flows/engineering/issue-to-verified-pr/flow.yaml"
+  },
+  "run": {
+    "id": "run-issue-to-verified-pr-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T19:00:00Z",
+    "completed_at": "2026-06-27T19:05:00Z"
+  },
+  "inputs": {
+    "issue": "Add a --json flag to the status command. Acceptance: existing text output unchanged; new flag emits valid JSON; tests cover both paths.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "outputs": {
+    "patch": "artifact://diff",
+    "pr_summary": "artifact://pr-summary"
+  },
+  "artifacts": [
+    {
+      "id": "implementation-plan",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-issue-to-verified-pr-0001/plan.md"
+    },
+    {
+      "id": "diff",
+      "kind": "patch",
+      "uri": "artifact://runs/run-issue-to-verified-pr-0001/diff.patch"
+    },
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-issue-to-verified-pr-0001/test.log"
+    },
+    {
+      "id": "review-notes",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-issue-to-verified-pr-0001/review-notes.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-issue-to-verified-pr-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T19:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-issue-to-verified-pr-0001",
+      "node_id": "intake",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T19:00:20Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-issue-to-verified-pr-0001",
+      "node_id": "plan",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T19:01:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-issue-to-verified-pr-0001",
+      "node_id": "implement",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T19:02:30Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-issue-to-verified-pr-0001",
+      "node_id": "test",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T19:03:30Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-issue-to-verified-pr-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T19:04:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "tests-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-issue-to-verified-pr-0001/test.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-issue-to-verified-pr-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T19:04:20Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "scope-frozen",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "review-notes",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-issue-to-verified-pr-0001/review-notes.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-issue-to-verified-pr-0001",
+      "node_id": "verify",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T19:04:30Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-issue-to-verified-pr-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T19:05:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-issue-to-verified-pr-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T19:05:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

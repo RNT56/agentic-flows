@@ -1,0 +1,130 @@
+spec_version: agentic-flows/v1
+id: proof.verified-patch-acceptance
+version: 0.1.0
+title: Verified patch acceptance
+summary: Decide whether a patch is complete using only verifier-owned evidence, never a model completion claim.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - proof
+  - verification
+  - acceptance
+entrypoint: intake
+runtime:
+  supported_cores:
+    - crustcore
+    - standalone
+  required_capabilities:
+    - patch.inspect
+    - command.run
+    - evidence.capture
+    - completion.verify
+  adapter_hints:
+    crustcore:
+      proof_surface: verified-patch
+contracts:
+  inputs:
+    - id: patch
+      type: patch
+      required: true
+      description: The candidate patch to accept or reject.
+    - id: acceptance_criteria
+      type: markdown
+      required: true
+      description: Required gates and acceptance criteria the patch must satisfy.
+  outputs:
+    - id: acceptance_verdict
+      type: json
+      required: true
+      description: Accept or reject decision with the cited gate evidence for each required gate.
+    - id: proof_report
+      type: markdown
+      required: true
+      description: Human-readable proof summary referencing the verifier evidence.
+  artifacts:
+    - test-log
+    - acceptance-verdict
+    - proof-report
+nodes:
+  - id: intake
+    type: intake
+    title: Intake patch and criteria
+    description: Capture the candidate patch and the required gates and acceptance criteria.
+    produces:
+      - acceptance-request
+  - id: checks
+    type: tool
+    title: Run verifier checks
+    description: Run the required checks against the patch and capture their output.
+    tool: command-runner
+    requires:
+      - acceptance-request
+    produces:
+      - test-log
+  - id: verify
+    type: verifier
+    title: Collect gate evidence
+    description: Map each required gate to captured evidence and form an evidence-backed verdict.
+    requires:
+      - acceptance-request
+      - test-log
+    produces:
+      - acceptance-verdict
+  - id: decide
+    type: decision
+    title: Accept or fail closed
+    description: Accept only when every required gate has passing evidence, otherwise reject and fail closed.
+    requires:
+      - acceptance-verdict
+    produces:
+      - acceptance-decision
+  - id: final
+    type: finalizer
+    title: Close out acceptance
+    description: Return the acceptance verdict and a proof report citing the verifier evidence.
+    requires:
+      - acceptance-verdict
+      - acceptance-decision
+    produces:
+      - acceptance_verdict
+      - proof_report
+edges:
+  - from: intake
+    to: checks
+  - from: checks
+    to: verify
+  - from: verify
+    to: decide
+  - from: decide
+    to: final
+    condition: accept
+  - from: decide
+    to: final
+    condition: reject-fail-closed
+quality_gates:
+  - id: verifier-checks-pass
+    title: Verifier checks pass
+    type: command
+    required: true
+    command: make test || npm test || cargo test || go test ./...
+    evidence: Verifier-owned check output for the candidate patch.
+    evidence_refs:
+      - test-log
+  - id: verdict-present
+    title: Evidence-backed verdict present
+    type: artifact
+    required: true
+    evidence: An acceptance verdict that cites gate evidence rather than a model completion claim.
+    evidence_refs:
+      - acceptance-verdict
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - decision.recorded
+    - gate.completed
+    - flow.completed
+  metrics:
+    - gates.evaluated
+    - duration.seconds

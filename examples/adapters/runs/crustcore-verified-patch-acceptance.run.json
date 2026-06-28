@@ -1,0 +1,121 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "proof.verified-patch-acceptance",
+    "version": "0.1.0",
+    "source": "flows/proof/verified-patch-acceptance/flow.yaml"
+  },
+  "run": {
+    "id": "run-crustcore-verified-patch-acceptance-0001",
+    "core": "crustcore",
+    "status": "completed",
+    "started_at": "2026-06-27T20:20:00Z",
+    "completed_at": "2026-06-27T20:22:00Z"
+  },
+  "inputs": {
+    "patch": "diff --git a/cli/status.py b/cli/status.py\n@@ add --json flag @@",
+    "acceptance_criteria": "Required gates: project tests pass; no public API change without a note."
+  },
+  "outputs": {
+    "acceptance_verdict": {
+      "verdict": "accept",
+      "gates": [
+        {"gate_id": "verifier-checks-pass", "status": "passed", "evidence": "test-log"},
+        {"gate_id": "verdict-present", "status": "passed", "evidence": "acceptance-verdict"}
+      ]
+    },
+    "proof_report": "Accepted by the verifier. Both required gates have passing cited evidence."
+  },
+  "artifacts": [
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-crustcore-verified-patch-acceptance-0001/test.log"
+    },
+    {
+      "id": "acceptance-verdict",
+      "kind": "json",
+      "uri": "artifact://runs/run-crustcore-verified-patch-acceptance-0001/verdict.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.verified-patch-acceptance",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-verified-patch-acceptance-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T20:20:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.verified-patch-acceptance",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-verified-patch-acceptance-0001",
+      "node_id": "checks",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T20:21:00Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "verifier-checks-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-crustcore-verified-patch-acceptance-0001/test.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.verified-patch-acceptance",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-verified-patch-acceptance-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T20:21:30Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "verdict-present",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "acceptance-verdict",
+          "kind": "json",
+          "uri": "artifact://runs/run-crustcore-verified-patch-acceptance-0001/verdict.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.verified-patch-acceptance",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-verified-patch-acceptance-0001",
+      "node_id": "decide",
+      "event": "decision.recorded",
+      "timestamp": "2026-06-27T20:21:45Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "verdict": "accept"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.verified-patch-acceptance",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-verified-patch-acceptance-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T20:22:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.issue-to-verified-pr",
+    "version": "0.1.0",
+    "source": "flows/engineering/issue-to-verified-pr/flow.yaml"
+  },
+  "inputs": {
+    "issue": "Add a --json flag to the status command. Acceptance: existing text output unchanged; new flag emits valid JSON; tests cover both paths.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "expected_outputs": {
+    "patch": "diff --git a/cli/status.py b/cli/status.py\n@@ add --json flag and JSON renderer @@",
+    "pr_summary": "Adds a --json flag to the status command. Changed files: cli/status.py, tests/test_status.py. Tests: 12 passed. Scope held to the frozen acceptance criteria."
+  },
+  "notes": "Takes a scoped issue to a branch, passing checks, and a draft PR summary citing changed files."
+}

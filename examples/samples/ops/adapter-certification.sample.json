@@ -1,0 +1,22 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "ops.adapter-certification",
+    "version": "0.1.0",
+    "source": "flows/ops/adapter-certification/flow.yaml"
+  },
+  "inputs": {
+    "consumer": "crustcore",
+    "flow": "file://flows/coding/feature-implementation/flow.yaml"
+  },
+  "expected_outputs": {
+    "adapter_smoke": {
+      "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+      "consumer": "crustcore",
+      "flow_id": "coding.feature-implementation",
+      "result": "validates"
+    },
+    "certification_report": "Certified crustcore against coding.feature-implementation. Capabilities and node mappings covered; run bundle validates; negative fixture failed with the expected error."
+  },
+  "notes": "Produces and validates an adapter smoke manifest, including the required negative fixture."
+}

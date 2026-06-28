@@ -1,0 +1,32 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "engineering.issue-to-verified-pr",
+    "version": "0.1.0",
+    "source": "flows/engineering/issue-to-verified-pr/flow.yaml"
+  },
+  "capability_support": [
+    "repo.checkout",
+    "patch.apply",
+    "command.run",
+    "evidence.capture",
+    "human.review",
+    "pr.draft"
+  ],
+  "node_type_mappings": {
+    "intake": "issue intake job",
+    "plan": "implementation planner",
+    "agent_task": "sandboxed coding worker",
+    "tool": "command evidence runner",
+    "verifier": "scope and acceptance verifier",
+    "approval": "operator review request",
+    "finalizer": "PR draft closeout"
+  },
+  "run_bundle": "runs/nilcore-issue-to-verified-pr.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore issue-to-PR worker adapter."
+}

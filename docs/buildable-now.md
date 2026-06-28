@@ -40,9 +40,13 @@ The integration spine plus the two product anchors. The first three are shipped 
 1. `ops.flow-intake-and-routing` — shipped.
 2. `ops.capability-negotiation` — shipped.
 3. `ops.event-and-evidence-bridge` — shipped.
-4. `engineering.issue-to-verified-pr` — near-structural twin of `coding.feature-implementation`.
-5. `proof.verified-patch-acceptance` — canonical CrustCore verifier-completion pattern.
-6. `ops.adapter-certification` — its deliverable is the adapter-smoke artifact itself.
+4. `engineering.issue-to-verified-pr` — shipped (near-structural twin of `coding.feature-implementation`).
+5. `proof.verified-patch-acceptance` — shipped (canonical CrustCore verifier-completion pattern).
+6. `ops.adapter-certification` — shipped (its deliverable is the adapter-smoke artifact itself).
+
+The entire recommended first batch is now in the catalog. The next strongest build-now candidates are
+`engineering.ci-failure-diagnosis`, `engineering.pr-review-and-risk-notes`, `orchestration.parallel-work-claiming`,
+`security.supply-chain-audit`, and `research.source-backed-brief`.
 
 ## Honesty corrections to the official build order
 

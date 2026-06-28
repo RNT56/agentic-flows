@@ -1,0 +1,159 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "proof.verified-patch-acceptance",
+    "version": "0.1.0",
+    "source": "flows/proof/verified-patch-acceptance/flow.yaml"
+  },
+  "run": {
+    "id": "run-verified-patch-acceptance-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T20:00:00Z",
+    "completed_at": "2026-06-27T20:02:00Z"
+  },
+  "inputs": {
+    "patch": "diff --git a/cli/status.py b/cli/status.py\n@@ add --json flag @@",
+    "acceptance_criteria": "Required gates: project tests pass; no public API change without a note."
+  },
+  "outputs": {
+    "acceptance_verdict": {
+      "verdict": "accept",
+      "gates": [
+        {"gate_id": "verifier-checks-pass", "status": "passed", "evidence": "test-log"},
+        {"gate_id": "verdict-present", "status": "passed", "evidence": "acceptance-verdict"}
+      ]
+    },
+    "proof_report": "Accepted. Both required gates have passing verifier evidence; no model completion claim was used."
+  },
+  "artifacts": [
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-verified-patch-acceptance-0001/test.log"
+    },
+    {
+      "id": "acceptance-verdict",
+      "kind": "json",
+      "uri": "artifact://runs/run-verified-patch-acceptance-0001/verdict.json"
+    },
+    {
+      "id": "proof-report",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-verified-patch-acceptance-0001/proof-report.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.verified-patch-acceptance",
+      "flow_version": "0.1.0",
+      "run_id": "run-verified-patch-acceptance-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T20:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.verified-patch-acceptance",
+      "flow_version": "0.1.0",
+      "run_id": "run-verified-patch-acceptance-0001",
+      "node_id": "intake",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T20:00:20Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.verified-patch-acceptance",
+      "flow_version": "0.1.0",
+      "run_id": "run-verified-patch-acceptance-0001",
+      "node_id": "checks",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T20:01:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.verified-patch-acceptance",
+      "flow_version": "0.1.0",
+      "run_id": "run-verified-patch-acceptance-0001",
+      "node_id": "checks",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T20:01:10Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "verifier-checks-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-verified-patch-acceptance-0001/test.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.verified-patch-acceptance",
+      "flow_version": "0.1.0",
+      "run_id": "run-verified-patch-acceptance-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T20:01:30Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "verdict-present",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "acceptance-verdict",
+          "kind": "json",
+          "uri": "artifact://runs/run-verified-patch-acceptance-0001/verdict.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.verified-patch-acceptance",
+      "flow_version": "0.1.0",
+      "run_id": "run-verified-patch-acceptance-0001",
+      "node_id": "decide",
+      "event": "decision.recorded",
+      "timestamp": "2026-06-27T20:01:45Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "verdict": "accept"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.verified-patch-acceptance",
+      "flow_version": "0.1.0",
+      "run_id": "run-verified-patch-acceptance-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T20:02:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.verified-patch-acceptance",
+      "flow_version": "0.1.0",
+      "run_id": "run-verified-patch-acceptance-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T20:02:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}
