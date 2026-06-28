@@ -57,6 +57,8 @@ flowctl run flows/coding/feature-implementation/flow.yaml \
 
 This is how the catalog's contract flows are consumed end-to-end. The flow stays runtime-neutral; the runtime owns the binding. A worked example with a committed bundle lives under [`examples/runs/consumed/`](../examples/runs/consumed/README.md). Handlers that target an unknown node id are rejected before the run starts.
 
+To see a flow's consumption surface before running it, use `flowctl run <flow> --plan`. It prints the execution order and classifies each node as `command` (the flow runs it), `data` (the runner assembles it), `handler` (a supplied `--handler` binds it), or `needs-handler` (a consumer must bind it), then lists exactly which nodes to bind. Pass the same `--handler` flags with `--plan` to confirm a binding set is complete before executing — when nothing remains, it reports `nothing (runnable as-is)`. Every catalog flow has a well-defined surface: a node is always a data step, a command step, or a clearly-named node a consumer binds.
+
 A flow is **runnable** when `flowctl run` can take it to `status: completed` with local handlers alone (i.e., its working nodes are `tool`/`command` or data steps). A flow is a **contract** when it needs a consumer to supply an `agent_task`/`approval` handler; it is still fully consumable — bind the handlers and it runs to completion, the runtime providing the agent and the flow providing everything else.
 
 ## Runnable flows today

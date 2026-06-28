@@ -2269,6 +2269,39 @@ def execution_order(document: dict[str, Any]) -> list[dict[str, Any]]:
     return order
 
 
+DATA_NODE_TYPES = ("intake", "plan", "decision", "verifier", "finalizer")
+
+
+def plan_flow(document: dict[str, Any], handlers: dict[str, str] | None = None) -> dict[str, Any]:
+    """Classify each node's execution disposition without running anything.
+
+    Disposition is one of: 'command' (the flow runs a command), 'data' (the
+    runner assembles a record), 'handler' (a consumer-supplied handler is bound),
+    or 'needs-handler' (an agent_task/approval/handoff a consumer must bind).
+    """
+    handlers = handlers or {}
+    steps: list[dict[str, Any]] = []
+    needs_handlers: list[str] = []
+    for node in execution_order(document):
+        node_id = node["id"]
+        node_type = node["type"]
+        if node.get("command"):
+            disposition = "command"
+        elif node_type in DATA_NODE_TYPES:
+            disposition = "data"
+        elif node_id in handlers:
+            disposition = "handler"
+        else:
+            disposition = "needs-handler"
+            needs_handlers.append(node_id)
+        steps.append({"id": node_id, "type": node_type, "disposition": disposition})
+    return {
+        "order": [step["id"] for step in steps],
+        "steps": steps,
+        "needs_handlers": needs_handlers,
+    }
+
+
 def run_flow(
     document: dict[str, Any],
     flow_source: str,
@@ -2454,6 +2487,17 @@ def cmd_run(args: argparse.Namespace) -> int:
         print(f"FAIL: handler targets unknown node(s): {', '.join(unknown_handlers)}", file=sys.stderr)
         return 1
 
+    if args.plan:
+        plan = plan_flow(document, handlers)
+        print(f"Plan for {document['id']}@{document['version']}")
+        width = max((len(step["id"]) for step in plan["steps"]), default=0)
+        for index, step in enumerate(plan["steps"], start=1):
+            note = "  <- consumer must bind" if step["disposition"] == "needs-handler" else ""
+            print(f"  {index}. {step['id']:<{width}}  [{step['disposition']}] {step['type']}{note}")
+        surface = plan["needs_handlers"]
+        print(f"Consumer must bind: {', '.join(surface) if surface else 'nothing (runnable as-is)'}")
+        return 0
+
     workdir = Path(args.workdir).resolve() if args.workdir else Path.cwd()
     flow_path = args.flow.resolve()
     source = str(flow_path.relative_to(REPO_ROOT)) if flow_path.is_relative_to(REPO_ROOT) else str(flow_path)
@@ -2497,7 +2541,9 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--input", action="append", default=[], metavar="id=value", help="Flow input value.")
     run.add_argument("--param", action="append", default=[], metavar="id=value", help="Parameter override.")
     run.add_argument("--handler", action="append", default=[], metavar="node_id=command",
-                     help="Bind an agent_task/approval/handoff node to a consumer-supplied command.")
+                     help="Bind a node that needs a consumer handler (agent_task/approval/handoff, or a tool without a command) to a command.")
+    run.add_argument("--plan", action="store_true",
+                     help="Print the execution order and the consumer handler surface without running anything.")
     run.add_argument("--workdir", type=Path, help="Working directory for command nodes. Defaults to the current directory.")
     run.add_argument("--out", type=Path, help="Output directory for the run bundle and artifacts. Defaults to .agentic-runs/<flow>.")
     run.add_argument("--run-schema", type=Path, default=DEFAULT_RUN_SCHEMA, help="Path to the run bundle JSON Schema.")

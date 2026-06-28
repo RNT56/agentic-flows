@@ -25,6 +25,7 @@ from flowctl.cli import (
     load_yaml,
     normalize_flow_document,
     parse_kv_list,
+    plan_flow,
     run_flow,
     substitute_command,
     validate_adapter_smoke_document,
@@ -638,3 +639,58 @@ def test_run_flow_consumer_handler_binds_agent_task(tmp_path: Path) -> None:
         e for e in bundle["events"] if e["event"] == "node.completed" and e.get("node_id") == "author"
     )
     assert author_event["payload"].get("handler") == "consumer"
+
+
+def test_plan_flow_reports_consumption_surface_and_honors_handlers() -> None:
+    document = _minimal_runnable_flow()
+    document["nodes"].insert(
+        2,
+        {
+            "id": "author",
+            "type": "agent_task",
+            "title": "Author the result",
+            "description": "A consumer supplies the agent that produces this node's output.",
+            "agent": "worker",
+            "requires": ["probe-log"],
+            "produces": ["draft"],
+        },
+    )
+
+    plan = plan_flow(document)
+    by_id = {step["id"]: step["disposition"] for step in plan["steps"]}
+    assert by_id["intake"] == "data"
+    assert by_id["probe"] == "command"
+    assert by_id["author"] == "needs-handler"
+    assert plan["needs_handlers"] == ["author"]
+
+    bound = plan_flow(document, {"author": "printf hi"})
+    assert bound["needs_handlers"] == []
+    assert {s["id"]: s["disposition"] for s in bound["steps"]}["author"] == "handler"
+
+
+def test_every_flow_has_a_well_defined_consumption_surface() -> None:
+    # A node is a data step (the runner assembles it), a command step, or a node a
+    # consumer must bind. The invariant: every node is classified, and every
+    # needs-handler node is genuinely a non-data, command-less node.
+    allowed = {"command", "data", "handler", "needs-handler"}
+    data_types = {"intake", "plan", "decision", "verifier", "finalizer"}
+    failures: list[str] = []
+
+    for flow_path in find_flow_files([Path("flows")]):
+        document = load_yaml(flow_path)
+        node_ids = [node["id"] for node in document["nodes"]]
+        nodes_by_id = {node["id"]: node for node in document["nodes"]}
+        plan = plan_flow(document)
+
+        planned_ids = [step["id"] for step in plan["steps"]]
+        if sorted(planned_ids) != sorted(node_ids):
+            failures.append(f"{flow_path}: plan {sorted(planned_ids)} != nodes {sorted(node_ids)}")
+        for step in plan["steps"]:
+            if step["disposition"] not in allowed:
+                failures.append(f"{flow_path}: {step['id']} has bad disposition {step['disposition']}")
+        for node_id in plan["needs_handlers"]:
+            node = nodes_by_id[node_id]
+            if node["type"] in data_types or node.get("command"):
+                failures.append(f"{flow_path}: {node_id} wrongly marked needs-handler")
+
+    assert not failures, "\n".join(failures)
