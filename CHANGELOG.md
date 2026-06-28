@@ -70,6 +70,7 @@ This project follows semantic versioning for releases and keeps flow compatibili
 
 ### Changed
 
+- Redefined the project goal: `agentic-flows` is now a library of **runnable, consumable** workflows that carry a substance layer (per-node instructions, structured I/O, parameters, concrete commands, failure handling), executed by a consuming runtime or the bundled reference runner. Updated `docs/goals.md` and the README accordingly and added [docs/runnable-flows.md](docs/runnable-flows.md).
 - Reworked the README into a full project landing page with vision, catalog status, workflow backlog links, runtime-boundary framing, and validation guidance.
 - Expanded the catalog to sixty-four reusable workflows, completing all 46 build-now candidates plus the 12 strongest contract-first backlog flows (security hotfix, repo bootstrap, monorepo slice, performance regression, backlog grooming, release-candidate audit, untrusted-output routing, access review, technology radar, incident response, self-improvement loop, connector productionization), and recorded their compatibility states.
 
