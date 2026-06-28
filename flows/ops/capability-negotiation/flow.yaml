@@ -54,12 +54,25 @@ nodes:
     type: intake
     title: Intake requirements and profile
     description: Normalize the flow's required capabilities and the runtime profile into one comparable set.
+    instructions: Normalize the flow's required capabilities and supported cores and the runtime profile into one comparable
+      set so each requirement can be matched against what the runtime offers.
+    inputs_schema:
+      - id: flow_requirements
+        type: json
+        required: true
+        description: The candidate flow's required capabilities and supported cores.
+      - id: runtime_profile
+        type: json
+        required: true
+        description: The runtime's available tools, permissions, sandbox, and approval policy.
     produces:
       - negotiation-inputs
   - id: compare
     type: verifier
     title: Compare required against supported
     description: Match each required capability against the runtime profile and record unsupported entries.
+    instructions: Match every required capability against the runtime profile and record each as supported or unsupported
+      in the capability matrix, with no requirement left unjudged.
     requires:
       - negotiation-inputs
     produces:
@@ -68,6 +81,8 @@ nodes:
     type: decision
     title: Proceed or fail closed
     description: Decide to proceed only when every required capability is supported, otherwise fail closed.
+    instructions: Record a proceed verdict only when the matrix shows every required capability supported, otherwise fail
+      closed and name the unsupported capabilities that blocked it.
     requires:
       - capability-matrix
     produces:
@@ -76,6 +91,8 @@ nodes:
     type: finalizer
     title: Close out negotiation
     description: Return the negotiation report and the per-capability decision.
+    instructions: Return the negotiation report summarizing supported and unsupported capabilities and the per-capability
+      decision with the overall proceed-or-fail-closed verdict.
     requires:
       - capability-matrix
       - support-verdict

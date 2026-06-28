@@ -2,9 +2,9 @@
 
 [![Validate agentic flows](https://github.com/RNT56/agentic-flows/actions/workflows/validate.yml/badge.svg)](https://github.com/RNT56/agentic-flows/actions/workflows/validate.yml)
 
-Versioned workflow contracts for agentic systems that must plan, act, verify, approve, and leave evidence.
+A library of runnable, consumable agentic workflows — each carrying the instructions, structured I/O, checks, and gates a runtime needs to execute it and leave real evidence.
 
-`agentic-flows` is the portable workflow layer for RNT56 agentic projects. It defines reusable flow specs, schemas, samples, run bundles, adapter contracts, and release gates that independent runtimes can choose to consume. It is not a fourth runtime and it does not merge ThinClaw, NilCore, or CrustCore into one codebase.
+`agentic-flows` is the portable workflow library for RNT56 agentic projects. A flow is not just a diagram of steps: it carries the substance a consumer needs to run it — per-node instructions, structured inputs and outputs, parameters, concrete commands, quality gates, and an evidence contract. A consuming runtime (ThinClaw, NilCore, CrustCore) or the bundled reference runner (`flowctl run`) loads a flow and executes it to a real result with real evidence. The runtimes own the bindings that cannot be portable — sandbox, secrets, agent models, approval UX; the flow owns the workflow itself. It is not a fourth runtime and it does not merge ThinClaw, NilCore, or CrustCore into one codebase.
 
 | Surface | Current state |
 | --- | --- |
@@ -55,9 +55,10 @@ flowchart LR
 
 ## What is built now
 
-- A versioned YAML workflow format backed by JSON Schema.
-- `flowctl`, a repo-local CLI for validation, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
-- Sixty-four reusable workflow definitions across coding, engineering, research, security, product, program, personal, collaboration, operations, proof, orchestration, documentation, and human review.
+- A versioned YAML workflow format backed by JSON Schema, with a **substance layer**: per-node instructions, structured inputs/outputs, parameters, concrete commands, and failure handling (see [docs/runnable-flows.md](docs/runnable-flows.md)).
+- `flowctl`, a repo-local CLI for validation, **execution (`flowctl run`)**, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
+- A **reference runner** that executes runnable flows locally and emits real run bundles with real artifacts — not placeholder evidence.
+- Sixty-four reusable workflow definitions across coding, engineering, research, security, product, program, personal, collaboration, operations, proof, orchestration, documentation, and human review. Every flow carries the substance layer — per-node instructions, intake input schemas, parameters, and concrete commands with failure handling on the steps that map to real commands — so each is a consumable contract, and the command-driven ones run directly under `flowctl run`.
 - Three copyable starter templates for project-specific workflows.
 - Event and run-bundle schemas for evidence-backed execution.
 - Adapter smoke manifest schemas and examples for independent optional consumers.
@@ -259,6 +260,7 @@ Start with the documentation index at [docs/README.md](docs/README.md).
 | Current task board | [docs/tasks.md](docs/tasks.md) |
 | Which backlog flows are buildable now | [docs/buildable-now.md](docs/buildable-now.md) |
 | Flow contract details | [docs/flow-spec.md](docs/flow-spec.md) |
+| Runnable, consumable flows | [docs/runnable-flows.md](docs/runnable-flows.md) |
 | Authoring guidance | [docs/workflow-authoring.md](docs/workflow-authoring.md) |
 | Runtime boundary | [docs/core-integration.md](docs/core-integration.md) |
 | Consumer independence | [docs/consumer-model.md](docs/consumer-model.md) |

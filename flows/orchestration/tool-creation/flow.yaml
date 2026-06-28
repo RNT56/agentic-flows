@@ -53,12 +53,26 @@ nodes:
     type: intake
     title: Intake tool need
     description: Capture the capability gap and confirm existing tools are inadequate.
+    instructions: Record the capability gap the new tool must fill and the repo target, and confirm no existing tool already
+      covers the need before authoring a new one.
+    inputs_schema:
+      - id: need
+        type: markdown
+        required: true
+        description: The capability gap the new tool must fill.
+      - id: repo
+        type: uri
+        required: true
+        description: Repository or local checkout target.
     produces:
       - tool-need
   - id: design
     type: agent_task
     title: Design tool schema
     description: Define the tool schema, sandbox boundary, and permission profile.
+    instructions: Define the tool schema together with its sandbox boundary and the least-privilege permission profile it
+      needs. Make inputs, outputs, and the permission set explicit so the build step and the runtime can enforce them. This
+      step needs a tool-author agent supplied by the consumer.
     agent: tool-author
     requires:
       - tool-need
@@ -68,6 +82,8 @@ nodes:
     type: agent_task
     title: Build the tool
     description: Implement the tool against the schema.
+    instructions: Implement the tool so it matches the schema exactly, honors the declared sandbox boundary and permissions,
+      and returns clear errors on failure rather than crashing. This step needs a coding agent supplied by the consumer.
     agent: coding-worker
     requires:
       - tool-schema
@@ -77,15 +93,28 @@ nodes:
     type: tool
     title: Test failure modes
     description: Run tests that cover the tool's failure modes, not just the happy path.
+    instructions: Run the test suite and capture stdout, stderr, and the exit code, ensuring the tool's failure modes are
+      exercised and not just the happy path.
+    command: ${param.test_command}
+    parameters:
+      - id: test_command
+        type: command
+        required: false
+        default: make test || npm test || pytest -q || go test ./...
+        description: The command that runs the tool's tests, including its failure-mode cases.
     tool: command-runner
     requires:
       - tool-diff
     produces:
       - test-log
+    on_failure:
+      action: abort
   - id: verify
     type: verifier
     title: Verify schema and tests
     description: Confirm the schema and permission profile exist and failure tests pass.
+    instructions: Confirm the tool schema declares its sandbox boundary and permission profile, and that the test log shows
+      the failure-mode tests actually ran and passed. Reject the tool if either is missing.
     requires:
       - tool-schema
       - test-log
@@ -95,6 +124,7 @@ nodes:
     type: finalizer
     title: Close out tool
     description: Return the tool patch and its schema.
+    instructions: Return the tool patch with its tests and the verified tool schema, ready to register.
     requires:
       - tool-schema
       - tool-check

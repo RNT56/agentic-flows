@@ -53,12 +53,25 @@ nodes:
     type: intake
     title: Intake question
     description: Capture the question and the freshness, depth, and source constraints.
+    instructions: Record the exact question to answer and the freshness, depth, and source constraints that bound the search,
+      so the brief stays within scope and the confidence claim is defensible.
+    inputs_schema:
+      - id: question
+        type: markdown
+        required: true
+        description: The question to answer.
+      - id: scope
+        type: markdown
+        required: true
+        description: Freshness, depth, and source constraints.
     produces:
       - research-question
   - id: gather
     type: agent_task
     title: Gather sources
     description: Retrieve candidate sources within scope and record their ids and dates.
+    instructions: Retrieve candidate sources that fall within the stated scope and freshness window, and record each with
+      a stable id, locator, and retrieval date into the source set. This step needs a research agent supplied by the consumer.
     agent: researcher
     requires:
       - research-question
@@ -68,6 +81,8 @@ nodes:
     type: agent_task
     title: Synthesize the brief
     description: Draft the answer, mapping each claim to a cited source with bounded quotes.
+    instructions: Draft the answer so every claim links to a source id in the citation map, keep direct quotes short and clearly
+      bounded, and note where sources are thin or conflicting. This step needs a writing agent supplied by the consumer.
     agent: writer
     requires:
       - source-set
@@ -78,6 +93,8 @@ nodes:
     type: verifier
     title: Verify citations and caveats
     description: Confirm each claim is cited, quotes are bounded, and uncertainty and freshness are explicit.
+    instructions: Check that every claim in the brief maps to a cited source, that quotes stay within bounds, and that caveats,
+      source freshness, and an overall confidence level are stated explicitly.
     requires:
       - brief-draft
       - citation-map
@@ -87,6 +104,8 @@ nodes:
     type: finalizer
     title: Close out brief
     description: Return the cited brief and the citation list.
+    instructions: Return the verified brief with its stated confidence and the citation list giving each source id, locator,
+      and retrieval date.
     requires:
       - verified-brief
       - citation-map

@@ -53,12 +53,25 @@ nodes:
     type: intake
     title: Intake slices
     description: Capture the independent slices and the concurrency cap.
+    instructions: Record the independent slices to run and the maximum number of workers allowed at once, and confirm the
+      slices are genuinely independent so they can run in parallel without conflict.
+    inputs_schema:
+      - id: slices
+        type: json
+        required: true
+        description: The independent slices to run in parallel.
+      - id: concurrency
+        type: number
+        required: true
+        description: The maximum number of workers to run at once.
     produces:
       - swarm-scope
   - id: plan
     type: plan
     title: Plan dispatch
     description: Assign slices to workers and set the concurrency cap.
+    instructions: Assign each slice to a worker and record the concurrency cap in the dispatch plan. Make the slice-to-worker
+      mapping explicit so dispatch never exceeds the cap and every slice is owned exactly once.
     requires:
       - swarm-scope
     produces:
@@ -67,6 +80,8 @@ nodes:
     type: agent_task
     title: Dispatch workers
     description: Run the workers against their slices under the concurrency cap.
+    instructions: Run the workers against their assigned slices, never exceeding the concurrency cap, and capture each worker's
+      outcome and output as evidence. This step needs a supervisor agent supplied by the consumer.
     agent: supervisor
     requires:
       - dispatch-plan
@@ -76,14 +91,19 @@ nodes:
     type: verifier
     title: Reconcile outputs
     description: Reconcile worker outputs and back the integration with verifier proof.
+    instructions: Reconcile the per-worker outputs into one consolidated result and back the integration with verifier proof
+      rather than a raw merge. Surface any conflicting or missing slice results instead of silently dropping them.
     requires:
       - worker-results
     produces:
       - integration-proof
+    on_failure:
+      action: abort
   - id: final
     type: finalizer
     title: Close out swarm
     description: Return the consolidated result and the per-worker summary.
+    instructions: Return the reconciled consolidated result and a per-worker outcome summary covering every slice.
     requires:
       - worker-results
       - integration-proof

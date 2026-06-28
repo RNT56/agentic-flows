@@ -1,0 +1,191 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "research.codebase-orientation",
+    "version": "0.1.0",
+    "source": "flows/research/codebase-orientation/flow.yaml"
+  },
+  "run": {
+    "id": "run-research-codebase-orientation-local",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T12:20:37Z",
+    "completed_at": "2026-06-28T12:20:52Z"
+  },
+  "inputs": {
+    "repo": ".",
+    "focus": "add a new flowctl subcommand"
+  },
+  "outputs": {
+    "orientation_map": "artifacts/output-orientation_map.md",
+    "commands": "artifacts/output-commands.md"
+  },
+  "artifacts": [
+    {
+      "id": "orientation-request",
+      "kind": "json",
+      "uri": "artifacts/orientation-request.json"
+    },
+    {
+      "id": "repo-scan",
+      "kind": "command-output",
+      "uri": "artifacts/repo-scan.log"
+    },
+    {
+      "id": "command-log",
+      "kind": "command-output",
+      "uri": "artifacts/command-log.log"
+    },
+    {
+      "id": "orientation-notes",
+      "kind": "command-output",
+      "uri": "artifacts/orientation-notes.log"
+    },
+    {
+      "id": "orientation-check",
+      "kind": "markdown",
+      "uri": "artifacts/orientation-check.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-research-codebase-orientation-local",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T12:20:37Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-research-codebase-orientation-local",
+      "node_id": "intake",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:20:37Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-research-codebase-orientation-local",
+      "node_id": "scan",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:20:37Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "exit_code": 0
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-research-codebase-orientation-local",
+      "node_id": "probe",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:20:52Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "exit_code": 0
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-research-codebase-orientation-local",
+      "node_id": "synthesize",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:20:52Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "exit_code": 0
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-research-codebase-orientation-local",
+      "node_id": "verify",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:20:52Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-research-codebase-orientation-local",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:20:52Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-research-codebase-orientation-local",
+      "node_id": "probe",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T12:20:52Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "commands-verified",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "command-log",
+          "kind": "command-output",
+          "uri": "artifacts/command-log.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-research-codebase-orientation-local",
+      "node_id": "synthesize",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T12:20:52Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "map-complete",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "orientation-notes",
+          "kind": "command-output",
+          "uri": "artifacts/orientation-notes.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.codebase-orientation",
+      "flow_version": "0.1.0",
+      "run_id": "run-research-codebase-orientation-local",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T12:20:52Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

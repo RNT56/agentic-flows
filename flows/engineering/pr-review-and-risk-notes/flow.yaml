@@ -52,12 +52,25 @@ nodes:
     type: intake
     title: Intake the diff
     description: Capture the diff, the PR intent, and the review focus.
+    instructions: Record the diff to review along with the PR intent and review focus so findings can be judged against what
+      the change is meant to do.
+    inputs_schema:
+      - id: diff
+        type: patch
+        required: true
+        description: The pull request diff to review.
+      - id: context
+        type: markdown
+        required: true
+        description: PR description, intent, and review focus.
     produces:
       - review-request
   - id: analyze
     type: agent_task
     title: Review the diff
     description: Inspect the diff for bugs, regressions, and missing tests with file and line references.
+    instructions: Inspect the diff for bugs, regressions, and missing tests, and for each finding record the file, line, severity,
+      and rationale. This step needs a reviewing agent supplied by the consumer.
     agent: reviewer
     requires:
       - review-request
@@ -67,6 +80,8 @@ nodes:
     type: verifier
     title: Assess findings and risk
     description: Confirm each finding cites a location and severity, drop padding, and summarize release risk.
+    instructions: Confirm every finding cites a file, line, and severity, drop low-value padding, and summarize the release
+      risk covering regressions and missing tests.
     requires:
       - review-findings
     produces:
@@ -75,6 +90,8 @@ nodes:
     type: finalizer
     title: Close out review
     description: Return the cited findings and the release-risk notes.
+    instructions: Return the cited findings as structured data and the release-risk notes summarizing regressions and missing-test
+      exposure.
     requires:
       - review-findings
       - risk-notes

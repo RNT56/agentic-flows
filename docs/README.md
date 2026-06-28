@@ -15,6 +15,7 @@ This folder is the operating handbook for `agentic-flows`.
 
 - [Getting started](getting-started.md): local setup and basic commands.
 - [Flow spec](flow-spec.md): required flow fields, node types, gates, and validation semantics.
+- [Runnable, consumable flows](runnable-flows.md): the substance layer (instructions, I/O, parameters, commands) and the `flowctl run` reference runner.
 - [Workflow authoring](workflow-authoring.md): how to design, review, and maintain flow definitions.
 - [Operating workflows](operating-workflows.md): day-to-day change, review, adapter, and release workflows.
 - [Flow samples](flow-samples.md): sample input and expected-output contract examples.

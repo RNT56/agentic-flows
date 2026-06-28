@@ -1,0 +1,128 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "ops.capability-negotiation",
+    "version": "0.1.0",
+    "source": "flows/ops/capability-negotiation/flow.yaml"
+  },
+  "run": {
+    "id": "run-ops-capability-negotiation-local",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T12:53:09Z",
+    "completed_at": "2026-06-28T12:53:09Z"
+  },
+  "inputs": {
+    "flow_requirements": "{\"required_capabilities\":[\"repo.checkout\",\"command.run\",\"evidence.capture\"]}",
+    "runtime_profile": "{\"core\":\"nilcore\",\"capabilities\":[\"repo.checkout\",\"command.run\",\"evidence.capture\"]}"
+  },
+  "outputs": {
+    "negotiation_report": "artifacts/output-negotiation_report.md",
+    "capability_decision": "artifacts/output-capability_decision.md"
+  },
+  "artifacts": [
+    {
+      "id": "negotiation-inputs",
+      "kind": "json",
+      "uri": "artifacts/negotiation-inputs.json"
+    },
+    {
+      "id": "capability-matrix",
+      "kind": "markdown",
+      "uri": "artifacts/capability-matrix.md"
+    },
+    {
+      "id": "support-verdict",
+      "kind": "markdown",
+      "uri": "artifacts/support-verdict.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-ops-capability-negotiation-local",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T12:53:09Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-ops-capability-negotiation-local",
+      "node_id": "intake",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:53:09Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-ops-capability-negotiation-local",
+      "node_id": "compare",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:53:09Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-ops-capability-negotiation-local",
+      "node_id": "decide",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:53:09Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-ops-capability-negotiation-local",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:53:09Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-ops-capability-negotiation-local",
+      "node_id": "compare",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T12:53:09Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "capabilities-fail-closed",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "capability-matrix",
+          "kind": "markdown",
+          "uri": "artifacts/capability-matrix.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-ops-capability-negotiation-local",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T12:53:09Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

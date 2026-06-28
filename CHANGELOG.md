@@ -8,6 +8,18 @@ This project follows semantic versioning for releases and keeps flow compatibili
 
 ### Added
 
+- Added the substance layer to the node schema: optional `instructions`, `command`, `parameters`, `inputs_schema`, `outputs_schema`, and `on_failure` fields so a flow can carry what a consumer or the reference runner needs to execute it. All fields are additive and the existing catalog still validates.
+- Added `flowctl run`, a reference runner that executes a flow with built-in local handlers (command subprocesses for `tool`/`command` nodes, structured records for `intake`/`plan`/`decision`/`verifier`/`finalizer`, needs-handler reporting for `agent_task`/`approval`/`handoff`), passes gates only from real produced evidence, and writes a run bundle validated against `schemas/run.schema.json`.
+- Added `docs/runnable-flows.md` describing the substance layer, the consumer boundary, and the `flowctl run` execution model, with cross-links from `docs/flow-spec.md`.
+- Made `research.codebase-orientation` runnable end-to-end and committed a real produced run bundle under `examples/runs/real/codebase-orientation/` with actual command output as evidence.
+- Fleshed `coding.feature-implementation` as the consumable-contract reference (per-node instructions, intake `inputs_schema`, a `test_command` parameter, a command on the checks node, and `on_failure` handling); its `implement` node stays a consumer-supplied `agent_task`.
+- Added `flowctl run` regression tests covering command execution, gate evidence, bundle validity, command-failure handling, and needs-handler reporting.
+- Rolled the substance layer across the remaining 62 flows: every node now carries operational `instructions`, each intake node declares an `inputs_schema` mirroring its contract inputs, tool nodes that map to a concrete portable command carry a `command`, `parameters`, and `on_failure`, and critical verifier nodes carry failure policies. The change is additive (no contract, edge, gate, observability, runtime, or metadata changes), so all existing sample, run-bundle, and adapter-smoke fixtures still validate.
+- Made three more flows runnable end-to-end under `flowctl run` and committed their real run bundles under `examples/runs/real/`: `ops.adapter-certification` (runs `flowctl validate-adapter-smoke`), `proof.verified-patch-acceptance` (runs the verifier-owned test command), and `ops.capability-negotiation` (no-command fail-closed comparison). Added a "Runnable flows today" table to `docs/runnable-flows.md` and a "Runnable" section to each flow's README.
+
+### Fixed
+
+- `flowctl validate-event` no longer treats run-bundle artifacts (intake records and command logs under an `artifacts/` directory) as standalone event documents, so produced run bundles can live under `examples/` without breaking event validation.
 - Added the `ops.flow-intake-and-routing` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
 - Added the `ops.capability-negotiation` reusable flow with a standalone run bundle and a CrustCore contract smoke.
 - Added the `ops.event-and-evidence-bridge` reusable flow with a standalone run bundle, a multi-file event stream, and a NilCore contract smoke.
@@ -70,6 +82,7 @@ This project follows semantic versioning for releases and keeps flow compatibili
 
 ### Changed
 
+- Redefined the project goal: `agentic-flows` is now a library of **runnable, consumable** workflows that carry a substance layer (per-node instructions, structured I/O, parameters, concrete commands, failure handling), executed by a consuming runtime or the bundled reference runner. Updated `docs/goals.md` and the README accordingly and added [docs/runnable-flows.md](docs/runnable-flows.md).
 - Reworked the README into a full project landing page with vision, catalog status, workflow backlog links, runtime-boundary framing, and validation guidance.
 - Expanded the catalog to sixty-four reusable workflows, completing all 46 build-now candidates plus the 12 strongest contract-first backlog flows (security hotfix, repo bootstrap, monorepo slice, performance regression, backlog grooming, release-candidate audit, untrusted-output routing, access review, technology radar, incident response, self-improvement loop, connector productionization), and recorded their compatibility states.
 

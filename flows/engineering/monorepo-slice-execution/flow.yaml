@@ -54,12 +54,25 @@ nodes:
     type: intake
     title: Intake slice
     description: Capture the slice of work and the active claims.
+    instructions: Record the slice of work to execute and the active claims from other agents so the slice can be claimed
+      without overlapping paths already in progress.
+    inputs_schema:
+      - id: slice
+        type: markdown
+        required: true
+        description: The slice of work to execute.
+      - id: active_claims
+        type: json
+        required: true
+        description: Active claims from other agents to avoid overlapping.
     produces:
       - slice-scope
   - id: claim
     type: agent_task
     title: Claim the slice
     description: Register a claim for the slice only if its paths do not overlap active claims.
+    instructions: Compare the slice paths against the active claims and register a claim only if there is no overlap, recording
+      which claims were checked. This step needs a claim-coordination agent supplied by the consumer.
     agent: claim-coordinator
     requires:
       - slice-scope
@@ -69,6 +82,8 @@ nodes:
     type: agent_task
     title: Execute the slice
     description: Apply changes scoped strictly to the claimed paths.
+    instructions: Apply the change scoped strictly to the claimed paths, touching nothing outside the claim so parallel agents
+      stay non-overlapping. This step needs a coding agent supplied by the consumer.
     agent: coding-worker
     requires:
       - claim-record
@@ -78,15 +93,28 @@ nodes:
     type: tool
     title: Run checks
     description: Run the tests for the touched paths.
+    instructions: Run the project tests for the touched paths and capture stdout, stderr, and the exit code as evidence the
+      slice change is sound.
+    command: ${param.test_command}
+    parameters:
+      - id: test_command
+        type: command
+        required: false
+        default: make test || npm test || pytest -q
+        description: The command that runs the tests covering the touched paths.
     tool: command-runner
     requires:
       - slice-diff
     produces:
       - test-log
+    on_failure:
+      action: abort
   - id: verify
     type: verifier
     title: Verify scope and conflicts
     description: Confirm the change stays within claimed paths and report any conflicts.
+    instructions: Confirm the diff stays within the claimed paths and report any conflicts found against the active claims,
+      with the conflicting paths named.
     requires:
       - slice-diff
       - test-log
@@ -96,6 +124,8 @@ nodes:
     type: finalizer
     title: Close out slice
     description: Return the slice patch and the conflict report.
+    instructions: Return the slice patch scoped to the claimed paths and a conflict report listing any overlaps found against
+      active claims.
     requires:
       - claim-record
       - conflict-check

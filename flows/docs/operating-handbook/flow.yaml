@@ -50,12 +50,25 @@ nodes:
     type: intake
     title: Intake handbook scope
     description: Capture the project and the documentation root.
+    instructions: Record the project and what the handbook must cover, and the documentation root to assemble it from, so
+      the inventory and command checks target the right docs.
+    inputs_schema:
+      - id: project
+        type: markdown
+        required: true
+        description: The project and what the handbook must cover.
+      - id: docs_root
+        type: uri
+        required: true
+        description: The documentation root to assemble the handbook from.
     produces:
       - handbook-scope
   - id: inventory
     type: tool
     title: Inventory docs
     description: List the process docs and the index links that should resolve.
+    instructions: List the process docs under the documentation root and the index links that should resolve, recording which
+      links target which doc so unresolved links can be caught.
     tool: docs-scanner
     requires:
       - handbook-scope
@@ -65,15 +78,29 @@ nodes:
     type: tool
     title: Run documented commands
     description: Run the commands the handbook documents to confirm they work.
+    instructions: Run the commands the handbook documents and capture stdout, stderr, and the exit code so stale or broken
+      commands are caught before the handbook ships.
+    command: ${param.docs_command}
+    parameters:
+      - id: docs_command
+        type: command
+        required: false
+        default: make help || flowctl --help
+        description: The command that exercises what the handbook documents.
     tool: command-runner
     requires:
       - docs-inventory
     produces:
       - command-log
+    on_failure:
+      action: retry
+      max_attempts: 2
   - id: write
     type: agent_task
     title: Write the handbook
     description: Assemble the handbook with a linked index and remove stale claims.
+    instructions: Assemble the handbook with a linked index that points to every process doc in the inventory, drop claims
+      the command log contradicts, and keep only commands that ran. This step needs a docs writer supplied by the consumer.
     agent: docs-writer
     requires:
       - docs-inventory
@@ -84,6 +111,8 @@ nodes:
     type: verifier
     title: Verify the handbook
     description: Confirm index links resolve, commands are runnable, and stale claims are removed.
+    instructions: Confirm the index links every process doc and they resolve, the documented commands are runnable from the
+      command log, and no stale claims remain before close out.
     requires:
       - handbook-draft
     produces:
@@ -92,6 +121,8 @@ nodes:
     type: finalizer
     title: Close out handbook
     description: Return the handbook and the index check.
+    instructions: Return the assembled handbook and the index check reporting which links resolved and which documented commands
+      ran.
     requires:
       - handbook-draft
       - handbook-check

@@ -51,30 +51,58 @@ nodes:
     type: intake
     title: Intake patch and criteria
     description: Capture the candidate patch and the required gates and acceptance criteria.
+    instructions: Record the candidate patch and the required gates and acceptance criteria it must satisfy, so acceptance
+      rests on named gates rather than any claim that the work is done.
+    inputs_schema:
+      - id: patch
+        type: patch
+        required: true
+        description: The candidate patch to accept or reject.
+      - id: acceptance_criteria
+        type: markdown
+        required: true
+        description: Required gates and acceptance criteria the patch must satisfy.
     produces:
       - acceptance-request
   - id: checks
     type: tool
     title: Run verifier checks
     description: Run the required checks against the patch and capture their output.
+    instructions: Run the required checks against the patch and capture stdout, stderr, and the exit code, since this verifier-owned
+      output is the only evidence the verdict may cite.
+    command: ${param.test_command}
+    parameters:
+      - id: test_command
+        type: command
+        required: false
+        default: make test || npm test || cargo test || go test ./...
+        description: The command that runs the required verifier checks against the patch.
     tool: command-runner
     requires:
       - acceptance-request
     produces:
       - test-log
+    on_failure:
+      action: abort
   - id: verify
     type: verifier
     title: Collect gate evidence
     description: Map each required gate to captured evidence and form an evidence-backed verdict.
+    instructions: Map each required gate to the captured check evidence and form a verdict backed only by that evidence, treating
+      any gate without passing evidence as unmet.
     requires:
       - acceptance-request
       - test-log
     produces:
       - acceptance-verdict
+    on_failure:
+      action: abort
   - id: decide
     type: decision
     title: Accept or fail closed
     description: Accept only when every required gate has passing evidence, otherwise reject and fail closed.
+    instructions: Accept only when every required gate has passing evidence in the verdict, otherwise reject and fail closed,
+      and never accept on a model completion claim.
     requires:
       - acceptance-verdict
     produces:
@@ -83,6 +111,8 @@ nodes:
     type: finalizer
     title: Close out acceptance
     description: Return the acceptance verdict and a proof report citing the verifier evidence.
+    instructions: Return the accept or reject verdict with the cited gate evidence for each required gate and a proof report
+      that references the verifier evidence rather than any completion claim.
     requires:
       - acceptance-verdict
       - acceptance-decision

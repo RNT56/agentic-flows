@@ -49,12 +49,25 @@ nodes:
     type: intake
     title: Intake audit scope
     description: Capture audit target, trust boundaries, secrets policy, and known risk areas.
+    instructions: Record the audit target, the trust boundaries and threat model to emphasize, the secrets-handling policy,
+      and any known risk areas, so the surface enumeration and scans stay focused.
+    inputs_schema:
+      - id: target
+        type: uri
+        required: true
+        description: The repository, branch, diff, or package to audit.
+      - id: threat_model
+        type: markdown
+        required: false
+        description: Optional threat model or security boundary to emphasize.
     produces:
       - audit-scope
   - id: enumerate
     type: agent_task
     title: Enumerate attack surface
     description: Identify entrypoints, external inputs, dependency boundaries, and privileged operations.
+    instructions: Map the entrypoints, external inputs, dependency boundaries, and privileged operations of the target, and
+      record each as a surface a scan or manual review should cover. This step needs a security reviewer supplied by the consumer.
     agent: security-reviewer
     requires:
       - audit-scope
@@ -64,15 +77,29 @@ nodes:
     type: tool
     title: Run available scanners
     description: Run dependency, static, or policy checks supported by the target repository.
+    instructions: Run the dependency, static, or policy scanners the target supports and capture their output as evidence,
+      or record why a scanner was unavailable so the gate can be satisfied by explanation.
+    command: ${param.scan_command}
+    parameters:
+      - id: scan_command
+        type: command
+        required: false
+        default: make security || npm audit || cargo audit || go test ./...
+        description: The command that runs the available security scanners.
     tool: command-runner
     requires:
       - attack-surface
     produces:
       - scan-log
+    on_failure:
+      action: retry
+      max_attempts: 2
   - id: analyze
     type: verifier
     title: Analyze findings
     description: Deduplicate scanner output, verify exploitability, and rank findings by severity.
+    instructions: Deduplicate the scanner output against the enumerated surface, confirm each candidate is exploitable, and
+      rank surviving findings by severity with file, line, command, or dependency evidence attached.
     requires:
       - attack-surface
       - scan-log
@@ -82,6 +109,8 @@ nodes:
     type: approval
     title: Human severity review
     description: Ask an operator to confirm high-risk or disclosure-sensitive findings.
+    instructions: Ask an operator to confirm any critical finding, secret exposure, or disclosure-sensitive issue before release,
+      and record the decision and rationale.
     requires:
       - finding-list
     policy:
@@ -93,6 +122,8 @@ nodes:
     type: finalizer
     title: Close out audit
     description: Return prioritized findings, evidence, and recommended next actions.
+    instructions: Return the ranked findings, the machine-readable evidence references, and the recommended next actions ordered
+      by severity.
     requires:
       - finding-list
     produces:

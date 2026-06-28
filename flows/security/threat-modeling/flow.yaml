@@ -54,12 +54,26 @@ nodes:
     type: intake
     title: Intake system description
     description: Capture the system to model and its scope and trust boundaries.
+    instructions: Record the feature, connector, or workflow being modeled along with its trust boundaries, assumptions, and
+      what is out of scope. Done when the system description and the scope are both captured.
+    inputs_schema:
+      - id: system_description
+        type: markdown
+        required: true
+        description: The feature, connector, or workflow to model.
+      - id: scope
+        type: markdown
+        required: true
+        description: Trust boundaries, assumptions, and what is out of scope.
     produces:
       - system-context
   - id: enumerate
     type: agent_task
     title: Enumerate assets and actors
     description: List the assets, actors, entry points, and trust boundaries.
+    instructions: Enumerate the assets worth protecting, the actors that touch them, the entry points, and the trust boundaries
+      within the declared scope. This step needs a threat modeler supplied by the consumer; done when assets, actors, entry
+      points, and boundaries are listed.
     agent: threat-modeler
     requires:
       - system-context
@@ -69,6 +83,9 @@ nodes:
     type: agent_task
     title: Analyze abuse paths
     description: Derive abuse paths against assets and boundaries and rank them.
+    instructions: Derive concrete abuse paths an attacker could take against the enumerated assets and boundaries and rank
+      them by likelihood and impact. This step needs a threat modeler supplied by the consumer; done when each ranked abuse
+      path names the asset and boundary it crosses.
     agent: threat-modeler
     requires:
       - asset-inventory
@@ -78,14 +95,20 @@ nodes:
     type: verifier
     title: Verify coverage
     description: Confirm assets, actors, boundaries, and abuse paths are enumerated and each maps to a mitigation.
+    instructions: Confirm assets, actors, boundaries, and abuse paths are all enumerated and link every ranked abuse path
+      to a mitigation in the map. Done when no abuse path is left without a mitigation.
     requires:
       - threat-analysis
     produces:
       - mitigation-map
+    on_failure:
+      action: abort
   - id: final
     type: finalizer
     title: Close out threat model
     description: Return the threat model and the mitigation mapping.
+    instructions: Return the threat model covering assets, actors, trust boundaries, abuse paths, and mitigations plus the
+      mitigation map keyed to the abuse paths. Done when both outputs are produced.
     requires:
       - threat-analysis
       - mitigation-map

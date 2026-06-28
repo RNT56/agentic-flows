@@ -56,6 +56,18 @@ nodes:
     type: intake
     title: Intake request
     description: Capture the request, target core, constraints, and any obvious missing context.
+    instructions: Record the request, the target core, and any constraints, and list any obvious missing context up front
+      so routing has something concrete to match against. Done when the scoped request and an explicit missing-context list
+      (or none) are captured.
+    inputs_schema:
+      - id: request
+        type: markdown
+        required: true
+        description: The user-visible request to be routed to a workflow.
+      - id: catalog
+        type: uri
+        required: true
+        description: Location of the available flow definitions to route against.
     produces:
       - scoped-request
       - missing-context
@@ -63,6 +75,8 @@ nodes:
     type: plan
     title: Assemble routing options
     description: Match the scoped request against the catalog and rank candidate flows by fit.
+    instructions: Read the catalog, match the scoped request against each candidate flow, and rank them by fit citing the
+      capabilities and core each candidate needs. Done when a ranked list of candidate flows with rationale exists.
     requires:
       - scoped-request
     produces:
@@ -71,6 +85,8 @@ nodes:
     type: decision
     title: Select route
     description: Choose a flow and execution route, or fall back to requesting more context.
+    instructions: Pick the highest-fit candidate and an execution route and target core, or fall back to requesting more context
+      when no candidate is compatible. Record the chosen flow id, route, target core, and the rationale.
     requires:
       - routing-options
     produces:
@@ -79,6 +95,8 @@ nodes:
     type: approval
     title: High-risk route approval
     description: Capture an explicit operator decision before routing high-risk or irreversible work.
+    instructions: When the selected route is high-risk or uses an irreversible capability, ask the operator to approve before
+      execution and record the decision and rationale as the approval record.
     requires:
       - routing-decision
     produces:
@@ -91,6 +109,8 @@ nodes:
     type: finalizer
     title: Close out routing
     description: Return the routing decision, target core, and any outstanding missing-context questions.
+    instructions: Return the routing decision with its target core plus the outstanding missing-context questions, or an explicit
+      none when nothing is blocking execution.
     requires:
       - routing-decision
     produces:

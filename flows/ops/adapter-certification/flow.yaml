@@ -55,22 +55,46 @@ nodes:
     type: intake
     title: Intake consumer and flow
     description: Capture the consumer and the flow to certify and the expected capability set.
+    instructions: Record the consumer and the flow to certify along with the capability set expected to be exercised so the
+      smoke run can target the right pairing.
+    inputs_schema:
+      - id: consumer
+        type: text
+        required: true
+        description: The optional consumer to certify against the flow.
+      - id: flow
+        type: uri
+        required: true
+        description: The flow definition to certify.
     produces:
       - certification-request
   - id: certify
     type: tool
     title: Run loader and checks
     description: Load the flow, check capability support, and validate the produced run bundle.
+    instructions: Run the adapter smoke check over the flow, confirming the flow loads, capabilities are supported, node mappings
+      resolve, and the run bundle validates, capturing the full log.
+    command: flowctl validate-adapter-smoke ${param.smoke_manifest}
+    parameters:
+      - id: smoke_manifest
+        type: uri
+        required: false
+        default: .
+        description: The adapter smoke manifest path or directory to validate for the consumer and flow.
     tool: flowctl
     requires:
       - certification-request
     produces:
       - loader-output
       - adapter-smoke-log
+    on_failure:
+      action: abort
   - id: verify
     type: verifier
     title: Confirm evidence and negative fixture
     description: Confirm the manifest validates and the negative fixture fails with the expected error.
+    instructions: Confirm the smoke log shows the manifest validating and the declared negative fixture failing with its expected
+      error, then assemble the certified manifest.
     requires:
       - loader-output
       - adapter-smoke-log
@@ -80,6 +104,8 @@ nodes:
     type: finalizer
     title: Close out certification
     description: Return the adapter smoke manifest and a certification report.
+    instructions: Return the adapter smoke manifest and a certification report that summarizes pass or fail including the
+      negative-fixture result.
     requires:
       - adapter-smoke-manifest
     produces:

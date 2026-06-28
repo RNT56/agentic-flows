@@ -50,12 +50,26 @@ nodes:
     type: intake
     title: Intake behavior
     description: Capture the repeated behavior and the constraints.
+    instructions: Record the repeated behavior that should become a routine and the guardrails and constraints the routine
+      must respect, so the draft stays inside those bounds.
+    inputs_schema:
+      - id: behavior_pattern
+        type: markdown
+        required: true
+        description: The repeated behavior to turn into a routine.
+      - id: constraints
+        type: markdown
+        required: true
+        description: Guardrails and constraints the routine must respect.
     produces:
       - routine-context
   - id: draft
     type: agent_task
     title: Draft the routine
     description: Draft the routine with trigger, action, guardrails, and a rollback path.
+    instructions: Draft the routine so it states a precise trigger, the action it takes, the guardrails it honors from the
+      constraints, and a concrete rollback path if the action goes wrong. Keep the action within the captured constraints.
+      This step needs an assistant agent supplied by the consumer.
     agent: assistant
     requires:
       - routine-context
@@ -65,6 +79,8 @@ nodes:
     type: verifier
     title: Verify the routine
     description: Confirm trigger, action, guardrails, and rollback are present.
+    instructions: Confirm the draft declares a trigger, an action, guardrails drawn from the constraints, and a rollback path,
+      and flag any missing element rather than passing the routine.
     requires:
       - routine-draft
     produces:
@@ -73,6 +89,8 @@ nodes:
     type: approval
     title: Approve enablement
     description: Require an explicit operator approval before the routine is enabled.
+    instructions: Present the verified routine and require explicit operator approval before it is enabled, recording the
+      decision and rationale. The routine stays disabled until that approval is captured.
     requires:
       - routine-check
     produces:
@@ -84,6 +102,8 @@ nodes:
     type: finalizer
     title: Close out routine
     description: Return the routine proposal and the enablement decision.
+    instructions: Return the routine proposal with its trigger, action, guardrails, and rollback, alongside the recorded operator
+      enablement decision.
     requires:
       - routine-draft
       - enablement-record

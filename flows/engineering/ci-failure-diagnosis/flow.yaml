@@ -55,21 +55,46 @@ nodes:
     type: intake
     title: Record failing check
     description: Capture the failing CI check id, its logs, and the repo target.
+    instructions: Record the failing CI check id, its logs, and the repo target so the failure can be reproduced locally and
+      its root cause traced.
+    inputs_schema:
+      - id: failing_check
+        type: json
+        required: true
+        description: The failing CI check id and its logs.
+      - id: repo
+        type: uri
+        required: true
+        description: Repository or local checkout target.
     produces:
       - failure-record
   - id: reproduce
     type: tool
     title: Reproduce locally
     description: Attempt to reproduce the failure locally and capture the result.
+    instructions: Run the command that mirrors the failing CI check locally and capture the command, stdout, stderr, and exit
+      code as the reproduction log.
+    command: ${param.ci_command}
+    parameters:
+      - id: ci_command
+        type: command
+        required: false
+        default: make test || npm test || cargo test || go test ./...
+        description: The command that mirrors the failing CI check locally.
     tool: command-runner
     requires:
       - failure-record
     produces:
       - repro-log
+    on_failure:
+      action: retry
+      max_attempts: 2
   - id: diagnose
     type: decision
     title: Reproduced or not
     description: Decide whether the failure reproduced locally and record the root cause direction.
+    instructions: Decide from the reproduction log whether the failure reproduced locally, and record the root cause direction
+      with an explicit reproduction status.
     requires:
       - repro-log
     produces:
@@ -78,6 +103,8 @@ nodes:
     type: verifier
     title: Verify proposed fix
     description: Run the proposed fix against the failure and capture validating evidence.
+    instructions: Apply the proposed fix and re-run the failing check locally, capturing evidence that it now passes or noting
+      clearly that no fix is available yet.
     requires:
       - diagnosis-notes
     produces:
@@ -86,6 +113,8 @@ nodes:
     type: finalizer
     title: Close out diagnosis
     description: Return the diagnosis with reproduction status and the proposed fix or a no-fix statement.
+    instructions: Return the root cause diagnosis with its explicit reproduction status and either the proposed fix patch
+      or a clear statement that no fix is available yet.
     requires:
       - diagnosis-notes
       - fix-evidence

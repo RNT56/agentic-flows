@@ -1,0 +1,4 @@
+$ flowctl validate-adapter-smoke examples/adapters
+(exit 0)
+
+Validated 61 adapter smoke file(s)

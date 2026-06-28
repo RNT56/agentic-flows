@@ -52,12 +52,25 @@ nodes:
     type: intake
     title: Intake signals
     description: Capture the research signals and the program goals.
+    instructions: Record the collected research signals and the program goals they will be ranked against, so the digest and
+      ranking stay anchored to what the program is trying to achieve.
+    inputs_schema:
+      - id: research_signals
+        type: markdown
+        required: true
+        description: The collected research signals to convert.
+      - id: goals
+        type: markdown
+        required: true
+        description: The program goals to rank against.
     produces:
       - signals-context
   - id: digest
     type: agent_task
     title: Digest signals
     description: Summarize the signals with their source dates and freshness.
+    instructions: Summarize each signal with its source and date, flag any signal that is stale relative to the program goals,
+      and keep the digest traceable back to the original sources. This step needs a research agent supplied by the consumer.
     agent: researcher
     requires:
       - signals-context
@@ -67,6 +80,8 @@ nodes:
     type: agent_task
     title: Rank opportunities
     description: Turn the digest into ranked opportunities against the goals.
+    instructions: Turn the digest into a ranked list of opportunities scored against the program goals, and for each top opportunity
+      define the next experiment that would validate it. This step needs a research agent supplied by the consumer.
     agent: researcher
     requires:
       - signal-digest
@@ -76,6 +91,8 @@ nodes:
     type: verifier
     title: Verify the roadmap
     description: Confirm sources are fresh and cited, opportunities are ranked, and experiments are defined.
+    instructions: Confirm every signal is cited with a source date and stale ones are flagged, the opportunities are ranked
+      against the goals, and each top opportunity has a defined next experiment.
     requires:
       - signal-digest
       - opportunity-ranking
@@ -85,6 +102,7 @@ nodes:
     type: finalizer
     title: Close out roadmap
     description: Return the ranked roadmap and the next experiments.
+    instructions: Return the ranked roadmap derived from the signals and the next experiments that validate the top opportunities.
     requires:
       - opportunity-ranking
       - roadmap-draft

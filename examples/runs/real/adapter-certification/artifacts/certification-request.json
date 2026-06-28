@@ -1,0 +1,9 @@
+{
+  "inputs": {
+    "consumer": "nilcore",
+    "flow": "file://flows/research/codebase-orientation/flow.yaml"
+  },
+  "params": {
+    "smoke_manifest": "examples/adapters"
+  }
+}

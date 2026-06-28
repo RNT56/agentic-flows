@@ -54,20 +54,37 @@ nodes:
     type: intake
     title: Intake upgrade scope
     description: Capture the pinned flow, its version, and the target version.
+    instructions: Record the flow id with its currently pinned version and the target version to migrate to so the version
+      delta is unambiguous. Done when the upgrade scope names both endpoints of the migration.
+    inputs_schema:
+      - id: pinned_flow
+        type: text
+        required: true
+        description: The flow id and currently pinned version.
+      - id: target_version
+        type: text
+        required: true
+        description: The version to migrate the consumer to.
     produces:
       - upgrade-scope
   - id: compare
     type: verifier
     title: Compare versions
     description: Diff the two flow versions and confirm a replacement exists for any removed surface.
+    instructions: Diff the pinned and target versions and, for every removed or changed surface, confirm a replacement path
+      exists. Capture the version delta and flag any removal that lacks a replacement.
     requires:
       - upgrade-scope
     produces:
       - version-diff
+    on_failure:
+      action: abort
   - id: plan
     type: plan
     title: Plan migration
     description: Produce ordered migration steps for the pinned consumer.
+    instructions: Turn the version delta into ordered migration steps the pinned consumer can follow, calling out any breaking
+      change and the exact edit it requires. Done when the steps are sequenced and each removed surface is addressed.
     requires:
       - version-diff
     produces:
@@ -76,6 +93,8 @@ nodes:
     type: agent_task
     title: Update compatibility matrix
     description: Update the compatibility matrix to reflect the new version state.
+    instructions: Update the compatibility matrix entry for this flow to record the new supported version state implied by
+      the migration. This step needs a docs agent supplied by the consumer.
     agent: docs-writer
     requires:
       - migration-plan
@@ -85,6 +104,8 @@ nodes:
     type: verifier
     title: Verify migration
     description: Confirm migration steps exist and the compatibility matrix is updated.
+    instructions: Confirm the migration plan lists ordered steps for every changed surface and that the compatibility matrix
+      reflects the new version state.
     requires:
       - migration-plan
       - compatibility-update
@@ -94,6 +115,8 @@ nodes:
     type: finalizer
     title: Close out upgrade
     description: Return the migration plan and the upgrade decision.
+    instructions: Return the migration plan and the upgrade decision recording the version delta and the matrix update for
+      the consumer.
     requires:
       - migration-plan
       - upgrade-check

@@ -49,12 +49,26 @@ nodes:
     type: intake
     title: Intake sources
     description: Capture the conversations and the default owner.
+    instructions: Record the conversations or threads to mine for commitments and the default owner to assign when none is
+      stated explicitly in the source.
+    inputs_schema:
+      - id: source_text
+        type: markdown
+        required: true
+        description: The conversations or threads to extract commitments from.
+      - id: owner
+        type: text
+        required: true
+        description: The default owner when one is not explicit.
     produces:
       - ledger-context
   - id: extract
     type: agent_task
     title: Extract commitments
     description: Extract each commitment with its source, owner, and due date or an unknown marker.
+    instructions: Pull out every promise or obligation in the source text, recording for each a quote or pointer to its source,
+      the responsible owner (falling back to the default), and a due date or an explicit unknown marker. Do not invent commitments
+      that are not stated. This step needs an assistant agent supplied by the consumer.
     agent: assistant
     requires:
       - ledger-context
@@ -64,6 +78,9 @@ nodes:
     type: agent_task
     title: Record ledger
     description: Record the commitments into a durable ledger with status fields.
+    instructions: Write the extracted commitments into a durable ledger where each entry carries source, owner, due date or
+      unknown marker, and a status field defaulting to open. Keep entries stable so the ledger can be updated over time. This
+      step needs an assistant agent supplied by the consumer.
     agent: assistant
     requires:
       - extracted-commitments
@@ -73,6 +90,8 @@ nodes:
     type: verifier
     title: Verify ledger
     description: Confirm each commitment has a source, owner, due date or unknown marker, and a status.
+    instructions: Check every ledger entry for a source, an owner, a due date or explicit unknown marker, and a status, and
+      flag any entry missing one of these fields rather than passing the ledger.
     requires:
       - ledger-record
     produces:
@@ -81,6 +100,7 @@ nodes:
     type: finalizer
     title: Close out ledger
     description: Return the ledger and a summary of open commitments.
+    instructions: Return the commitment ledger and a readable summary highlighting the open commitments and their due dates.
     requires:
       - ledger-record
       - ledger-check

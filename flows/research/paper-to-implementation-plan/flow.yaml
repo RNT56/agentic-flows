@@ -49,12 +49,26 @@ nodes:
     type: intake
     title: Intake paper
     description: Capture the paper or spec and the implementation goal.
+    instructions: Record the paper or spec to translate and the concrete goal the implementation must achieve, so slices can
+      be derived against a clear target rather than the whole document.
+    inputs_schema:
+      - id: paper
+        type: markdown
+        required: true
+        description: The paper or spec to translate.
+      - id: goal
+        type: markdown
+        required: true
+        description: What the implementation must achieve.
     produces:
       - paper-context
   - id: extract
     type: agent_task
     title: Extract claims
     description: Separate the source's claims from the reader's assumptions.
+    instructions: Extract the claims the source actually makes and list them separately from the assumptions the reader is
+      adding to make it implementable, citing the section for each source claim. This step needs a research agent supplied
+      by the consumer.
     agent: researcher
     requires:
       - paper-context
@@ -64,6 +78,8 @@ nodes:
     type: plan
     title: Plan slices
     description: Translate the claims into implementable slices.
+    instructions: Translate the extracted claims into the smallest sequence of implementable slices that reach the goal, naming
+      the dependencies and the riskiest slice to build first.
     requires:
       - claim-extraction
     produces:
@@ -72,6 +88,8 @@ nodes:
     type: agent_task
     title: Define validation
     description: Define experiments and acceptance metrics for each slice.
+    instructions: For each slice define a concrete experiment and the acceptance metric that proves it works, tying each metric
+      back to the source claim it validates. This step needs a research agent supplied by the consumer.
     agent: researcher
     requires:
       - plan-draft
@@ -81,6 +99,8 @@ nodes:
     type: verifier
     title: Verify the plan
     description: Confirm assumptions are separated from source claims and metrics are defined.
+    instructions: Confirm the extraction keeps reader assumptions distinct from source claims and that every slice has an
+      experiment and an acceptance metric, flagging any slice that lacks one.
     requires:
       - plan-draft
       - validation-tasks
@@ -90,6 +110,8 @@ nodes:
     type: finalizer
     title: Close out plan
     description: Return the implementation plan and the validation tasks.
+    instructions: Return the implementation plan of ordered slices and the validation tasks with their experiments and acceptance
+      metrics.
     requires:
       - plan-draft
       - validation-tasks

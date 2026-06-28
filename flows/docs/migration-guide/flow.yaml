@@ -48,12 +48,25 @@ nodes:
     type: intake
     title: Intake breaking change
     description: Capture the breaking change and the audience.
+    instructions: Record the breaking change and who is migrating along with what they currently depend on, so the comparison
+      and steps are scoped to the affected audience.
+    inputs_schema:
+      - id: breaking_change
+        type: markdown
+        required: true
+        description: The breaking change to write a migration guide for.
+      - id: audience
+        type: markdown
+        required: true
+        description: Who is migrating and what they currently depend on.
     produces:
       - migration-context
   - id: compare
     type: agent_task
     title: Compare old and new
     description: Compare the old and new behavior and the required changes.
+    instructions: Compare the old behavior beside the new behavior and list the concrete changes a consumer must make to move
+      from one to the other. This step needs a docs writer supplied by the consumer.
     agent: docs-writer
     requires:
       - migration-context
@@ -63,6 +76,8 @@ nodes:
     type: agent_task
     title: Write the guide
     description: Write ordered migration steps and a rollback path.
+    instructions: Write the guide as ordered migration steps derived from the comparison and include a rollback path that
+      returns the consumer to the old behavior. This step needs a docs writer supplied by the consumer.
     agent: docs-writer
     requires:
       - behavior-comparison
@@ -72,6 +87,8 @@ nodes:
     type: verifier
     title: Verify completeness
     description: Confirm old and new behavior are compared, steps are ordered, and a rollback is included.
+    instructions: Confirm the guide compares old and new behavior, presents the steps in order, and includes a rollback path
+      before close out.
     requires:
       - migration-guide
     produces:
@@ -80,6 +97,8 @@ nodes:
     type: finalizer
     title: Close out guide
     description: Return the migration guide and the ordered steps.
+    instructions: Return the migration guide and the ordered list of steps, including the rollback, as the machine-readable
+      steps output.
     requires:
       - migration-guide
       - guide-check

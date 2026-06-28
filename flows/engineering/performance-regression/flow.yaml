@@ -55,22 +55,47 @@ nodes:
     type: intake
     title: Intake regression
     description: Capture the reported slowdown and the repo target.
+    instructions: Record the reported slowdown, how it was noticed, and the repo target so the benchmark can reproduce the
+      regression on a known baseline.
+    inputs_schema:
+      - id: regression_report
+        type: markdown
+        required: true
+        description: The reported slowdown and how it was noticed.
+      - id: repo
+        type: uri
+        required: true
+        description: The repository or checkout that exhibits the regression.
     produces:
       - regression-scope
   - id: measure
     type: tool
     title: Measure baseline
     description: Record the benchmark method and the baseline numbers with bounded variance.
+    instructions: Run the benchmark on the current code, capturing the method and environment along with the baseline numbers,
+      and repeat enough times to bound the variance.
+    command: ${param.bench_command}
+    parameters:
+      - id: bench_command
+        type: command
+        required: false
+        default: python -m pytest --benchmark-only -q
+        description: The command that runs the benchmark and prints timing numbers.
     tool: benchmark-runner
     requires:
       - regression-scope
     produces:
       - benchmark-method
       - baseline-numbers
+    on_failure:
+      action: retry
+      max_attempts: 2
   - id: fix
     type: agent_task
     title: Isolate and fix
     description: Isolate the cause and apply a fix.
+    instructions: Isolate the cause of the slowdown using the baseline numbers and apply a targeted fix that addresses it
+      without regressing behavior. This step needs a coding agent supplied by the consumer.
     agent: coding-worker
     requires:
       - baseline-numbers
@@ -80,15 +105,29 @@ nodes:
     type: tool
     title: Measure after
     description: Re-run the same benchmark and record the after numbers.
+    instructions: Re-run the identical benchmark on the fixed code with the same method and environment, and record the after
+      numbers so they can be compared like-for-like against the baseline.
+    command: ${param.bench_command}
+    parameters:
+      - id: bench_command
+        type: command
+        required: false
+        default: python -m pytest --benchmark-only -q
+        description: The same benchmark command used for the baseline, re-run after the fix.
     tool: benchmark-runner
     requires:
       - fix-diff
     produces:
       - after-numbers
+    on_failure:
+      action: retry
+      max_attempts: 2
   - id: verify
     type: verifier
     title: Verify improvement
     description: Confirm the method is recorded, variance is bounded, and the after numbers improve.
+    instructions: Confirm the benchmark method and environment are recorded, the variance is bounded, and the after numbers
+      show a real improvement over the baseline.
     requires:
       - baseline-numbers
       - after-numbers
@@ -98,6 +137,8 @@ nodes:
     type: finalizer
     title: Close out regression
     description: Return the fix and the benchmark report.
+    instructions: Return the fix patch and a benchmark report stating the method, the variance bounds, and the before and
+      after numbers.
     requires:
       - perf-check
       - after-numbers
