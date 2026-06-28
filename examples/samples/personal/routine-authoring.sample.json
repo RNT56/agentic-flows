@@ -1,0 +1,25 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "personal.routine-authoring",
+    "version": "0.1.0",
+    "source": "flows/personal/routine-authoring/flow.yaml"
+  },
+  "inputs": {
+    "behavior_pattern": "Every morning I check the overnight CI runs and re-kick any that failed on flaky tests.",
+    "constraints": "Never re-kick more than twice; never touch non-CI workflows."
+  },
+  "expected_outputs": {
+    "routine_proposal": {
+      "trigger": "weekdays 08:00 local",
+      "action": "summarize overnight CI; re-kick failures flagged flaky",
+      "guardrails": ["max 2 re-kicks", "CI workflows only"],
+      "rollback": "disable routine; no state to revert"
+    },
+    "enablement_decision": {
+      "decision": "approved",
+      "owner": "me"
+    }
+  },
+  "notes": "Proposes a routine with trigger, action, guardrails, and rollback, gated on explicit enablement approval."
+}

@@ -1,0 +1,137 @@
+spec_version: agentic-flows/v1
+id: program.knowledge-base-maintenance
+version: 0.1.0
+title: Knowledge base maintenance
+summary: Keep docs, decisions, and examples current by detecting stale items and applying sourced, conservative updates.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - program
+  - knowledge
+  - maintenance
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - standalone
+  required_capabilities:
+    - docs.read
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: knowledge_root
+      type: uri
+      required: true
+      description: The knowledge base root to maintain.
+    - id: scope
+      type: markdown
+      required: true
+      description: What to maintain and any do-not-touch boundaries.
+  outputs:
+    - id: maintenance_report
+      type: markdown
+      required: true
+      description: What was stale, what was updated, and what was left alone.
+    - id: updates
+      type: json
+      required: true
+      description: The applied updates with their sources.
+  artifacts:
+    - staleness-scan
+    - update-plan
+    - maintenance-log
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the knowledge base root and the maintenance scope.
+    produces:
+      - kb-scope
+  - id: scan
+    type: tool
+    title: Scan for staleness
+    description: Detect stale docs, decisions, and examples.
+    tool: docs-scanner
+    requires:
+      - kb-scope
+    produces:
+      - staleness-scan
+  - id: plan
+    type: plan
+    title: Plan updates
+    description: Plan sourced updates and mark deletions as conservative.
+    requires:
+      - staleness-scan
+    produces:
+      - update-plan
+  - id: apply
+    type: agent_task
+    title: Apply updates
+    description: Apply the planned updates with their sources.
+    agent: docs-writer
+    requires:
+      - update-plan
+    produces:
+      - maintenance-log
+  - id: verify
+    type: verifier
+    title: Verify maintenance
+    description: Confirm stale items were detected, updates cite sources, and deletions are conservative.
+    requires:
+      - update-plan
+      - maintenance-log
+    produces:
+      - maintenance-check
+  - id: final
+    type: finalizer
+    title: Close out maintenance
+    description: Return the maintenance report and the applied updates.
+    requires:
+      - maintenance-log
+      - maintenance-check
+    produces:
+      - maintenance_report
+      - updates
+edges:
+  - from: intake
+    to: scan
+  - from: scan
+    to: plan
+  - from: plan
+    to: apply
+  - from: apply
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: stale-items-detected
+    title: Stale items detected
+    type: artifact
+    required: true
+    evidence: The staleness scan lists the items that are out of date.
+    evidence_refs:
+      - staleness-scan
+  - id: updates-cite-sources
+    title: Updates cite sources and deletions are conservative
+    type: review
+    required: true
+    evidence: The update plan cites a source for each change and keeps deletions conservative.
+    evidence_refs:
+      - update-plan
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - stale.items
+    - duration.seconds

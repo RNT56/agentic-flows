@@ -50,9 +50,12 @@ loop (`issue-to-verified-pr`, `ci-failure-diagnosis`, `pr-review-and-risk-notes`
 `evidence-bundle-export`); security (`supply-chain-audit`, `threat-modeling`, `connector-grant-review`);
 orchestration (`parallel-work-claiming`, `handoff-and-resume`, `agent-quality-review`); research
 (`source-backed-brief`, `codebase-orientation`); and documentation (`decision-record`, `postmortem`).
-Forty-seven reusable flows now ship end-to-end (41 of the 46 build-now-e2e backlog candidates). Only five
-candidates remain: `program.research-to-roadmap`, `program.knowledge-base-maintenance`, and the three
-honestly-local `personal.*` flows (`commitment-ledger`, `memory-curation`, `routine-authoring`).
+All 46 build-now-e2e backlog candidates now ship end-to-end, bringing the catalog to 52 reusable flows. The
+`contract-first`, `needs-spec-extension`, and `defer` sets are unchanged: contract-first flows can still get a
+`flow.yaml` + README + sample now (run/adapter evidence deferred); the two `needs-spec-extension` programs await a
+loop, fan-out, or sub-flow primitive; and the `defer` set still requires real external state this repo cannot
+honestly stand in for. The next meaningful work is therefore spec evolution (a bounded loop / fan-out / sub-flow
+primitive) and real adapter evidence to promote flows beyond `experimental`, not more build-now contracts.
 
 ## Honesty corrections to the official build order
 

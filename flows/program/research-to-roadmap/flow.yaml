@@ -1,0 +1,126 @@
+spec_version: agentic-flows/v1
+id: program.research-to-roadmap
+version: 0.1.0
+title: Research to roadmap
+summary: Convert ongoing research signals into a ranked roadmap with fresh sources and defined next experiments.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - program
+  - research
+  - roadmap
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - standalone
+  required_capabilities:
+    - source.retrieve
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: research_signals
+      type: markdown
+      required: true
+      description: The collected research signals to convert.
+    - id: goals
+      type: markdown
+      required: true
+      description: The program goals to rank against.
+  outputs:
+    - id: roadmap
+      type: markdown
+      required: true
+      description: The ranked roadmap derived from the signals.
+    - id: experiments
+      type: json
+      required: true
+      description: The next experiments to validate the top opportunities.
+  artifacts:
+    - signal-digest
+    - opportunity-ranking
+    - roadmap-draft
+nodes:
+  - id: intake
+    type: intake
+    title: Intake signals
+    description: Capture the research signals and the program goals.
+    produces:
+      - signals-context
+  - id: digest
+    type: agent_task
+    title: Digest signals
+    description: Summarize the signals with their source dates and freshness.
+    agent: researcher
+    requires:
+      - signals-context
+    produces:
+      - signal-digest
+  - id: rank
+    type: agent_task
+    title: Rank opportunities
+    description: Turn the digest into ranked opportunities against the goals.
+    agent: researcher
+    requires:
+      - signal-digest
+    produces:
+      - opportunity-ranking
+  - id: verify
+    type: verifier
+    title: Verify the roadmap
+    description: Confirm sources are fresh and cited, opportunities are ranked, and experiments are defined.
+    requires:
+      - signal-digest
+      - opportunity-ranking
+    produces:
+      - roadmap-draft
+  - id: final
+    type: finalizer
+    title: Close out roadmap
+    description: Return the ranked roadmap and the next experiments.
+    requires:
+      - opportunity-ranking
+      - roadmap-draft
+    produces:
+      - roadmap
+      - experiments
+edges:
+  - from: intake
+    to: digest
+  - from: digest
+    to: rank
+  - from: rank
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: signals-fresh-and-cited
+    title: Signals are fresh and cited
+    type: review
+    required: true
+    evidence: The digest records source dates and flags stale signals.
+    evidence_refs:
+      - signal-digest
+  - id: opportunities-ranked
+    title: Opportunities are ranked
+    type: artifact
+    required: true
+    evidence: The ranking orders opportunities against the program goals.
+    evidence_refs:
+      - opportunity-ranking
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - signals.count
+    - duration.seconds

@@ -1,0 +1,28 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "thinclaw",
+  "flow": {
+    "id": "personal.routine-authoring",
+    "version": "0.1.0",
+    "source": "flows/personal/routine-authoring/flow.yaml"
+  },
+  "capability_support": [
+    "pattern.read",
+    "human.review",
+    "decision.record",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "approval": "operator approval",
+    "finalizer": "closeout step",
+    "intake": "intake step",
+    "verifier": "verifier step"
+  },
+  "run_bundle": "runs/thinclaw-routine-authoring.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible ThinClaw routine-authoring adapter."
+}

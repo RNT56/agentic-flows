@@ -1,0 +1,21 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "program.knowledge-base-maintenance",
+    "version": "0.1.0",
+    "source": "flows/program/knowledge-base-maintenance/flow.yaml"
+  },
+  "inputs": {
+    "knowledge_root": "file://docs",
+    "scope": "Refresh process docs; do not touch LICENSE or release tags."
+  },
+  "expected_outputs": {
+    "maintenance_report": "Stale: 3 docs referenced a removed command. Updated all 3 with the current command (source: cli.py). Left 2 ambiguous claims untouched and flagged for review.",
+    "updates": {
+      "updates": [
+        {"file": "docs/getting-started.md", "change": "replace removed flag", "source": "tools/flowctl/flowctl/cli.py"}
+      ]
+    }
+  },
+  "notes": "Detects stale docs, applies sourced updates, and keeps deletions conservative."
+}

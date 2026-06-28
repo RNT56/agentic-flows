@@ -49,7 +49,12 @@ Current status:
 | `proof.evidence-bundle-export` | not-targeted | not-targeted | contract-smoke | run-smoke |
 | `proof.patch-risk-classification` | not-targeted | target | contract-smoke | run-smoke |
 | `proof.verified-patch-acceptance` | not-targeted | not-targeted | contract-smoke | run-smoke |
+| `personal.commitment-ledger` | contract-smoke | not-targeted | not-targeted | run-smoke |
+| `personal.memory-curation` | contract-smoke | not-targeted | not-targeted | run-smoke |
+| `personal.routine-authoring` | contract-smoke | not-targeted | not-targeted | run-smoke |
 | `product.feedback-to-roadmap` | contract-smoke | not-targeted | not-targeted | run-smoke |
+| `program.knowledge-base-maintenance` | target | contract-smoke | not-targeted | run-smoke |
+| `program.research-to-roadmap` | contract-smoke | target | not-targeted | run-smoke |
 | `research.codebase-orientation` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `research.deep-research-report` | target | target | not-targeted | target |
 | `research.library-evaluation` | contract-smoke | target | not-targeted | run-smoke |
@@ -119,4 +124,9 @@ Current status:
 - `research.paper-to-implementation-plan` has a standalone valid run bundle at `examples/runs/paper-to-implementation-plan.run.json`.
 - `research.market-and-user-value` has a standalone valid run bundle at `examples/runs/market-and-user-value.run.json`.
 - `orchestration.skill-authoring` has a standalone valid run bundle at `examples/runs/skill-authoring.run.json`.
+- `program.research-to-roadmap` has a standalone valid run bundle at `examples/runs/research-to-roadmap.run.json`.
+- `program.knowledge-base-maintenance` has a standalone valid run bundle at `examples/runs/knowledge-base-maintenance.run.json`.
+- `personal.commitment-ledger` has a standalone valid run bundle at `examples/runs/commitment-ledger.run.json`.
+- `personal.memory-curation` has a standalone valid run bundle at `examples/runs/memory-curation.run.json`.
+- `personal.routine-authoring` has a standalone valid run bundle at `examples/runs/routine-authoring.run.json`.
 - Repo-local adapter smoke manifests live under `examples/adapters/`.

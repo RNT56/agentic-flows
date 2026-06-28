@@ -1,0 +1,23 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "personal.commitment-ledger",
+    "version": "0.1.0",
+    "source": "flows/personal/commitment-ledger/flow.yaml"
+  },
+  "inputs": {
+    "source_text": "Standup: Ana will send the API spec by Friday. Bo said he'll look into the flaky test (no date). PR thread: I'll add a changelog entry.",
+    "owner": "me"
+  },
+  "expected_outputs": {
+    "ledger": {
+      "entries": [
+        {"commitment": "send API spec", "source": "standup", "owner": "Ana", "due": "2026-07-03", "status": "open"},
+        {"commitment": "investigate flaky test", "source": "standup", "owner": "Bo", "due": "unknown", "status": "open"},
+        {"commitment": "add changelog entry", "source": "PR thread", "owner": "me", "due": "unknown", "status": "open"}
+      ]
+    },
+    "summary": "3 open commitments: API spec (Ana, Fri), flaky test (Bo, no date), changelog (me, no date)."
+  },
+  "notes": "Extracts commitments with source, owner, and due/unknown markers into a durable ledger."
+}
