@@ -1,0 +1,128 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.security-hotfix",
+    "version": "0.1.0",
+    "source": "flows/engineering/security-hotfix/flow.yaml"
+  },
+  "run": {
+    "id": "run-crustcore-security-hotfix-0001",
+    "core": "crustcore",
+    "status": "completed",
+    "started_at": "2026-06-28T10:00:00Z",
+    "completed_at": "2026-06-28T10:25:00Z"
+  },
+  "inputs": {
+    "vulnerability": "GHSA-xxxx: token parser accepts unsigned JWTs when alg=none.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "outputs": {
+    "hotfix_patch": "artifact://hotfix-diff",
+    "advisory": "Unsigned-token acceptance fixed in 1.4.1. Exploitability high; blast radius auth module only."
+  },
+  "artifacts": [
+    {
+      "id": "vuln-record",
+      "kind": "json",
+      "uri": "artifact://runs/run-crustcore-security-hotfix-0001/vuln-record.json"
+    },
+    {
+      "id": "exploit-assessment",
+      "kind": "json",
+      "uri": "artifact://runs/run-crustcore-security-hotfix-0001/exploit-assessment.json"
+    },
+    {
+      "id": "test-log",
+      "kind": "json",
+      "uri": "artifact://runs/run-crustcore-security-hotfix-0001/test-log.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.security-hotfix",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-security-hotfix-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T10:00:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.security-hotfix",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-security-hotfix-0001",
+      "node_id": "intake",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:10:00Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "vuln-source-captured",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "vuln-record",
+          "kind": "json",
+          "uri": "artifact://runs/run-crustcore-security-hotfix-0001/vuln-record.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.security-hotfix",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-security-hotfix-0001",
+      "node_id": "assess",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:15:00Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "exploitability-assessed",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "exploit-assessment",
+          "kind": "json",
+          "uri": "artifact://runs/run-crustcore-security-hotfix-0001/exploit-assessment.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.security-hotfix",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-security-hotfix-0001",
+      "node_id": "test",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:20:00Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "verifier-evidence-passes",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "json",
+          "uri": "artifact://runs/run-crustcore-security-hotfix-0001/test-log.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.security-hotfix",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-security-hotfix-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T10:25:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    }
+  ]
+}

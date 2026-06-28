@@ -1,0 +1,141 @@
+spec_version: agentic-flows/v1
+id: engineering.monorepo-slice-execution
+version: 0.1.0
+title: Monorepo slice execution
+summary: Claim and execute a non-overlapping slice in a large repo with active parallel agents, reporting conflicts.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - monorepo
+  - coordination
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - thinclaw
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - claim.register
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+    thinclaw:
+      routine_type: shared-claim-board
+contracts:
+  inputs:
+    - id: slice
+      type: markdown
+      required: true
+      description: The slice of work to execute.
+    - id: active_claims
+      type: json
+      required: true
+      description: Active claims from other agents to avoid overlapping.
+  outputs:
+    - id: slice_patch
+      type: patch
+      required: true
+      description: The change scoped to the claimed slice.
+    - id: conflict_report
+      type: markdown
+      required: true
+      description: Any conflicts found against active claims.
+  artifacts:
+    - claim-record
+    - slice-diff
+    - test-log
+nodes:
+  - id: intake
+    type: intake
+    title: Intake slice
+    description: Capture the slice of work and the active claims.
+    produces:
+      - slice-scope
+  - id: claim
+    type: agent_task
+    title: Claim the slice
+    description: Register a claim for the slice only if its paths do not overlap active claims.
+    agent: claim-coordinator
+    requires:
+      - slice-scope
+    produces:
+      - claim-record
+  - id: execute
+    type: agent_task
+    title: Execute the slice
+    description: Apply changes scoped strictly to the claimed paths.
+    agent: coding-worker
+    requires:
+      - claim-record
+    produces:
+      - slice-diff
+  - id: test
+    type: tool
+    title: Run checks
+    description: Run the tests for the touched paths.
+    tool: command-runner
+    requires:
+      - slice-diff
+    produces:
+      - test-log
+  - id: verify
+    type: verifier
+    title: Verify scope and conflicts
+    description: Confirm the change stays within claimed paths and report any conflicts.
+    requires:
+      - slice-diff
+      - test-log
+    produces:
+      - conflict-check
+  - id: final
+    type: finalizer
+    title: Close out slice
+    description: Return the slice patch and the conflict report.
+    requires:
+      - claim-record
+      - conflict-check
+    produces:
+      - slice_patch
+      - conflict_report
+edges:
+  - from: intake
+    to: claim
+  - from: claim
+    to: execute
+  - from: execute
+    to: test
+  - from: test
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: claim-checked
+    title: Active claims checked before execution
+    type: artifact
+    required: true
+    evidence: The claim record shows active claims were checked and paths do not overlap.
+    evidence_refs:
+      - claim-record
+  - id: scope-and-conflicts-clear
+    title: Touched paths scoped and conflicts reported
+    type: command
+    required: true
+    command: make test || npm test || pytest -q
+    evidence: Tests pass for the touched paths and conflicts are reported.
+    evidence_refs:
+      - test-log
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - claim.registered
+    - gate.completed
+    - flow.completed
+  metrics:
+    - touched.paths
+    - duration.seconds

@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.security-hotfix",
+    "version": "0.1.0",
+    "source": "flows/engineering/security-hotfix/flow.yaml"
+  },
+  "inputs": {
+    "vulnerability": "Report (GHSA-xxxx): the token parser accepts unsigned JWTs when alg=none.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "expected_outputs": {
+    "hotfix_patch": "diff --git a/auth/jwt.py b/auth/jwt.py\n@@ reject alg=none; require a configured algorithm @@",
+    "advisory": "Advisory: unsigned-token acceptance fixed in 1.4.1. Exploitability: high (auth bypass). Blast radius: auth module only. Upgrade immediately."
+  },
+  "notes": "Patches an auth-bypass vulnerability with a minimal fix, exploitability assessment, and advisory."
+}

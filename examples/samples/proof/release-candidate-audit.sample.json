@@ -1,0 +1,20 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "proof.release-candidate-audit",
+    "version": "0.1.0",
+    "source": "flows/proof/release-candidate-audit/flow.yaml"
+  },
+  "inputs": {
+    "candidate": "v0.2.0-rc1",
+    "repo": "https://github.com/RNT56/agentic-flows"
+  },
+  "expected_outputs": {
+    "audit_verdict": {
+      "verdict": "pass",
+      "checks": ["tests", "release-check", "changelog", "tag", "docs"]
+    },
+    "audit_report": "release-check passed; CHANGELOG has a dated 0.2.0 section; tag v0.2.0-rc1 points at the audited commit; package build is reproducible; docs index links resolve."
+  },
+  "notes": "Audits a release candidate against tests, changelog, tag, and reproducible artifacts."
+}

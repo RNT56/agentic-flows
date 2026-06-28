@@ -1,0 +1,140 @@
+spec_version: agentic-flows/v1
+id: ops.incident-response
+version: 0.1.0
+title: Incident response
+summary: Triage, mitigate, communicate, and close an incident with a declared severity and recorded timeline.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - ops
+  - incident
+  - response
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - incident.read
+    - human.review
+    - decision.record
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: incident
+      type: markdown
+      required: true
+      description: The incident signal and what is known.
+    - id: severity_policy
+      type: markdown
+      required: true
+      description: The severity rubric.
+  outputs:
+    - id: incident_record
+      type: json
+      required: true
+      description: Severity, mitigation, timeline, and follow-ups.
+    - id: postmortem_seed
+      type: markdown
+      required: true
+      description: A seed for the later postmortem.
+  artifacts:
+    - severity-decision
+    - mitigation-log
+    - timeline
+nodes:
+  - id: intake
+    type: intake
+    title: Intake incident
+    description: Capture the incident signal and the severity rubric.
+    produces:
+      - incident-context
+  - id: triage
+    type: decision
+    title: Declare severity
+    description: Triage the incident and declare a severity.
+    requires:
+      - incident-context
+    produces:
+      - severity-decision
+  - id: mitigate
+    type: agent_task
+    title: Mitigate
+    description: Apply mitigation and capture the evidence.
+    agent: responder
+    requires:
+      - severity-decision
+    produces:
+      - mitigation-log
+  - id: communicate
+    type: tool
+    title: Communicate and record
+    description: Record the timeline and communicate status.
+    tool: comms-runner
+    requires:
+      - mitigation-log
+    produces:
+      - timeline
+  - id: verify
+    type: verifier
+    title: Verify closeout
+    description: Confirm severity is declared, mitigation evidence exists, and follow-ups are recorded.
+    requires:
+      - mitigation-log
+      - timeline
+    produces:
+      - incident-check
+  - id: final
+    type: finalizer
+    title: Close out incident
+    description: Return the incident record and a postmortem seed.
+    requires:
+      - severity-decision
+      - incident-check
+    produces:
+      - incident_record
+      - postmortem_seed
+edges:
+  - from: intake
+    to: triage
+  - from: triage
+    to: mitigate
+  - from: mitigate
+    to: communicate
+  - from: communicate
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: severity-declared
+    title: Severity declared
+    type: artifact
+    required: true
+    evidence: The triage decision records a declared severity.
+    evidence_refs:
+      - severity-decision
+  - id: mitigation-evidence
+    title: Mitigation evidence and timeline recorded
+    type: review
+    required: true
+    evidence: Mitigation evidence exists and the timeline and follow-ups are recorded.
+    evidence_refs:
+      - mitigation-log
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - decision.recorded
+    - gate.completed
+    - flow.completed
+  metrics:
+    - severity.level
+    - duration.seconds

@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.performance-regression",
+    "version": "0.1.0",
+    "source": "flows/engineering/performance-regression/flow.yaml"
+  },
+  "inputs": {
+    "regression_report": "List endpoint p95 latency doubled after the 1.3 release.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "expected_outputs": {
+    "fix_patch": "diff --git a/api/list.py b/api/list.py\n@@ batch the N+1 query into one @@",
+    "benchmark_report": "Method: 1000 reqs, warm cache, 5 runs. Baseline p95 210ms (+/-8). After p95 96ms (+/-6). Cause: N+1 query introduced in 1.3."
+  },
+  "notes": "Measures a baseline, fixes an N+1 regression, and reports before/after with bounded variance."
+}

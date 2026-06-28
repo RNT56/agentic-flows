@@ -1,0 +1,20 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "orchestration.self-improvement-loop",
+    "version": "0.1.0",
+    "source": "flows/orchestration/self-improvement-loop/flow.yaml"
+  },
+  "inputs": {
+    "failure_history": "Across 8 runs, the reviewer agent missed missing-test cases 5 times.",
+    "target": "The reviewer agent prompt."
+  },
+  "expected_outputs": {
+    "improvement": {
+      "pattern": "reviewer misses missing-test coverage",
+      "change": "add an explicit 'list untested changed functions' step to the reviewer prompt"
+    },
+    "rollout_plan": "Ship behind a prompt flag; A/B on 20 reviews; revert by clearing the flag if no improvement."
+  },
+  "notes": "Detects a repeated failure pattern and proposes a tested, reversible improvement."
+}

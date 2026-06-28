@@ -1,0 +1,24 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.issue-backlog-grooming",
+    "version": "0.1.0",
+    "source": "flows/engineering/issue-backlog-grooming/flow.yaml"
+  },
+  "inputs": {
+    "issues": "#12 crash on empty input; #15 same crash (dup); #20 add dark mode; #21 blocked on #12.",
+    "priorities": "Crashes are P0; features are P2; blocked items inherit blocker priority."
+  },
+  "expected_outputs": {
+    "dispositions": {
+      "issues": [
+        {"id": 12, "priority": "P0", "owner": "me", "repro": "confirmed", "next": "fix empty-input guard"},
+        {"id": 15, "priority": "P0", "owner": "me", "repro": "duplicate-of-12", "next": "close as dup"},
+        {"id": 20, "priority": "P2", "owner": "unassigned", "repro": "n/a", "next": "scope later"},
+        {"id": 21, "priority": "P0", "owner": "me", "repro": "blocked", "next": "wait on #12"}
+      ]
+    },
+    "summary": "2 P0 (one a dup of #12), 1 blocked by #12, 1 P2 feature deferred."
+  },
+  "notes": "Triages issues with dispositions and cites duplicate and blocker evidence."
+}

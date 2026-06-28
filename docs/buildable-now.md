@@ -50,12 +50,18 @@ loop (`issue-to-verified-pr`, `ci-failure-diagnosis`, `pr-review-and-risk-notes`
 `evidence-bundle-export`); security (`supply-chain-audit`, `threat-modeling`, `connector-grant-review`);
 orchestration (`parallel-work-claiming`, `handoff-and-resume`, `agent-quality-review`); research
 (`source-backed-brief`, `codebase-orientation`); and documentation (`decision-record`, `postmortem`).
-All 46 build-now-e2e backlog candidates now ship end-to-end, bringing the catalog to 52 reusable flows. The
-`contract-first`, `needs-spec-extension`, and `defer` sets are unchanged: contract-first flows can still get a
-`flow.yaml` + README + sample now (run/adapter evidence deferred); the two `needs-spec-extension` programs await a
-loop, fan-out, or sub-flow primitive; and the `defer` set still requires real external state this repo cannot
-honestly stand in for. The next meaningful work is therefore spec evolution (a bounded loop / fan-out / sub-flow
-primitive) and real adapter evidence to promote flows beyond `experimental`, not more build-now contracts.
+All 46 build-now-e2e candidates now ship end-to-end, and the catalog has since absorbed the 12 strongest
+`contract-first` flows as well (security hotfix, repository bootstrap, monorepo slice execution, performance
+regression, issue backlog grooming, release-candidate audit, untrusted-output routing, access review, technology
+radar, incident response, self-improvement loop, connector productionization), bringing the catalog to 64 reusable
+flows. These 12 were given the full artifact set with illustrative standalone evidence; their evidence leans more on
+external state than the build-now set, so treat their run bundles as contract demonstrations rather than proof.
+
+Remaining and intentionally not built as contracts: the 4 most-external contract-first flows
+(`product.kpi-diagnostics`, `product.release-positioning`, `docs.public-announcement`, `personal.cross-channel-briefing`),
+the two `needs-spec-extension` programs (await a loop / fan-out / sub-flow primitive), and the `defer` set (depends on
+real external state). The next meaningful work is spec evolution and real adapter evidence to promote flows beyond
+`experimental`, not more contracts.
 
 ## Honesty corrections to the official build order
 

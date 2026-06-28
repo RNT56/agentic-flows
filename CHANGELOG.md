@@ -54,12 +54,24 @@ This project follows semantic versioning for releases and keeps flow compatibili
 - Added the `personal.commitment-ledger` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
 - Added the `personal.memory-curation` reusable flow (approval-gated sensitive memory) with a standalone run bundle and a ThinClaw contract smoke.
 - Added the `personal.routine-authoring` reusable flow (approval-gated enablement) with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `engineering.security-hotfix` reusable flow (approval-gated release) with a standalone run bundle and a CrustCore contract smoke.
+- Added the `engineering.repository-bootstrap` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `engineering.monorepo-slice-execution` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `engineering.performance-regression` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `engineering.issue-backlog-grooming` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `proof.release-candidate-audit` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `security.untrusted-output-routing` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `security.access-review` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `research.technology-radar` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `ops.incident-response` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `orchestration.self-improvement-loop` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `program.connector-productionization` reusable flow with a standalone run bundle and a CrustCore contract smoke.
 - Added `docs/buildable-now.md`, an evidence-backed assessment of which backlog workflows can be built end-to-end now.
 
 ### Changed
 
 - Reworked the README into a full project landing page with vision, catalog status, workflow backlog links, runtime-boundary framing, and validation guidance.
-- Expanded the catalog to fifty-two reusable workflows, completing all forty-six end-to-end-now backlog candidates across the integration spine, engineering, proof, security, product, program, personal, orchestration, research, and documentation, and recorded their compatibility states.
+- Expanded the catalog to sixty-four reusable workflows, completing all 46 build-now candidates plus the 12 strongest contract-first backlog flows (security hotfix, repo bootstrap, monorepo slice, performance regression, backlog grooming, release-candidate audit, untrusted-output routing, access review, technology radar, incident response, self-improvement loop, connector productionization), and recorded their compatibility states.
 
 ## 0.1.1 - 2026-06-27
 

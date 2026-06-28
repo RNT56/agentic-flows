@@ -1,0 +1,139 @@
+spec_version: agentic-flows/v1
+id: orchestration.self-improvement-loop
+version: 0.1.0
+title: Self improvement loop
+summary: Identify repeated failures and propose a tested, reversible improvement to prompts, tools, or workflows.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - orchestration
+  - improvement
+  - reliability
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - failure.read
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: verified-patch
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: failure_history
+      type: markdown
+      required: true
+      description: The recorded failures to learn from.
+    - id: target
+      type: markdown
+      required: true
+      description: The prompt, tool, skill, or workflow to improve.
+  outputs:
+    - id: improvement
+      type: json
+      required: true
+      description: The proposed improvement and the pattern it addresses.
+    - id: rollout_plan
+      type: markdown
+      required: true
+      description: A reversible rollout plan.
+  artifacts:
+    - pattern-evidence
+    - improvement-test
+    - rollout-plan
+nodes:
+  - id: intake
+    type: intake
+    title: Intake failures
+    description: Capture the failure history and the improvement target.
+    produces:
+      - improvement-scope
+  - id: detect
+    type: agent_task
+    title: Detect repeated pattern
+    description: Identify the repeated failure pattern with evidence.
+    agent: reliability-analyst
+    requires:
+      - improvement-scope
+    produces:
+      - pattern-evidence
+  - id: propose
+    type: agent_task
+    title: Propose improvement
+    description: Propose a targeted improvement for the pattern.
+    agent: reliability-analyst
+    requires:
+      - pattern-evidence
+    produces:
+      - improvement-draft
+  - id: test
+    type: tool
+    title: Test the improvement
+    description: Test the improvement against the failure pattern.
+    tool: command-runner
+    requires:
+      - improvement-draft
+    produces:
+      - improvement-test
+  - id: verify
+    type: verifier
+    title: Verify and plan rollout
+    description: Confirm the improvement is tested and plan a reversible rollout.
+    requires:
+      - improvement-test
+    produces:
+      - rollout-plan
+  - id: final
+    type: finalizer
+    title: Close out improvement
+    description: Return the improvement and the rollout plan.
+    requires:
+      - pattern-evidence
+      - rollout-plan
+    produces:
+      - improvement
+      - rollout_plan
+edges:
+  - from: intake
+    to: detect
+  - from: detect
+    to: propose
+  - from: propose
+    to: test
+  - from: test
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: repeated-pattern-evidence
+    title: Repeated pattern evidence exists
+    type: artifact
+    required: true
+    evidence: The pattern evidence shows the failure recurs, not a one-off.
+    evidence_refs:
+      - pattern-evidence
+  - id: improvement-tested-and-reversible
+    title: Improvement is tested and reversible
+    type: command
+    required: true
+    command: make test || npm test || pytest -q
+    evidence: The improvement is tested and the rollout is reversible.
+    evidence_refs:
+      - improvement-test
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - failures.analyzed
+    - duration.seconds

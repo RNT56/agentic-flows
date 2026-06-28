@@ -1,0 +1,107 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "ops.incident-response",
+    "version": "0.1.0",
+    "source": "flows/ops/incident-response/flow.yaml"
+  },
+  "run": {
+    "id": "run-thinclaw-incident-response-0001",
+    "core": "thinclaw",
+    "status": "completed",
+    "started_at": "2026-06-28T10:00:00Z",
+    "completed_at": "2026-06-28T10:20:00Z"
+  },
+  "inputs": {
+    "incident": "API error rate jumped to 30% at 02:10 after a config push.",
+    "severity_policy": "SEV1 if user-facing errors above 10%."
+  },
+  "outputs": {
+    "incident_record": {
+      "severity": "SEV1",
+      "mitigation": "rolled back config",
+      "follow_ups": [
+        "config canary"
+      ]
+    },
+    "postmortem_seed": "Config push caused a 30% error spike; rolled back by 02:21."
+  },
+  "artifacts": [
+    {
+      "id": "severity-decision",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-incident-response-0001/severity-decision.json"
+    },
+    {
+      "id": "mitigation-log",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-incident-response-0001/mitigation-log.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.incident-response",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-incident-response-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T10:00:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.incident-response",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-incident-response-0001",
+      "node_id": "triage",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:10:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "severity-declared",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "severity-decision",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-incident-response-0001/severity-decision.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.incident-response",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-incident-response-0001",
+      "node_id": "mitigate",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:15:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "mitigation-evidence",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "mitigation-log",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-incident-response-0001/mitigation-log.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.incident-response",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-incident-response-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T10:20:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    }
+  ]
+}

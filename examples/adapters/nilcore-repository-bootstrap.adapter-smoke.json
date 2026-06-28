@@ -1,0 +1,29 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "engineering.repository-bootstrap",
+    "version": "0.1.0",
+    "source": "flows/engineering/repository-bootstrap/flow.yaml"
+  },
+  "capability_support": [
+    "repo.checkout",
+    "patch.apply",
+    "command.run",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "finalizer": "closeout step",
+    "intake": "intake step",
+    "plan": "planning step",
+    "tool": "tool runner",
+    "verifier": "verifier step"
+  },
+  "run_bundle": "runs/nilcore-repository-bootstrap.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore repository-bootstrap adapter."
+}

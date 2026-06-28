@@ -1,0 +1,30 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "crustcore",
+  "flow": {
+    "id": "engineering.security-hotfix",
+    "version": "0.1.0",
+    "source": "flows/engineering/security-hotfix/flow.yaml"
+  },
+  "capability_support": [
+    "repo.checkout",
+    "patch.apply",
+    "command.run",
+    "human.review",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "approval": "operator approval",
+    "finalizer": "closeout step",
+    "intake": "intake step",
+    "tool": "tool runner",
+    "verifier": "verifier step"
+  },
+  "run_bundle": "runs/crustcore-security-hotfix.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible CrustCore security-hotfix adapter."
+}

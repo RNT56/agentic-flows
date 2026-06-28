@@ -1,0 +1,141 @@
+spec_version: agentic-flows/v1
+id: program.connector-productionization
+version: 0.1.0
+title: Connector productionization
+summary: Take an experimental connector to production readiness with reviewed permissions and tested failure modes.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - program
+  - connector
+  - readiness
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - connector.read
+    - command.run
+    - human.review
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: readiness-evidence
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: connector
+      type: markdown
+      required: true
+      description: The experimental connector to productionize.
+    - id: readiness_policy
+      type: markdown
+      required: true
+      description: The production-readiness policy.
+  outputs:
+    - id: readiness_report
+      type: json
+      required: true
+      description: The readiness verdict across permissions, failures, observability, and docs.
+    - id: production_checklist
+      type: markdown
+      required: true
+      description: The remaining checklist before enabling in production.
+  artifacts:
+    - permission-review
+    - failure-tests
+    - observability-check
+nodes:
+  - id: intake
+    type: intake
+    title: Intake connector
+    description: Capture the connector and the readiness policy.
+    produces:
+      - productionization-scope
+  - id: permissions
+    type: agent_task
+    title: Review permissions
+    description: Review the connector permissions for least privilege.
+    agent: security-analyst
+    requires:
+      - productionization-scope
+    produces:
+      - permission-review
+  - id: harden
+    type: tool
+    title: Test failure modes
+    description: Test the connector failure modes and retries.
+    tool: command-runner
+    requires:
+      - permission-review
+    produces:
+      - failure-tests
+  - id: observe
+    type: agent_task
+    title: Check observability and docs
+    description: Confirm observability and documentation are complete.
+    agent: reliability-analyst
+    requires:
+      - failure-tests
+    produces:
+      - observability-check
+  - id: verify
+    type: verifier
+    title: Verify readiness
+    description: Confirm permissions are reviewed, failure modes tested, and observability and docs complete.
+    requires:
+      - failure-tests
+      - observability-check
+    produces:
+      - readiness-verdict
+  - id: final
+    type: finalizer
+    title: Close out productionization
+    description: Return the readiness report and the remaining checklist.
+    requires:
+      - permission-review
+      - readiness-verdict
+    produces:
+      - readiness_report
+      - production_checklist
+edges:
+  - from: intake
+    to: permissions
+  - from: permissions
+    to: harden
+  - from: harden
+    to: observe
+  - from: observe
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: permissions-reviewed
+    title: Permissions reviewed
+    type: artifact
+    required: true
+    evidence: The permission review records a least-privilege decision per scope.
+    evidence_refs:
+      - permission-review
+  - id: failure-modes-tested
+    title: Failure modes tested
+    type: command
+    required: true
+    command: make test || npm test || pytest -q
+    evidence: The connector failure modes are tested.
+    evidence_refs:
+      - failure-tests
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - failure.cases
+    - duration.seconds

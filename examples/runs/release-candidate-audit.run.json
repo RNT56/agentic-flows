@@ -1,0 +1,110 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "proof.release-candidate-audit",
+    "version": "0.1.0",
+    "source": "flows/proof/release-candidate-audit/flow.yaml"
+  },
+  "run": {
+    "id": "run-release-candidate-audit-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "candidate": "v0.2.0-rc1",
+    "repo": "https://github.com/RNT56/agentic-flows"
+  },
+  "outputs": {
+    "audit_verdict": {
+      "verdict": "pass",
+      "checks": [
+        "tests",
+        "release-check",
+        "changelog",
+        "tag",
+        "docs"
+      ]
+    },
+    "audit_report": "release-check passed; changelog dated; tag points at audited commit; reproducible build."
+  },
+  "artifacts": [
+    {
+      "id": "check-log",
+      "kind": "json",
+      "uri": "artifact://runs/run-release-candidate-audit-0001/check-log.json"
+    },
+    {
+      "id": "audit-findings",
+      "kind": "json",
+      "uri": "artifact://runs/run-release-candidate-audit-0001/audit-findings.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.release-candidate-audit",
+      "flow_version": "0.1.0",
+      "run_id": "run-release-candidate-audit-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.release-candidate-audit",
+      "flow_version": "0.1.0",
+      "run_id": "run-release-candidate-audit-0001",
+      "node_id": "checks",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "release-checks-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "check-log",
+          "kind": "json",
+          "uri": "artifact://runs/run-release-candidate-audit-0001/check-log.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.release-candidate-audit",
+      "flow_version": "0.1.0",
+      "run_id": "run-release-candidate-audit-0001",
+      "node_id": "audit",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "changelog-and-tag-audited",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "audit-findings",
+          "kind": "json",
+          "uri": "artifact://runs/run-release-candidate-audit-0001/audit-findings.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.release-candidate-audit",
+      "flow_version": "0.1.0",
+      "run_id": "run-release-candidate-audit-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.monorepo-slice-execution",
+    "version": "0.1.0",
+    "source": "flows/engineering/monorepo-slice-execution/flow.yaml"
+  },
+  "inputs": {
+    "slice": "Add input validation to the billing service only (packages/billing).",
+    "active_claims": [
+      {"owner": "agent-a", "paths": ["packages/auth/**"]}
+    ]
+  },
+  "expected_outputs": {
+    "slice_patch": "diff --git a/packages/billing/validate.py ...\n@@ add input validation @@",
+    "conflict_report": "No conflicts: claimed packages/billing/**; active claim agent-a holds packages/auth/**. No path overlap."
+  },
+  "notes": "Claims a non-overlapping monorepo slice, executes within it, and reports conflicts."
+}

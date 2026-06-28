@@ -1,0 +1,21 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "research.technology-radar",
+    "version": "0.1.0",
+    "source": "flows/research/technology-radar/flow.yaml"
+  },
+  "inputs": {
+    "technologies": "uv (Python packaging), JSON Schema 2020-12, a niche ORM with few maintainers.",
+    "current_radar": {"adopt": [], "watch": ["JSON Schema 2020-12"], "reject": []}
+  },
+  "expected_outputs": {
+    "radar": {
+      "adopt": [{"name": "JSON Schema 2020-12", "reason": "stable, well supported", "evidence_date": "2026-06", "owner": "RNT56", "next_review": "2026-12"}],
+      "watch": [{"name": "uv", "reason": "fast but young", "evidence_date": "2026-06", "owner": "RNT56", "next_review": "2026-09"}],
+      "reject": [{"name": "niche ORM", "reason": "single maintainer, low activity", "evidence_date": "2026-06", "owner": "RNT56", "next_review": "2027-06"}]
+    },
+    "radar_notes": "Promoted JSON Schema 2020-12 to adopt; added uv to watch; rejected the niche ORM on maintenance risk."
+  },
+  "notes": "Places technologies with reason, dated evidence, owner, and a next review date."
+}

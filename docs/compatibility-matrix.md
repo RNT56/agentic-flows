@@ -30,29 +30,38 @@ Current status:
 | `engineering.dependency-upgrade` | not-targeted | target | contract-smoke | run-smoke |
 | `engineering.docs-from-diff` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `engineering.flaky-test-stabilization` | not-targeted | contract-smoke | not-targeted | run-smoke |
+| `engineering.issue-backlog-grooming` | contract-smoke | target | not-targeted | run-smoke |
 | `engineering.issue-to-verified-pr` | target | contract-smoke | target | run-smoke |
 | `engineering.large-refactor-safe-plan` | not-targeted | contract-smoke | target | run-smoke |
+| `engineering.monorepo-slice-execution` | target | contract-smoke | not-targeted | run-smoke |
+| `engineering.performance-regression` | not-targeted | target | contract-smoke | run-smoke |
 | `engineering.pr-review-and-risk-notes` | not-targeted | target | contract-smoke | run-smoke |
+| `engineering.repository-bootstrap` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `engineering.schema-evolution` | not-targeted | contract-smoke | target | run-smoke |
+| `engineering.security-hotfix` | target | target | contract-smoke | run-smoke |
 | `general.human-in-the-loop-review` | contract-smoke | target | target | run-smoke |
 | `ops.adapter-certification` | target | target | contract-smoke | run-smoke |
 | `ops.flow-intake-and-routing` | contract-smoke | target | not-targeted | run-smoke |
 | `ops.capability-negotiation` | target | target | contract-smoke | run-smoke |
 | `ops.event-and-evidence-bridge` | target | contract-smoke | target | run-smoke |
 | `ops.flow-version-upgrade` | contract-smoke | target | target | run-smoke |
+| `ops.incident-response` | contract-smoke | target | target | run-smoke |
 | `orchestration.agent-quality-review` | not-targeted | not-targeted | contract-smoke | run-smoke |
 | `orchestration.handoff-and-resume` | target | contract-smoke | not-targeted | run-smoke |
 | `orchestration.parallel-work-claiming` | contract-smoke | target | not-targeted | run-smoke |
+| `orchestration.self-improvement-loop` | target | target | contract-smoke | run-smoke |
 | `orchestration.skill-authoring` | contract-smoke | target | not-targeted | run-smoke |
 | `orchestration.swarm-execution` | not-targeted | contract-smoke | target | run-smoke |
 | `orchestration.tool-creation` | not-targeted | target | contract-smoke | run-smoke |
 | `proof.evidence-bundle-export` | not-targeted | not-targeted | contract-smoke | run-smoke |
 | `proof.patch-risk-classification` | not-targeted | target | contract-smoke | run-smoke |
+| `proof.release-candidate-audit` | not-targeted | target | contract-smoke | run-smoke |
 | `proof.verified-patch-acceptance` | not-targeted | not-targeted | contract-smoke | run-smoke |
 | `personal.commitment-ledger` | contract-smoke | not-targeted | not-targeted | run-smoke |
 | `personal.memory-curation` | contract-smoke | not-targeted | not-targeted | run-smoke |
 | `personal.routine-authoring` | contract-smoke | not-targeted | not-targeted | run-smoke |
 | `product.feedback-to-roadmap` | contract-smoke | not-targeted | not-targeted | run-smoke |
+| `program.connector-productionization` | target | target | contract-smoke | run-smoke |
 | `program.knowledge-base-maintenance` | target | contract-smoke | not-targeted | run-smoke |
 | `program.research-to-roadmap` | contract-smoke | target | not-targeted | run-smoke |
 | `research.codebase-orientation` | not-targeted | contract-smoke | not-targeted | run-smoke |
@@ -61,11 +70,14 @@ Current status:
 | `research.market-and-user-value` | contract-smoke | not-targeted | not-targeted | run-smoke |
 | `research.paper-to-implementation-plan` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `research.source-backed-brief` | contract-smoke | target | not-targeted | run-smoke |
+| `research.technology-radar` | contract-smoke | not-targeted | not-targeted | run-smoke |
+| `security.access-review` | contract-smoke | not-targeted | not-targeted | run-smoke |
 | `security.audit-trail-reconstruction` | target | not-targeted | contract-smoke | run-smoke |
 | `security.connector-grant-review` | contract-smoke | not-targeted | target | run-smoke |
 | `security.policy-exception` | contract-smoke | not-targeted | target | run-smoke |
 | `security.supply-chain-audit` | not-targeted | contract-smoke | target | run-smoke |
 | `security.threat-modeling` | target | target | contract-smoke | run-smoke |
+| `security.untrusted-output-routing` | not-targeted | target | contract-smoke | run-smoke |
 | `template.coding-feature` | not-targeted | not-targeted | not-targeted | target |
 | `template.coding-refactor` | not-targeted | not-targeted | not-targeted | target |
 | `template.research-report` | not-targeted | not-targeted | not-targeted | target |
@@ -129,4 +141,16 @@ Current status:
 - `personal.commitment-ledger` has a standalone valid run bundle at `examples/runs/commitment-ledger.run.json`.
 - `personal.memory-curation` has a standalone valid run bundle at `examples/runs/memory-curation.run.json`.
 - `personal.routine-authoring` has a standalone valid run bundle at `examples/runs/routine-authoring.run.json`.
+- `engineering.security-hotfix` has a standalone valid run bundle at `examples/runs/security-hotfix.run.json`.
+- `engineering.repository-bootstrap` has a standalone valid run bundle at `examples/runs/repository-bootstrap.run.json`.
+- `engineering.monorepo-slice-execution` has a standalone valid run bundle at `examples/runs/monorepo-slice-execution.run.json`.
+- `engineering.performance-regression` has a standalone valid run bundle at `examples/runs/performance-regression.run.json`.
+- `engineering.issue-backlog-grooming` has a standalone valid run bundle at `examples/runs/issue-backlog-grooming.run.json`.
+- `proof.release-candidate-audit` has a standalone valid run bundle at `examples/runs/release-candidate-audit.run.json`.
+- `security.untrusted-output-routing` has a standalone valid run bundle at `examples/runs/untrusted-output-routing.run.json`.
+- `security.access-review` has a standalone valid run bundle at `examples/runs/access-review.run.json`.
+- `research.technology-radar` has a standalone valid run bundle at `examples/runs/technology-radar.run.json`.
+- `ops.incident-response` has a standalone valid run bundle at `examples/runs/incident-response.run.json`.
+- `orchestration.self-improvement-loop` has a standalone valid run bundle at `examples/runs/self-improvement-loop.run.json`.
+- `program.connector-productionization` has a standalone valid run bundle at `examples/runs/connector-productionization.run.json`.
 - Repo-local adapter smoke manifests live under `examples/adapters/`.

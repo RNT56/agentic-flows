@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.repository-bootstrap",
+    "version": "0.1.0",
+    "source": "flows/engineering/repository-bootstrap/flow.yaml"
+  },
+  "inputs": {
+    "project_brief": "A small CLI that validates YAML config files against a schema. Apache-2.0.",
+    "repo": "https://github.com/RNT56/new-cli"
+  },
+  "expected_outputs": {
+    "scaffold_patch": "diff --git a/README.md ...\ndiff --git a/LICENSE ...\ndiff --git a/.github/workflows/ci.yml ...\n@@ initial scaffold @@",
+    "release_plan": "v0.1.0 after CI is green on main: tag, build artifact, write release notes. Issue templates and CONTRIBUTING included."
+  },
+  "notes": "Initializes a repo with README, license, CI, and a documented first-release path."
+}
