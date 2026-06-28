@@ -43,7 +43,21 @@ Execution model:
 3. After execution, each required quality gate is marked `passed` only if its `evidence_refs` artifacts were actually produced on disk.
 4. A run bundle is written to `--out` with `file://` artifact URIs pointing at files that exist, real timestamps, and a `gate.completed` event per passed gate. The bundle validates against `schemas/run.schema.json`.
 
-A flow is **runnable** when `flowctl run` can take it to `status: completed` with local handlers alone (i.e., its working nodes are `tool`/`command` or data steps). A flow is a **contract** when it needs a consumer to supply an `agent_task`/`approval` handler; it is still fully consumable — the runtime provides the handler, the flow provides everything else.
+## Binding consumer handlers
+
+A consuming runtime supplies the handlers a contract flow leaves open, instead of baking commands into the flow. `flowctl run` models this with `--handler node_id=command`: it binds an `agent_task`, `approval`, or `handoff` node to a command at run time. The bound command runs exactly like a node `command` (same `${param.*}`/`${input.*}` substitution, same `on_failure` policy, same artifact capture), and its `node.completed` event is tagged `handler: consumer` so the bundle records that the step was satisfied by a consumer binding rather than the flow itself.
+
+```
+flowctl run flows/coding/feature-implementation/flow.yaml \
+  --input "task=..." --input "repo=." \
+  --param "test_command=python -m pytest -q" \
+  --handler "implement=<the consumer's coding-agent command>" \
+  --handler "approval=<the consumer's approval command>"
+```
+
+This is how the catalog's contract flows are consumed end-to-end. The flow stays runtime-neutral; the runtime owns the binding. A worked example with a committed bundle lives under [`examples/runs/consumed/`](../examples/runs/consumed/README.md). Handlers that target an unknown node id are rejected before the run starts.
+
+A flow is **runnable** when `flowctl run` can take it to `status: completed` with local handlers alone (i.e., its working nodes are `tool`/`command` or data steps). A flow is a **contract** when it needs a consumer to supply an `agent_task`/`approval` handler; it is still fully consumable — bind the handlers and it runs to completion, the runtime providing the agent and the flow providing everything else.
 
 ## Runnable flows today
 
