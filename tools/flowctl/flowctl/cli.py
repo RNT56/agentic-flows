@@ -2276,7 +2276,9 @@ def run_flow(
     params: dict[str, Any],
     workdir: Path,
     out_dir: Path,
+    handlers: dict[str, str] | None = None,
 ) -> tuple[dict[str, Any], str, list[str]]:
+    handlers = handlers or {}
     flow_id = document["id"]
     flow_version = document["version"]
     core = "standalone"
@@ -2350,7 +2352,9 @@ def run_flow(
     for node in execution_order(document):
         node_id = node["id"]
         node_type = node["type"]
-        command = node.get("command")
+        flow_command = node.get("command")
+        handler_command = handlers.get(node_id)
+        command = flow_command or handler_command
         if command:
             rendered = substitute_command(command, param_values, inputs)
             on_failure = node.get("on_failure") or {}
@@ -2372,7 +2376,10 @@ def run_flow(
             ok = returncode == 0
             log = f"$ {rendered}\n(exit {returncode})\n\n{output}"
             emit_produces(node, log, "command-output" if ok else "command-error", ok)
-            emit("node.completed", node=node_id, severity="info" if ok else "error", payload={"exit_code": returncode})
+            payload: dict[str, Any] = {"exit_code": returncode}
+            if handler_command and not flow_command:
+                payload["handler"] = "consumer"
+            emit("node.completed", node=node_id, severity="info" if ok else "error", payload=payload)
             if not ok and on_failure.get("action") not in ("skip", "escalate"):
                 status = "failed"
         elif node_type == "intake":
@@ -2436,8 +2443,15 @@ def cmd_run(args: argparse.Namespace) -> int:
     try:
         inputs = parse_kv_list(args.input)
         params = parse_kv_list(args.param)
+        handlers = parse_kv_list(args.handler)
     except ValueError as exc:
         print(f"FAIL: {exc}", file=sys.stderr)
+        return 1
+
+    node_ids = {node["id"] for node in document["nodes"]}
+    unknown_handlers = sorted(node_id for node_id in handlers if node_id not in node_ids)
+    if unknown_handlers:
+        print(f"FAIL: handler targets unknown node(s): {', '.join(unknown_handlers)}", file=sys.stderr)
         return 1
 
     workdir = Path(args.workdir).resolve() if args.workdir else Path.cwd()
@@ -2445,7 +2459,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     source = str(flow_path.relative_to(REPO_ROOT)) if flow_path.is_relative_to(REPO_ROOT) else str(flow_path)
     out_dir = (Path(args.out) if args.out else REPO_ROOT / ".agentic-runs" / re.sub(r"[^a-z0-9]+", "-", document["id"])).resolve()
 
-    bundle, status, needs_handler = run_flow(document, source, inputs, params, workdir, out_dir)
+    bundle, status, needs_handler = run_flow(document, source, inputs, params, workdir, out_dir, handlers)
     bundle_path = out_dir / f"{bundle['run']['id']}.run.json"
     bundle_path.write_text(json.dumps(bundle, indent=2) + "\n", encoding="utf-8")
 
@@ -2482,6 +2496,8 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("flow", type=Path, help="Path to flow.yaml.")
     run.add_argument("--input", action="append", default=[], metavar="id=value", help="Flow input value.")
     run.add_argument("--param", action="append", default=[], metavar="id=value", help="Parameter override.")
+    run.add_argument("--handler", action="append", default=[], metavar="node_id=command",
+                     help="Bind an agent_task/approval/handoff node to a consumer-supplied command.")
     run.add_argument("--workdir", type=Path, help="Working directory for command nodes. Defaults to the current directory.")
     run.add_argument("--out", type=Path, help="Output directory for the run bundle and artifacts. Defaults to .agentic-runs/<flow>.")
     run.add_argument("--run-schema", type=Path, default=DEFAULT_RUN_SCHEMA, help="Path to the run bundle JSON Schema.")

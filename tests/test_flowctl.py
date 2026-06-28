@@ -602,3 +602,39 @@ def test_run_flow_agent_task_without_command_needs_handler(tmp_path: Path) -> No
     assert "author" in needs_handler
     assert status == "incomplete"
     assert bundle["run"]["status"] == "failed"
+
+
+def test_run_flow_consumer_handler_binds_agent_task(tmp_path: Path) -> None:
+    document = _minimal_runnable_flow()
+    document["nodes"].insert(
+        2,
+        {
+            "id": "author",
+            "type": "agent_task",
+            "title": "Author the result",
+            "description": "A consumer supplies the agent that produces this node's output.",
+            "agent": "worker",
+            "requires": ["probe-log"],
+            "produces": ["draft"],
+        },
+    )
+
+    bundle, status, needs_handler = run_flow(
+        document,
+        flow_source="flows/test/runner-smoke/flow.yaml",
+        inputs={"repo": "."},
+        params={},
+        workdir=tmp_path,
+        out_dir=tmp_path / "out",
+        handlers={"author": "printf 'drafted by the consumer agent'"},
+    )
+
+    assert needs_handler == []
+    assert status == "completed"
+    assert bundle["run"]["status"] == "completed"
+    draft = next(a for a in bundle["artifacts"] if a["id"] == "draft")
+    assert (tmp_path / "out" / draft["uri"]).read_text(encoding="utf-8").endswith("consumer agent")
+    author_event = next(
+        e for e in bundle["events"] if e["event"] == "node.completed" and e.get("node_id") == "author"
+    )
+    assert author_event["payload"].get("handler") == "consumer"

@@ -1,0 +1,4 @@
+$ printf 'approved: consumer operator reviewed the change and accepted it\n'
+(exit 0)
+
+approved: consumer operator reviewed the change and accepted it
