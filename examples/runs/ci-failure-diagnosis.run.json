@@ -1,0 +1,173 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.ci-failure-diagnosis",
+    "version": "0.1.0",
+    "source": "flows/engineering/ci-failure-diagnosis/flow.yaml"
+  },
+  "run": {
+    "id": "run-ci-failure-diagnosis-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T22:00:00Z",
+    "completed_at": "2026-06-27T22:03:00Z"
+  },
+  "inputs": {
+    "failing_check": {
+      "check_id": "build (ubuntu-latest)",
+      "run_url": "https://ci.example/run/4821",
+      "log_excerpt": "ModuleNotFoundError: No module named 'tomllib'"
+    },
+    "repo": "https://github.com/RNT56/example"
+  },
+  "outputs": {
+    "diagnosis": "Reproduced locally on Python 3.10. Root cause: tomllib is stdlib only on 3.11+. The build matrix still includes 3.10.",
+    "fix_proposal": "artifact://fix"
+  },
+  "artifacts": [
+    {
+      "id": "failure-record",
+      "kind": "json",
+      "uri": "artifact://runs/run-ci-failure-diagnosis-0001/failure-record.json"
+    },
+    {
+      "id": "repro-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-ci-failure-diagnosis-0001/repro.log"
+    },
+    {
+      "id": "diagnosis-notes",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-ci-failure-diagnosis-0001/diagnosis.md"
+    },
+    {
+      "id": "fix-evidence",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-ci-failure-diagnosis-0001/fix.log"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.ci-failure-diagnosis",
+      "flow_version": "0.1.0",
+      "run_id": "run-ci-failure-diagnosis-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T22:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.ci-failure-diagnosis",
+      "flow_version": "0.1.0",
+      "run_id": "run-ci-failure-diagnosis-0001",
+      "node_id": "intake",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T22:00:20Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "failing-check-recorded",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "failure-record",
+          "kind": "json",
+          "uri": "artifact://runs/run-ci-failure-diagnosis-0001/failure-record.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.ci-failure-diagnosis",
+      "flow_version": "0.1.0",
+      "run_id": "run-ci-failure-diagnosis-0001",
+      "node_id": "reproduce",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T22:01:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.ci-failure-diagnosis",
+      "flow_version": "0.1.0",
+      "run_id": "run-ci-failure-diagnosis-0001",
+      "node_id": "diagnose",
+      "event": "decision.recorded",
+      "timestamp": "2026-06-27T22:01:30Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "reproduced": true
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.ci-failure-diagnosis",
+      "flow_version": "0.1.0",
+      "run_id": "run-ci-failure-diagnosis-0001",
+      "node_id": "diagnose",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T22:01:35Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "reproduction-explicit",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "repro-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-ci-failure-diagnosis-0001/repro.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.ci-failure-diagnosis",
+      "flow_version": "0.1.0",
+      "run_id": "run-ci-failure-diagnosis-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T22:02:30Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "fix-evidence-validates",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "fix-evidence",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-ci-failure-diagnosis-0001/fix.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.ci-failure-diagnosis",
+      "flow_version": "0.1.0",
+      "run_id": "run-ci-failure-diagnosis-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T22:03:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.ci-failure-diagnosis",
+      "flow_version": "0.1.0",
+      "run_id": "run-ci-failure-diagnosis-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T22:03:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

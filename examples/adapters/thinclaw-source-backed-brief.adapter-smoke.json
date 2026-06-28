@@ -1,0 +1,26 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "thinclaw",
+  "flow": {
+    "id": "research.source-backed-brief",
+    "version": "0.1.0",
+    "source": "flows/research/source-backed-brief/flow.yaml"
+  },
+  "capability_support": [
+    "source.retrieve",
+    "citation.capture",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "question intake routine",
+    "agent_task": "retrieval and synthesis worker",
+    "verifier": "citation and caveat verifier",
+    "finalizer": "briefing closeout"
+  },
+  "run_bundle": "runs/thinclaw-source-backed-brief.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible ThinClaw operator-briefing adapter."
+}

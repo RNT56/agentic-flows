@@ -1,0 +1,26 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "crustcore",
+  "flow": {
+    "id": "engineering.pr-review-and-risk-notes",
+    "version": "0.1.0",
+    "source": "flows/engineering/pr-review-and-risk-notes/flow.yaml"
+  },
+  "capability_support": [
+    "diff.read",
+    "repo.checkout",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "review request intake",
+    "agent_task": "diff review worker",
+    "verifier": "findings and risk verifier",
+    "finalizer": "review closeout"
+  },
+  "run_bundle": "runs/crustcore-pr-review-and-risk-notes.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible CrustCore review-findings adapter."
+}

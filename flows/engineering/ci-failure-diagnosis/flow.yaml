@@ -1,0 +1,140 @@
+spec_version: agentic-flows/v1
+id: engineering.ci-failure-diagnosis
+version: 0.1.0
+title: CI failure diagnosis
+summary: Read a failing CI check, reproduce it locally where possible, find the root cause, and propose a fix.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - ci
+  - diagnosis
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - ci.read
+    - repo.checkout
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: verified-patch
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: failing_check
+      type: json
+      required: true
+      description: The failing CI check id and its logs.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target.
+  outputs:
+    - id: diagnosis
+      type: markdown
+      required: true
+      description: Root cause analysis with an explicit reproduction status.
+    - id: fix_proposal
+      type: patch
+      required: true
+      description: Proposed fix, or an explicit statement that no fix is available yet.
+  artifacts:
+    - failure-record
+    - repro-log
+    - diagnosis-notes
+    - fix-evidence
+nodes:
+  - id: intake
+    type: intake
+    title: Record failing check
+    description: Capture the failing CI check id, its logs, and the repo target.
+    produces:
+      - failure-record
+  - id: reproduce
+    type: tool
+    title: Reproduce locally
+    description: Attempt to reproduce the failure locally and capture the result.
+    tool: command-runner
+    requires:
+      - failure-record
+    produces:
+      - repro-log
+  - id: diagnose
+    type: decision
+    title: Reproduced or not
+    description: Decide whether the failure reproduced locally and record the root cause direction.
+    requires:
+      - repro-log
+    produces:
+      - diagnosis-notes
+  - id: verify
+    type: verifier
+    title: Verify proposed fix
+    description: Run the proposed fix against the failure and capture validating evidence.
+    requires:
+      - diagnosis-notes
+    produces:
+      - fix-evidence
+  - id: final
+    type: finalizer
+    title: Close out diagnosis
+    description: Return the diagnosis with reproduction status and the proposed fix or a no-fix statement.
+    requires:
+      - diagnosis-notes
+      - fix-evidence
+    produces:
+      - diagnosis
+      - fix_proposal
+edges:
+  - from: intake
+    to: reproduce
+  - from: reproduce
+    to: diagnose
+  - from: diagnose
+    to: verify
+    condition: reproduced
+  - from: diagnose
+    to: final
+    condition: not-reproduced
+  - from: verify
+    to: final
+quality_gates:
+  - id: failing-check-recorded
+    title: Failing check id recorded
+    type: artifact
+    required: true
+    evidence: The failing check id and its source logs are captured.
+    evidence_refs:
+      - failure-record
+  - id: reproduction-explicit
+    title: Reproduction status is explicit
+    type: review
+    required: true
+    evidence: Local reproduction or an explicit non-reproduction is recorded with its log.
+    evidence_refs:
+      - repro-log
+  - id: fix-evidence-validates
+    title: Fix evidence validates
+    type: command
+    required: false
+    command: make test || npm test || cargo test || go test ./...
+    evidence: The proposed fix turns the failing check green in a local run.
+    evidence_refs:
+      - fix-evidence
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - decision.recorded
+    - gate.completed
+    - flow.completed
+  metrics:
+    - reproduced
+    - duration.seconds

@@ -1,0 +1,155 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "orchestration.parallel-work-claiming",
+    "version": "0.1.0",
+    "source": "flows/orchestration/parallel-work-claiming/flow.yaml"
+  },
+  "run": {
+    "id": "run-parallel-work-claiming-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:02:00Z"
+  },
+  "inputs": {
+    "objective": "Add three new reusable flows to the catalog without colliding on shared docs.",
+    "active_claims": [
+      {"lane": "docs/README.md", "owner": "agent-a"}
+    ]
+  },
+  "outputs": {
+    "lane_assignments": {
+      "lanes": [
+        {"lane": "flows/engineering/ci-failure-diagnosis", "owner": "agent-b", "paths": ["flows/engineering/ci-failure-diagnosis/**"]},
+        {"lane": "flows/security/supply-chain-audit", "owner": "agent-c", "paths": ["flows/security/supply-chain-audit/**"]}
+      ]
+    },
+    "claim_ledger": {
+      "active": [
+        {"lane": "docs/README.md", "owner": "agent-a"},
+        {"lane": "flows/engineering/ci-failure-diagnosis", "owner": "agent-b"},
+        {"lane": "flows/security/supply-chain-audit", "owner": "agent-c"}
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "lane-plan",
+      "kind": "json",
+      "uri": "artifact://runs/run-parallel-work-claiming-0001/lane-plan.json"
+    },
+    {
+      "id": "claim-ledger",
+      "kind": "json",
+      "uri": "artifact://runs/run-parallel-work-claiming-0001/claim-ledger.json"
+    },
+    {
+      "id": "conflict-report",
+      "kind": "json",
+      "uri": "artifact://runs/run-parallel-work-claiming-0001/conflict-report.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.parallel-work-claiming",
+      "flow_version": "0.1.0",
+      "run_id": "run-parallel-work-claiming-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.parallel-work-claiming",
+      "flow_version": "0.1.0",
+      "run_id": "run-parallel-work-claiming-0001",
+      "node_id": "decompose",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T09:00:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.parallel-work-claiming",
+      "flow_version": "0.1.0",
+      "run_id": "run-parallel-work-claiming-0001",
+      "node_id": "claim",
+      "event": "claim.registered",
+      "timestamp": "2026-06-28T09:01:10Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "lanes": 2
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.parallel-work-claiming",
+      "flow_version": "0.1.0",
+      "run_id": "run-parallel-work-claiming-0001",
+      "node_id": "decompose",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:01:20Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "lanes-explicit",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "lane-plan",
+          "kind": "json",
+          "uri": "artifact://runs/run-parallel-work-claiming-0001/lane-plan.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.parallel-work-claiming",
+      "flow_version": "0.1.0",
+      "run_id": "run-parallel-work-claiming-0001",
+      "node_id": "detect",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:01:40Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "claims-checked",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "claim-ledger",
+          "kind": "json",
+          "uri": "artifact://runs/run-parallel-work-claiming-0001/claim-ledger.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.parallel-work-claiming",
+      "flow_version": "0.1.0",
+      "run_id": "run-parallel-work-claiming-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T09:02:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.parallel-work-claiming",
+      "flow_version": "0.1.0",
+      "run_id": "run-parallel-work-claiming-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:02:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

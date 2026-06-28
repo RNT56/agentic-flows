@@ -1,0 +1,21 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.ci-failure-diagnosis",
+    "version": "0.1.0",
+    "source": "flows/engineering/ci-failure-diagnosis/flow.yaml"
+  },
+  "inputs": {
+    "failing_check": {
+      "check_id": "build (ubuntu-latest)",
+      "run_url": "https://ci.example/run/4821",
+      "log_excerpt": "ModuleNotFoundError: No module named 'tomllib'"
+    },
+    "repo": "https://github.com/RNT56/example"
+  },
+  "expected_outputs": {
+    "diagnosis": "Reproduced locally on Python 3.10. Root cause: tomllib is stdlib only on 3.11+. The build matrix still includes 3.10.",
+    "fix_proposal": "diff --git a/pyproject.toml b/pyproject.toml\n@@ require python >= 3.11 or vendor tomli for 3.10 @@"
+  },
+  "notes": "Records the failing check id, reproduces locally, and proposes a fix with validating evidence."
+}

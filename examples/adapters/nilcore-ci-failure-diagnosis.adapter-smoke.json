@@ -1,0 +1,28 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "engineering.ci-failure-diagnosis",
+    "version": "0.1.0",
+    "source": "flows/engineering/ci-failure-diagnosis/flow.yaml"
+  },
+  "capability_support": [
+    "ci.read",
+    "repo.checkout",
+    "command.run",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "failing check intake",
+    "tool": "sandboxed reproduction runner",
+    "decision": "reproduced-or-not decision",
+    "verifier": "fix evidence verifier",
+    "finalizer": "diagnosis closeout"
+  },
+  "run_bundle": "runs/nilcore-ci-failure-diagnosis.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore CI-diagnosis worker adapter."
+}

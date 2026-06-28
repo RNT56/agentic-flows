@@ -1,0 +1,129 @@
+spec_version: agentic-flows/v1
+id: research.source-backed-brief
+version: 0.1.0
+title: Source-backed brief
+summary: Answer a question with cited sources, bounded quotes, explicit caveats, and a stated confidence.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - research
+  - brief
+  - citations
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - standalone
+  required_capabilities:
+    - source.retrieve
+    - citation.capture
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+    thinclaw:
+      routine_type: operator-briefing
+contracts:
+  inputs:
+    - id: question
+      type: markdown
+      required: true
+      description: The question to answer.
+    - id: scope
+      type: markdown
+      required: true
+      description: Freshness, depth, and source constraints.
+  outputs:
+    - id: brief
+      type: markdown
+      required: true
+      description: The answer with citations, caveats, and a stated confidence.
+    - id: citations
+      type: json
+      required: true
+      description: The cited sources with ids and retrieval dates.
+  artifacts:
+    - source-set
+    - citation-map
+    - brief-draft
+nodes:
+  - id: intake
+    type: intake
+    title: Intake question
+    description: Capture the question and the freshness, depth, and source constraints.
+    produces:
+      - research-question
+  - id: gather
+    type: agent_task
+    title: Gather sources
+    description: Retrieve candidate sources within scope and record their ids and dates.
+    agent: researcher
+    requires:
+      - research-question
+    produces:
+      - source-set
+  - id: synthesize
+    type: agent_task
+    title: Synthesize the brief
+    description: Draft the answer, mapping each claim to a cited source with bounded quotes.
+    agent: writer
+    requires:
+      - source-set
+    produces:
+      - brief-draft
+      - citation-map
+  - id: verify
+    type: verifier
+    title: Verify citations and caveats
+    description: Confirm each claim is cited, quotes are bounded, and uncertainty and freshness are explicit.
+    requires:
+      - brief-draft
+      - citation-map
+    produces:
+      - verified-brief
+  - id: final
+    type: finalizer
+    title: Close out brief
+    description: Return the cited brief and the citation list.
+    requires:
+      - verified-brief
+      - citation-map
+    produces:
+      - brief
+      - citations
+edges:
+  - from: intake
+    to: gather
+  - from: gather
+    to: synthesize
+  - from: synthesize
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: claims-cited
+    title: Every claim maps to a cited source
+    type: review
+    required: true
+    evidence: The citation map links each claim to a retrieved source.
+    evidence_refs:
+      - citation-map
+  - id: uncertainty-explicit
+    title: Uncertainty and freshness are explicit
+    type: review
+    required: true
+    evidence: The brief states caveats, source freshness, and a confidence level; quotes are bounded.
+    evidence_refs:
+      - brief-draft
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - sources.count
+    - claims.count
+    - duration.seconds

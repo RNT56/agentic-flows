@@ -1,0 +1,28 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "thinclaw",
+  "flow": {
+    "id": "orchestration.parallel-work-claiming",
+    "version": "0.1.0",
+    "source": "flows/orchestration/parallel-work-claiming/flow.yaml"
+  },
+  "capability_support": [
+    "objective.decompose",
+    "claim.register",
+    "conflict.detect",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "objective intake routine",
+    "plan": "lane decomposition planner",
+    "agent_task": "claim registration step",
+    "verifier": "collision detector",
+    "finalizer": "claim board closeout"
+  },
+  "run_bundle": "runs/thinclaw-parallel-work-claiming.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible ThinClaw shared-claim-board adapter."
+}

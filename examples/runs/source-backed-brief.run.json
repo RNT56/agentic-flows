@@ -1,0 +1,144 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "research.source-backed-brief",
+    "version": "0.1.0",
+    "source": "flows/research/source-backed-brief/flow.yaml"
+  },
+  "run": {
+    "id": "run-source-backed-brief-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T11:00:00Z",
+    "completed_at": "2026-06-28T11:02:30Z"
+  },
+  "inputs": {
+    "question": "Is JSON Schema draft 2020-12 widely supported by Python validators?",
+    "scope": "Prefer primary docs from the last 24 months. Bound quotes to one sentence."
+  },
+  "outputs": {
+    "brief": "Yes, with caveats. jsonschema supports draft 2020-12 via Draft202012Validator [s1]. Coverage of newer keywords varies across libraries [s2]. Confidence: medium; based on two primary sources.",
+    "citations": {
+      "sources": [
+        {"id": "s1", "title": "jsonschema documentation", "retrieved": "2026-05-10"},
+        {"id": "s2", "title": "json-schema.org implementations page", "retrieved": "2026-05-10"}
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "source-set",
+      "kind": "json",
+      "uri": "artifact://runs/run-source-backed-brief-0001/sources.json"
+    },
+    {
+      "id": "citation-map",
+      "kind": "json",
+      "uri": "artifact://runs/run-source-backed-brief-0001/citations.json"
+    },
+    {
+      "id": "brief-draft",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-source-backed-brief-0001/brief-draft.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.source-backed-brief",
+      "flow_version": "0.1.0",
+      "run_id": "run-source-backed-brief-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T11:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.source-backed-brief",
+      "flow_version": "0.1.0",
+      "run_id": "run-source-backed-brief-0001",
+      "node_id": "gather",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T11:00:50Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.source-backed-brief",
+      "flow_version": "0.1.0",
+      "run_id": "run-source-backed-brief-0001",
+      "node_id": "synthesize",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T11:01:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.source-backed-brief",
+      "flow_version": "0.1.0",
+      "run_id": "run-source-backed-brief-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T11:02:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "claims-cited",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "citation-map",
+          "kind": "json",
+          "uri": "artifact://runs/run-source-backed-brief-0001/citations.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.source-backed-brief",
+      "flow_version": "0.1.0",
+      "run_id": "run-source-backed-brief-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T11:02:10Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "uncertainty-explicit",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "brief-draft",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-source-backed-brief-0001/brief-draft.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.source-backed-brief",
+      "flow_version": "0.1.0",
+      "run_id": "run-source-backed-brief-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T11:02:30Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.source-backed-brief",
+      "flow_version": "0.1.0",
+      "run_id": "run-source-backed-brief-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T11:02:30Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

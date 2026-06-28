@@ -1,0 +1,22 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.pr-review-and-risk-notes",
+    "version": "0.1.0",
+    "source": "flows/engineering/pr-review-and-risk-notes/flow.yaml"
+  },
+  "inputs": {
+    "diff": "diff --git a/api/auth.py b/api/auth.py\n@@ skip token expiry check when debug=true @@",
+    "context": "Adds a debug bypass for local testing. Review focus: security and tests."
+  },
+  "expected_outputs": {
+    "review_findings": {
+      "findings": [
+        {"file": "api/auth.py", "line": 42, "severity": "high", "note": "Debug bypass skips token expiry; can ship enabled."},
+        {"file": "tests/test_auth.py", "line": 0, "severity": "medium", "note": "No test covers the debug=true path."}
+      ]
+    },
+    "risk_notes": "Release risk: high. A debug flag disables token expiry with no guard against production. Add a build-time assert and a test before merge."
+  },
+  "notes": "Produces cited, severity-tagged findings and a release-risk summary without padding."
+}

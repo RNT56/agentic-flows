@@ -18,14 +18,19 @@ Current status:
 | `coding.refactor-and-verify` | target | target | target | target |
 | `coding.security-audit` | target | target | target | target |
 | `collaboration.multi-agent-supervisor` | target | contract-smoke | not-targeted | run-smoke |
+| `engineering.ci-failure-diagnosis` | not-targeted | contract-smoke | target | run-smoke |
 | `engineering.issue-to-verified-pr` | target | contract-smoke | target | run-smoke |
+| `engineering.pr-review-and-risk-notes` | not-targeted | target | contract-smoke | run-smoke |
 | `general.human-in-the-loop-review` | contract-smoke | target | target | run-smoke |
 | `ops.adapter-certification` | target | target | contract-smoke | run-smoke |
 | `ops.flow-intake-and-routing` | contract-smoke | target | not-targeted | run-smoke |
 | `ops.capability-negotiation` | target | target | contract-smoke | run-smoke |
 | `ops.event-and-evidence-bridge` | target | contract-smoke | target | run-smoke |
+| `orchestration.parallel-work-claiming` | contract-smoke | target | not-targeted | run-smoke |
 | `proof.verified-patch-acceptance` | not-targeted | not-targeted | contract-smoke | run-smoke |
 | `research.deep-research-report` | target | target | not-targeted | target |
+| `research.source-backed-brief` | contract-smoke | target | not-targeted | run-smoke |
+| `security.supply-chain-audit` | not-targeted | contract-smoke | target | run-smoke |
 | `template.coding-feature` | not-targeted | not-targeted | not-targeted | target |
 | `template.coding-refactor` | not-targeted | not-targeted | not-targeted | target |
 | `template.research-report` | not-targeted | not-targeted | not-targeted | target |
@@ -49,4 +54,9 @@ Current status:
 - `ops.adapter-certification` has a standalone valid run bundle at `examples/runs/adapter-certification.run.json`.
 - `engineering.issue-to-verified-pr` has a standalone valid run bundle at `examples/runs/issue-to-verified-pr.run.json`.
 - `proof.verified-patch-acceptance` has a standalone valid run bundle at `examples/runs/verified-patch-acceptance.run.json`.
+- `engineering.ci-failure-diagnosis` has a standalone valid run bundle at `examples/runs/ci-failure-diagnosis.run.json`.
+- `engineering.pr-review-and-risk-notes` has a standalone valid run bundle at `examples/runs/pr-review-and-risk-notes.run.json`.
+- `orchestration.parallel-work-claiming` has a standalone valid run bundle at `examples/runs/parallel-work-claiming.run.json`.
+- `security.supply-chain-audit` has a standalone valid run bundle at `examples/runs/supply-chain-audit.run.json`.
+- `research.source-backed-brief` has a standalone valid run bundle at `examples/runs/source-backed-brief.run.json`.
 - Repo-local adapter smoke manifests live under `examples/adapters/`.

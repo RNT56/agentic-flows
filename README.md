@@ -10,7 +10,7 @@ Versioned workflow contracts for agentic systems that must plan, act, verify, ap
 | --- | --- |
 | Latest release | `v0.1.1` |
 | Flow spec | `agentic-flows/v1` |
-| Catalog size | 12 reusable workflows, 3 starter templates |
+| Catalog size | 17 reusable workflows, 3 starter templates |
 | Tooling | Python CLI, JSON Schema, YAML flow definitions |
 | Evidence model | Events, streams, run bundles, adapter smoke manifests |
 | CI gate | Schema validation, normalization, samples, runs, links, changelog, package build, tests |
@@ -57,7 +57,7 @@ flowchart LR
 
 - A versioned YAML workflow format backed by JSON Schema.
 - `flowctl`, a repo-local CLI for validation, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
-- Twelve reusable workflow definitions across coding, engineering, research, collaboration, operations, proof, and human review.
+- Seventeen reusable workflow definitions across coding, engineering, research, security, collaboration, operations, proof, orchestration, and human review.
 - Three copyable starter templates for project-specific workflows.
 - Event and run-bundle schemas for evidence-backed execution.
 - Adapter smoke manifest schemas and examples for independent optional consumers.
@@ -82,6 +82,11 @@ flowchart LR
 | [`ops.adapter-certification`](flows/ops/adapter-certification/README.md) | Experimental | Generate adapter smoke evidence for a consumer and flow, including a negative fixture that must fail. | ThinClaw, NilCore, CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
 | [`engineering.issue-to-verified-pr`](flows/engineering/issue-to-verified-pr/README.md) | Experimental | Take a scoped issue to a branch, passing checks, and a draft PR that cites its evidence. | ThinClaw, NilCore, CrustCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
 | [`proof.verified-patch-acceptance`](flows/proof/verified-patch-acceptance/README.md) | Experimental | Decide patch completion using only verifier-owned evidence, never a model claim. | CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
+| [`engineering.ci-failure-diagnosis`](flows/engineering/ci-failure-diagnosis/README.md) | Experimental | Read a failing CI check, reproduce locally, find the root cause, and propose a fix. | NilCore, CrustCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
+| [`engineering.pr-review-and-risk-notes`](flows/engineering/pr-review-and-risk-notes/README.md) | Experimental | Review a diff for bugs and regressions and produce cited findings with release-risk notes. | NilCore, CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
+| [`security.supply-chain-audit`](flows/security/supply-chain-audit/README.md) | Experimental | Audit dependencies for advisories and license conflicts and draft remediation. | NilCore, CrustCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
+| [`orchestration.parallel-work-claiming`](flows/orchestration/parallel-work-claiming/README.md) | Experimental | Divide an objective into lanes, claim ownership, and avoid path collisions. | ThinClaw, NilCore, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
+| [`research.source-backed-brief`](flows/research/source-backed-brief/README.md) | Experimental | Answer a question with cited sources, bounded quotes, caveats, and confidence. | ThinClaw, NilCore, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
 
 ## Starter templates
 

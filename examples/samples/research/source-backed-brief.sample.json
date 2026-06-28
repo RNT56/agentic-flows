@@ -1,0 +1,22 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "research.source-backed-brief",
+    "version": "0.1.0",
+    "source": "flows/research/source-backed-brief/flow.yaml"
+  },
+  "inputs": {
+    "question": "Is JSON Schema draft 2020-12 widely supported by Python validators?",
+    "scope": "Prefer primary docs from the last 24 months. Bound quotes to one sentence."
+  },
+  "expected_outputs": {
+    "brief": "Yes, with caveats. jsonschema supports draft 2020-12 via Draft202012Validator [s1]. Coverage of newer keywords varies across libraries [s2]. Confidence: medium; based on two primary sources.",
+    "citations": {
+      "sources": [
+        {"id": "s1", "title": "jsonschema documentation", "retrieved": "2026-05-10"},
+        {"id": "s2", "title": "json-schema.org implementations page", "retrieved": "2026-05-10"}
+      ]
+    }
+  },
+  "notes": "Answers a question with mapped citations, bounded quotes, and an explicit confidence."
+}

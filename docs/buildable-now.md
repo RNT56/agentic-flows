@@ -44,9 +44,11 @@ The integration spine plus the two product anchors. The first three are shipped 
 5. `proof.verified-patch-acceptance` — shipped (canonical CrustCore verifier-completion pattern).
 6. `ops.adapter-certification` — shipped (its deliverable is the adapter-smoke artifact itself).
 
-The entire recommended first batch is now in the catalog. The next strongest build-now candidates are
+The entire recommended first batch is now in the catalog, along with a second wave:
 `engineering.ci-failure-diagnosis`, `engineering.pr-review-and-risk-notes`, `orchestration.parallel-work-claiming`,
-`security.supply-chain-audit`, and `research.source-backed-brief`.
+`security.supply-chain-audit`, and `research.source-backed-brief`. Seventeen reusable flows now ship end-to-end.
+The next strongest build-now candidates are `engineering.bug-reproduction-lab`, `engineering.dependency-upgrade`,
+`docs.decision-record`, `docs.postmortem`, `orchestration.handoff-and-resume`, and `security.threat-modeling`.
 
 ## Honesty corrections to the official build order
 
