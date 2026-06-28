@@ -1,0 +1,127 @@
+spec_version: agentic-flows/v1
+id: orchestration.swarm-execution
+version: 0.1.0
+title: Swarm execution
+summary: Run multiple workers against independent slices under a concurrency cap and reconcile their outputs.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - orchestration
+  - swarm
+  - parallel
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - task.decompose
+    - worker.dispatch
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: integration-proof
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: slices
+      type: json
+      required: true
+      description: The independent slices to run in parallel.
+    - id: concurrency
+      type: number
+      required: true
+      description: The maximum number of workers to run at once.
+  outputs:
+    - id: consolidated_result
+      type: markdown
+      required: true
+      description: The reconciled result across all slices.
+    - id: worker_summary
+      type: json
+      required: true
+      description: Per-worker outcome summary.
+  artifacts:
+    - dispatch-plan
+    - worker-results
+    - integration-proof
+nodes:
+  - id: intake
+    type: intake
+    title: Intake slices
+    description: Capture the independent slices and the concurrency cap.
+    produces:
+      - swarm-scope
+  - id: plan
+    type: plan
+    title: Plan dispatch
+    description: Assign slices to workers and set the concurrency cap.
+    requires:
+      - swarm-scope
+    produces:
+      - dispatch-plan
+  - id: dispatch
+    type: agent_task
+    title: Dispatch workers
+    description: Run the workers against their slices under the concurrency cap.
+    agent: supervisor
+    requires:
+      - dispatch-plan
+    produces:
+      - worker-results
+  - id: reconcile
+    type: verifier
+    title: Reconcile outputs
+    description: Reconcile worker outputs and back the integration with verifier proof.
+    requires:
+      - worker-results
+    produces:
+      - integration-proof
+  - id: final
+    type: finalizer
+    title: Close out swarm
+    description: Return the consolidated result and the per-worker summary.
+    requires:
+      - worker-results
+      - integration-proof
+    produces:
+      - consolidated_result
+      - worker_summary
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: dispatch
+  - from: dispatch
+    to: reconcile
+  - from: reconcile
+    to: final
+quality_gates:
+  - id: concurrency-cap-set
+    title: Concurrency cap is set
+    type: review
+    required: true
+    evidence: The dispatch plan records the concurrency cap and slice assignments.
+    evidence_refs:
+      - dispatch-plan
+  - id: integration-verified
+    title: Integration backed by verifier proof
+    type: artifact
+    required: true
+    evidence: The integration rests on verifier proof rather than raw merges.
+    evidence_refs:
+      - integration-proof
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - worker.dispatched
+    - worker.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - workers.count
+    - duration.seconds

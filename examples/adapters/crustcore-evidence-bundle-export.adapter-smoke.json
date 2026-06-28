@@ -1,0 +1,27 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "crustcore",
+  "flow": {
+    "id": "proof.evidence-bundle-export",
+    "version": "0.1.0",
+    "source": "flows/proof/evidence-bundle-export/flow.yaml"
+  },
+  "capability_support": [
+    "run.read",
+    "evidence.bundle",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "export request intake",
+    "tool": "evidence collector",
+    "agent_task": "proof bundle assembler",
+    "verifier": "bundle completeness verifier",
+    "finalizer": "export closeout"
+  },
+  "run_bundle": "runs/crustcore-evidence-bundle-export.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible CrustCore evidence-bundle-export adapter."
+}

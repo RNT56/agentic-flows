@@ -1,0 +1,127 @@
+spec_version: agentic-flows/v1
+id: proof.release-candidate-audit
+version: 0.1.0
+title: Release candidate audit
+summary: Audit a release candidate against tests, changelog, tags, and docs, confirming reproducible artifacts.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - proof
+  - release
+  - audit
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: release-audit
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: candidate
+      type: text
+      required: true
+      description: The release candidate tag or commit.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target.
+  outputs:
+    - id: audit_verdict
+      type: json
+      required: true
+      description: Pass or fail with the checked criteria.
+    - id: audit_report
+      type: markdown
+      required: true
+      description: The audit findings across tests, changelog, tags, and docs.
+  artifacts:
+    - check-log
+    - audit-findings
+nodes:
+  - id: intake
+    type: intake
+    title: Intake candidate
+    description: Capture the release candidate and the repo target.
+    produces:
+      - audit-scope
+  - id: checks
+    type: tool
+    title: Run release checks
+    description: Run tests and the release checks against the candidate.
+    tool: command-runner
+    requires:
+      - audit-scope
+    produces:
+      - check-log
+  - id: audit
+    type: agent_task
+    title: Audit artifacts
+    description: Confirm the tag points at the audited commit, the changelog section exists, and docs match.
+    agent: release-auditor
+    requires:
+      - check-log
+    produces:
+      - audit-findings
+  - id: verify
+    type: verifier
+    title: Verify reproducibility
+    description: Confirm release checks pass, the changelog section exists, and artifacts are reproducible.
+    requires:
+      - check-log
+      - audit-findings
+    produces:
+      - audit-verdict
+  - id: final
+    type: finalizer
+    title: Close out audit
+    description: Return the audit verdict and the report.
+    requires:
+      - audit-verdict
+      - audit-findings
+    produces:
+      - audit_verdict
+      - audit_report
+edges:
+  - from: intake
+    to: checks
+  - from: checks
+    to: audit
+  - from: audit
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: release-checks-pass
+    title: Release checks pass
+    type: command
+    required: true
+    command: flowctl release-check || make release-check
+    evidence: The release checks pass for the candidate.
+    evidence_refs:
+      - check-log
+  - id: changelog-and-tag-audited
+    title: Changelog section exists and tag is audited
+    type: review
+    required: true
+    evidence: The findings confirm the changelog section exists and the tag points at the audited commit.
+    evidence_refs:
+      - audit-findings
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - checks.run
+    - duration.seconds

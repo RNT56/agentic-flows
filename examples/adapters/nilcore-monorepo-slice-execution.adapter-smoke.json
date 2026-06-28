@@ -1,0 +1,28 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "engineering.monorepo-slice-execution",
+    "version": "0.1.0",
+    "source": "flows/engineering/monorepo-slice-execution/flow.yaml"
+  },
+  "capability_support": [
+    "repo.checkout",
+    "claim.register",
+    "command.run",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "finalizer": "closeout step",
+    "intake": "intake step",
+    "tool": "tool runner",
+    "verifier": "verifier step"
+  },
+  "run_bundle": "runs/nilcore-monorepo-slice-execution.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore monorepo-slice-execution adapter."
+}

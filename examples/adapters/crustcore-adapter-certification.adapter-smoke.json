@@ -1,0 +1,27 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "crustcore",
+  "flow": {
+    "id": "ops.adapter-certification",
+    "version": "0.1.0",
+    "source": "flows/ops/adapter-certification/flow.yaml"
+  },
+  "capability_support": [
+    "flow.load",
+    "capability.introspect",
+    "run.validate",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "certification request intake",
+    "tool": "loader and validation runner",
+    "verifier": "adapter evidence verifier",
+    "finalizer": "certification closeout"
+  },
+  "run_bundle": "runs/crustcore-adapter-certification.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible CrustCore adapter-certification adapter."
+}

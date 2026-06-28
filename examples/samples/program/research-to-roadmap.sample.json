@@ -1,0 +1,21 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "program.research-to-roadmap",
+    "version": "0.1.0",
+    "source": "flows/program/research-to-roadmap/flow.yaml"
+  },
+  "inputs": {
+    "research_signals": "s1 (2026-05): users want machine-readable output. s2 (2024): old benchmark, stale. s3 (2026-06): competitors added JSON schemas.",
+    "goals": "Improve adoption by integrators."
+  },
+  "expected_outputs": {
+    "roadmap": "1. Ship JSON output and schemas (s1, s3 - fresh, aligned to adoption). s2 flagged stale and excluded.",
+    "experiments": {
+      "experiments": [
+        {"hypothesis": "JSON output increases integrator adoption", "measure": "integrations created in 30d", "success": "+20%"}
+      ]
+    }
+  },
+  "notes": "Converts dated research signals into a ranked roadmap, excluding stale sources."
+}

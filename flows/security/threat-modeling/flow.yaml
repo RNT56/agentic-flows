@@ -1,0 +1,128 @@
+spec_version: agentic-flows/v1
+id: security.threat-modeling
+version: 0.1.0
+title: Threat modeling
+summary: Create or update a threat model enumerating assets, actors, trust boundaries, abuse paths, and mitigations.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - security
+  - threat-model
+  - design
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - asset.enumerate
+    - threat.analyze
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: threat-model
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: system_description
+      type: markdown
+      required: true
+      description: The feature, connector, or workflow to model.
+    - id: scope
+      type: markdown
+      required: true
+      description: Trust boundaries, assumptions, and what is out of scope.
+  outputs:
+    - id: threat_model
+      type: markdown
+      required: true
+      description: Assets, actors, trust boundaries, abuse paths, and mitigations.
+    - id: mitigations
+      type: json
+      required: true
+      description: Mitigations mapped to the abuse paths they address.
+  artifacts:
+    - asset-inventory
+    - threat-analysis
+    - mitigation-map
+nodes:
+  - id: intake
+    type: intake
+    title: Intake system description
+    description: Capture the system to model and its scope and trust boundaries.
+    produces:
+      - system-context
+  - id: enumerate
+    type: agent_task
+    title: Enumerate assets and actors
+    description: List the assets, actors, entry points, and trust boundaries.
+    agent: threat-modeler
+    requires:
+      - system-context
+    produces:
+      - asset-inventory
+  - id: analyze
+    type: agent_task
+    title: Analyze abuse paths
+    description: Derive abuse paths against assets and boundaries and rank them.
+    agent: threat-modeler
+    requires:
+      - asset-inventory
+    produces:
+      - threat-analysis
+  - id: verify
+    type: verifier
+    title: Verify coverage
+    description: Confirm assets, actors, boundaries, and abuse paths are enumerated and each maps to a mitigation.
+    requires:
+      - threat-analysis
+    produces:
+      - mitigation-map
+  - id: final
+    type: finalizer
+    title: Close out threat model
+    description: Return the threat model and the mitigation mapping.
+    requires:
+      - threat-analysis
+      - mitigation-map
+    produces:
+      - threat_model
+      - mitigations
+edges:
+  - from: intake
+    to: enumerate
+  - from: enumerate
+    to: analyze
+  - from: analyze
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: elements-enumerated
+    title: Assets, actors, boundaries, and abuse paths enumerated
+    type: review
+    required: true
+    evidence: The analysis enumerates assets, actors, trust boundaries, and abuse paths.
+    evidence_refs:
+      - threat-analysis
+  - id: mitigations-mapped
+    title: Each abuse path maps to a mitigation
+    type: artifact
+    required: true
+    evidence: The mitigation map links every ranked abuse path to a mitigation.
+    evidence_refs:
+      - mitigation-map
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - abuse.paths
+    - mitigations.count
+    - duration.seconds

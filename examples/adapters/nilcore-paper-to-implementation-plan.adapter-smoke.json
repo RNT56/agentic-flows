@@ -1,0 +1,26 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "research.paper-to-implementation-plan",
+    "version": "0.1.0",
+    "source": "flows/research/paper-to-implementation-plan/flow.yaml"
+  },
+  "capability_support": [
+    "source.retrieve",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "finalizer": "closeout step",
+    "intake": "intake step",
+    "plan": "planning step",
+    "verifier": "verifier step"
+  },
+  "run_bundle": "runs/nilcore-paper-to-implementation-plan.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore paper-to-implementation-plan adapter."
+}

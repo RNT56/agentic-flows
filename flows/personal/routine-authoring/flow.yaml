@@ -1,0 +1,127 @@
+spec_version: agentic-flows/v1
+id: personal.routine-authoring
+version: 0.1.0
+title: Routine authoring
+summary: Turn repeated behavior into a proposed routine with trigger, action, guardrails, rollback, and approval.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - personal
+  - routine
+  - automation
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - standalone
+  required_capabilities:
+    - pattern.read
+    - human.review
+    - decision.record
+    - evidence.capture
+  adapter_hints:
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: behavior_pattern
+      type: markdown
+      required: true
+      description: The repeated behavior to turn into a routine.
+    - id: constraints
+      type: markdown
+      required: true
+      description: Guardrails and constraints the routine must respect.
+  outputs:
+    - id: routine_proposal
+      type: json
+      required: true
+      description: The proposed routine with trigger, action, guardrails, and rollback.
+    - id: enablement_decision
+      type: json
+      required: true
+      description: The operator decision on enabling the routine.
+  artifacts:
+    - routine-draft
+    - enablement-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake behavior
+    description: Capture the repeated behavior and the constraints.
+    produces:
+      - routine-context
+  - id: draft
+    type: agent_task
+    title: Draft the routine
+    description: Draft the routine with trigger, action, guardrails, and a rollback path.
+    agent: assistant
+    requires:
+      - routine-context
+    produces:
+      - routine-draft
+  - id: verify
+    type: verifier
+    title: Verify the routine
+    description: Confirm trigger, action, guardrails, and rollback are present.
+    requires:
+      - routine-draft
+    produces:
+      - routine-check
+  - id: approval
+    type: approval
+    title: Approve enablement
+    description: Require an explicit operator approval before the routine is enabled.
+    requires:
+      - routine-check
+    produces:
+      - enablement-record
+    policy:
+      human_required_when:
+        - routine_enablement
+  - id: final
+    type: finalizer
+    title: Close out routine
+    description: Return the routine proposal and the enablement decision.
+    requires:
+      - routine-draft
+      - enablement-record
+    produces:
+      - routine_proposal
+      - enablement_decision
+edges:
+  - from: intake
+    to: draft
+  - from: draft
+    to: verify
+  - from: verify
+    to: approval
+  - from: approval
+    to: final
+quality_gates:
+  - id: routine-elements-present
+    title: Trigger, action, guardrails, and rollback present
+    type: review
+    required: true
+    evidence: The routine draft declares trigger, action, guardrails, and a rollback path.
+    evidence_refs:
+      - routine-draft
+  - id: enablement-approved
+    title: Enablement is approved
+    type: policy
+    required: true
+    evidence: The routine is enabled only after an explicit operator approval.
+    evidence_refs:
+      - enablement-record
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - approval.requested
+    - approval.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - guardrails.count
+    - duration.seconds

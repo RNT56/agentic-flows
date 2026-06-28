@@ -1,0 +1,31 @@
+{
+  "event_stream_version": "agentic-flows.event-stream/v1",
+  "flow": {
+    "id": "ops.event-and-evidence-bridge",
+    "version": "0.1.0",
+    "source": "flows/ops/event-and-evidence-bridge/flow.yaml"
+  },
+  "run": {
+    "id": "run-event-and-evidence-bridge-stream-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T17:30:00Z",
+    "completed_at": "2026-06-27T17:31:30Z"
+  },
+  "outputs": {
+    "run_bundle": {
+      "run_version": "agentic-flows.run/v1",
+      "status": "completed",
+      "events_converted": 4
+    },
+    "bridge_report": "Converted 4 native log entries into a valid event stream and run bundle."
+  },
+  "events": [
+    "events/001-flow-started.json",
+    "events/002-convert-completed.json",
+    "events/003-stream-validated.json",
+    "events/004-gate-stream-validates.json",
+    "events/005-flow-completed.json"
+  ],
+  "notes": "Multi-file event stream for a standalone run of the evidence bridge flow."
+}

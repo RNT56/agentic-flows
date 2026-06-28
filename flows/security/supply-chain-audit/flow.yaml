@@ -1,0 +1,131 @@
+spec_version: agentic-flows/v1
+id: security.supply-chain-audit
+version: 0.1.0
+title: Supply chain audit
+summary: Audit dependencies for advisories and license conflicts, rank findings, and draft remediation.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - security
+  - supply-chain
+  - audit
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - dependency.read
+    - advisory.lookup
+    - license.check
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: audit-evidence
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: manifest
+      type: uri
+      required: true
+      description: Dependency manifest or lockfile to audit.
+    - id: policy
+      type: markdown
+      required: true
+      description: License and advisory policy to audit against.
+  outputs:
+    - id: audit_findings
+      type: json
+      required: true
+      description: Ranked advisory and license findings with sources.
+    - id: remediation
+      type: markdown
+      required: true
+      description: Remediation plan or draft remediation PR description.
+  artifacts:
+    - dependency-inventory
+    - advisory-report
+    - license-report
+    - remediation-plan
+nodes:
+  - id: intake
+    type: intake
+    title: Intake audit scope
+    description: Capture the dependency manifest and the license and advisory policy.
+    produces:
+      - audit-scope
+  - id: inventory
+    type: tool
+    title: Build dependency inventory
+    description: Resolve the manifest into a concrete dependency inventory with versions.
+    tool: dependency-scanner
+    requires:
+      - audit-scope
+    produces:
+      - dependency-inventory
+  - id: assess
+    type: agent_task
+    title: Assess advisories and licenses
+    description: Look up advisories and check licenses for each dependency, ranking findings by severity.
+    agent: security-auditor
+    requires:
+      - dependency-inventory
+    produces:
+      - advisory-report
+      - license-report
+  - id: verify
+    type: verifier
+    title: Verify findings and sources
+    description: Confirm every advisory cites a source and every license conflict names the dependency.
+    requires:
+      - advisory-report
+      - license-report
+    produces:
+      - remediation-plan
+  - id: final
+    type: finalizer
+    title: Close out audit
+    description: Return ranked findings and a remediation plan.
+    requires:
+      - remediation-plan
+      - advisory-report
+    produces:
+      - audit_findings
+      - remediation
+edges:
+  - from: intake
+    to: inventory
+  - from: inventory
+    to: assess
+  - from: assess
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: advisory-sources-captured
+    title: Advisory findings cite sources
+    type: artifact
+    required: true
+    evidence: Every advisory finding cites a captured advisory source.
+    evidence_refs:
+      - advisory-report
+  - id: license-conflicts-reported
+    title: License conflicts reported
+    type: review
+    required: true
+    evidence: License conflicts are reported with the offending dependency and license.
+    evidence_refs:
+      - license-report
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - dependencies.count
+    - advisories.count
+    - duration.seconds

@@ -1,0 +1,136 @@
+spec_version: agentic-flows/v1
+id: research.codebase-orientation
+version: 0.1.0
+title: Codebase orientation
+summary: Build a quick map of an unfamiliar repo - entrypoints, tests, build commands, ownership, and risks.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - research
+  - orientation
+  - codebase
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target to orient in.
+    - id: focus
+      type: markdown
+      required: true
+      description: What the orientation is for, so the map can be scoped.
+  outputs:
+    - id: orientation_map
+      type: markdown
+      required: true
+      description: Entrypoints, tests, build commands, ownership boundaries, and risks.
+    - id: commands
+      type: json
+      required: true
+      description: The verified build and test commands.
+  artifacts:
+    - repo-scan
+    - command-log
+    - orientation-notes
+nodes:
+  - id: intake
+    type: intake
+    title: Intake repo and focus
+    description: Capture the repo target and what the orientation is for.
+    produces:
+      - orientation-request
+  - id: scan
+    type: tool
+    title: Scan the repo
+    description: Map the directory layout, entrypoints, and likely ownership boundaries.
+    tool: repo-scanner
+    requires:
+      - orientation-request
+    produces:
+      - repo-scan
+  - id: probe
+    type: tool
+    title: Probe build and tests
+    description: Run the candidate build and test commands and capture the result.
+    tool: command-runner
+    requires:
+      - repo-scan
+    produces:
+      - command-log
+  - id: synthesize
+    type: agent_task
+    title: Synthesize the map
+    description: Write the orientation map and the verified commands.
+    agent: orienteer
+    requires:
+      - repo-scan
+      - command-log
+    produces:
+      - orientation-notes
+  - id: verify
+    type: verifier
+    title: Verify the map
+    description: Confirm entrypoints, tests, build commands, ownership, and risks are all identified.
+    requires:
+      - orientation-notes
+    produces:
+      - orientation-check
+  - id: final
+    type: finalizer
+    title: Close out orientation
+    description: Return the orientation map and the verified commands.
+    requires:
+      - orientation-notes
+      - orientation-check
+    produces:
+      - orientation_map
+      - commands
+edges:
+  - from: intake
+    to: scan
+  - from: scan
+    to: probe
+  - from: probe
+    to: synthesize
+  - from: synthesize
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: commands-verified
+    title: Build and test commands are verified
+    type: command
+    required: true
+    command: make test || npm test || pytest -q
+    evidence: The build and test commands are actually run and their output captured.
+    evidence_refs:
+      - command-log
+  - id: map-complete
+    title: Map identifies the key elements
+    type: review
+    required: true
+    evidence: Entrypoints, tests, build commands, ownership boundaries, and risks are identified.
+    evidence_refs:
+      - orientation-notes
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - entrypoints.count
+    - duration.seconds

@@ -1,0 +1,29 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "thinclaw",
+  "flow": {
+    "id": "ops.flow-intake-and-routing",
+    "version": "0.1.0",
+    "source": "flows/ops/flow-intake-and-routing/flow.yaml"
+  },
+  "capability_support": [
+    "flow.catalog.read",
+    "routing.decide",
+    "decision.record",
+    "human.review",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "request intake routine",
+    "plan": "routing option planner",
+    "decision": "route selection step",
+    "approval": "operator route approval",
+    "finalizer": "routing decision closeout"
+  },
+  "run_bundle": "runs/thinclaw-flow-intake-and-routing.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible ThinClaw routing-and-approval adapter."
+}

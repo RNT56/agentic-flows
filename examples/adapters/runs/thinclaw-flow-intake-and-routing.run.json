@@ -1,0 +1,113 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "ops.flow-intake-and-routing",
+    "version": "0.1.0",
+    "source": "flows/ops/flow-intake-and-routing/flow.yaml"
+  },
+  "run": {
+    "id": "run-thinclaw-flow-intake-and-routing-0001",
+    "core": "thinclaw",
+    "status": "completed",
+    "started_at": "2026-06-27T15:10:00Z",
+    "completed_at": "2026-06-27T15:12:00Z"
+  },
+  "inputs": {
+    "request": "Refactor the billing module without changing behavior, then prove the public API is unchanged.",
+    "catalog": "https://github.com/RNT56/agentic-flows/tree/main/flows"
+  },
+  "outputs": {
+    "routing_decision": {
+      "selected_flow": "coding.refactor-and-verify",
+      "target_core": "nilcore",
+      "route": "high-risk-route",
+      "rationale": "Behavior-preserving refactor with a public API stability gate; routed for approval because it touches a shared contract."
+    },
+    "missing_context": "None - the request named the module, the no-behavior-change constraint, and the verification expectation."
+  },
+  "artifacts": [
+    {
+      "id": "routing-decision",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-flow-intake-and-routing-0001/routing-decision.json"
+    },
+    {
+      "id": "approval-record",
+      "kind": "decision-record",
+      "uri": "artifact://runs/run-thinclaw-flow-intake-and-routing-0001/approval-record.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-intake-and-routing",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-flow-intake-and-routing-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T15:10:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-intake-and-routing",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-flow-intake-and-routing-0001",
+      "node_id": "route",
+      "event": "decision.recorded",
+      "timestamp": "2026-06-27T15:11:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "route": "high-risk-route",
+        "selected_flow": "coding.refactor-and-verify"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-intake-and-routing",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-flow-intake-and-routing-0001",
+      "node_id": "route",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T15:11:10Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "route-compatible",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "routing-decision",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-flow-intake-and-routing-0001/routing-decision.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-intake-and-routing",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-flow-intake-and-routing-0001",
+      "node_id": "approval",
+      "event": "approval.completed",
+      "timestamp": "2026-06-27T15:11:40Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "decision": "approve"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-intake-and-routing",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-flow-intake-and-routing-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T15:12:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    }
+  ]
+}

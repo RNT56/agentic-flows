@@ -1,0 +1,132 @@
+spec_version: agentic-flows/v1
+id: personal.memory-curation
+version: 0.1.0
+title: Memory curation
+summary: Decide what belongs in long-term memory, with scope and retention metadata and approval for sensitive items.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - personal
+  - memory
+  - curation
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - standalone
+  required_capabilities:
+    - memory.read
+    - human.review
+    - decision.record
+    - evidence.capture
+  adapter_hints:
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: candidate_memories
+      type: json
+      required: true
+      description: The candidate items being considered for long-term memory.
+    - id: policy
+      type: markdown
+      required: true
+      description: The retention and sensitivity policy.
+  outputs:
+    - id: curation_decision
+      type: json
+      required: true
+      description: Keep, expire, or localize per item, with scope and retention metadata.
+    - id: memory_record
+      type: markdown
+      required: true
+      description: A readable record of the curation decisions.
+  artifacts:
+    - classification
+    - curation-decision
+    - approval-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake candidates
+    description: Capture the candidate memories and the retention and sensitivity policy.
+    produces:
+      - curation-context
+  - id: classify
+    type: agent_task
+    title: Classify candidates
+    description: Classify each item by scope, retention, and sensitivity.
+    agent: assistant
+    requires:
+      - curation-context
+    produces:
+      - classification
+  - id: decide
+    type: decision
+    title: Curate memory
+    description: Decide keep, expire, or localize, attaching scope and retention metadata.
+    requires:
+      - classification
+    produces:
+      - curation-decision
+  - id: approval
+    type: approval
+    title: Approve sensitive memory
+    description: Require an explicit approval before saving any sensitive item to long-term memory.
+    requires:
+      - curation-decision
+    produces:
+      - approval-record
+    policy:
+      human_required_when:
+        - sensitive_memory
+  - id: final
+    type: finalizer
+    title: Close out curation
+    description: Return the curation decision and a readable record.
+    requires:
+      - curation-decision
+    produces:
+      - curation_decision
+      - memory_record
+edges:
+  - from: intake
+    to: classify
+  - from: classify
+    to: decide
+  - from: decide
+    to: approval
+    condition: sensitive-memory
+  - from: decide
+    to: final
+    condition: non-sensitive
+  - from: approval
+    to: final
+quality_gates:
+  - id: scope-and-retention-present
+    title: Scope and retention metadata present
+    type: artifact
+    required: true
+    evidence: Every kept memory has scope and retention metadata.
+    evidence_refs:
+      - curation-decision
+  - id: sensitive-requires-approval
+    title: Sensitive memory requires approval
+    type: policy
+    required: false
+    evidence: Any sensitive item saved to memory captures an explicit approval.
+    evidence_refs:
+      - approval-record
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - decision.recorded
+    - approval.requested
+    - approval.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - items.kept
+    - duration.seconds

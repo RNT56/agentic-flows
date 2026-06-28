@@ -1,0 +1,114 @@
+spec_version: agentic-flows/v1
+id: engineering.pr-review-and-risk-notes
+version: 0.1.0
+title: PR review and risk notes
+summary: Review a diff for bugs, regressions, and missing tests, and produce cited findings with release-risk notes.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - review
+  - risk
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - diff.read
+    - repo.checkout
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: review-findings
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: diff
+      type: patch
+      required: true
+      description: The pull request diff to review.
+    - id: context
+      type: markdown
+      required: true
+      description: PR description, intent, and review focus.
+  outputs:
+    - id: review_findings
+      type: json
+      required: true
+      description: Findings with file, line, severity, and rationale.
+    - id: risk_notes
+      type: markdown
+      required: true
+      description: Release-risk summary covering regressions and missing tests.
+  artifacts:
+    - review-findings
+    - risk-notes
+nodes:
+  - id: intake
+    type: intake
+    title: Intake the diff
+    description: Capture the diff, the PR intent, and the review focus.
+    produces:
+      - review-request
+  - id: analyze
+    type: agent_task
+    title: Review the diff
+    description: Inspect the diff for bugs, regressions, and missing tests with file and line references.
+    agent: reviewer
+    requires:
+      - review-request
+    produces:
+      - review-findings
+  - id: assess
+    type: verifier
+    title: Assess findings and risk
+    description: Confirm each finding cites a location and severity, drop padding, and summarize release risk.
+    requires:
+      - review-findings
+    produces:
+      - risk-notes
+  - id: final
+    type: finalizer
+    title: Close out review
+    description: Return the cited findings and the release-risk notes.
+    requires:
+      - review-findings
+      - risk-notes
+    produces:
+      - review_findings
+      - risk_notes
+edges:
+  - from: intake
+    to: analyze
+  - from: analyze
+    to: assess
+  - from: assess
+    to: final
+quality_gates:
+  - id: findings-cite-locations
+    title: Findings cite file, line, and severity
+    type: review
+    required: true
+    evidence: Every finding references a file and line and an explicit severity.
+    evidence_refs:
+      - review-findings
+  - id: no-padded-findings
+    title: Non-findings are not padded
+    type: policy
+    required: false
+    evidence: Absence of issues is stated plainly rather than padded with low-value notes.
+    evidence_refs:
+      - review-findings
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - findings.count
+    - duration.seconds

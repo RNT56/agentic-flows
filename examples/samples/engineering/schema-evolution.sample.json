@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.schema-evolution",
+    "version": "0.1.0",
+    "source": "flows/engineering/schema-evolution/flow.yaml"
+  },
+  "inputs": {
+    "schema_change": "Add a required 'severity' field to the event schema with an enum of debug/info/warning/error.",
+    "repo": "https://github.com/RNT56/agentic-flows"
+  },
+  "expected_outputs": {
+    "migration": "Migration: bump event_version note; existing events without severity become invalid. Compatibility: producers must set severity. Provided an invalid fixture missing severity.",
+    "schema_patch": "diff --git a/schemas/event.schema.json b/schemas/event.schema.json\n@@ require severity @@\ndiff --git a/tests/fixtures/invalid-event-missing-severity.json b/tests/fixtures/...\n@@ new invalid fixture @@"
+  },
+  "notes": "Evolves a schema with a migration path and an invalid fixture covering the new failure."
+}

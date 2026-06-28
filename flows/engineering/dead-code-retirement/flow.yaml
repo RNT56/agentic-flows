@@ -1,0 +1,153 @@
+spec_version: agentic-flows/v1
+id: engineering.dead-code-retirement
+version: 0.1.0
+title: Dead code retirement
+summary: Prove code is unused, remove it, and verify behavior is unchanged, or keep it with a justification.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - cleanup
+  - refactor
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - code.search
+    - patch.apply
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: target
+      type: markdown
+      required: true
+      description: The suspected dead code to evaluate.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target.
+  outputs:
+    - id: removal_patch
+      type: patch
+      required: true
+      description: The removal patch, or a no-op with a justification when still referenced.
+    - id: impact_report
+      type: markdown
+      required: true
+      description: Reference search results, public API impact, and the test outcome.
+  artifacts:
+    - reference-search
+    - removal-diff
+    - test-log
+nodes:
+  - id: intake
+    type: intake
+    title: Intake retirement target
+    description: Capture the suspected dead code and the repo target.
+    produces:
+      - retirement-scope
+  - id: search
+    type: tool
+    title: Search references
+    description: Search the codebase for references and public API exposure of the target.
+    tool: code-search
+    requires:
+      - retirement-scope
+    produces:
+      - reference-search
+  - id: decide
+    type: decision
+    title: Unused or still referenced
+    description: Decide whether the target is provably unused or must be kept.
+    requires:
+      - reference-search
+    produces:
+      - retirement-decision
+  - id: remove
+    type: agent_task
+    title: Remove the code
+    description: Remove the confirmed-unused code in the smallest coherent change.
+    agent: coding-worker
+    requires:
+      - retirement-decision
+    produces:
+      - removal-diff
+  - id: test
+    type: tool
+    title: Run checks
+    description: Run the project tests to confirm behavior is unchanged after removal.
+    tool: command-runner
+    requires:
+      - removal-diff
+    produces:
+      - test-log
+  - id: verify
+    type: verifier
+    title: Verify impact
+    description: Confirm references were searched, public API impact assessed, and tests pass.
+    requires:
+      - removal-diff
+      - test-log
+    produces:
+      - impact-check
+  - id: final
+    type: finalizer
+    title: Close out retirement
+    description: Return the removal patch and an impact report.
+    requires:
+      - retirement-decision
+      - impact-check
+    produces:
+      - removal_patch
+      - impact_report
+edges:
+  - from: intake
+    to: search
+  - from: search
+    to: decide
+  - from: decide
+    to: remove
+    condition: confirmed-unused
+  - from: decide
+    to: final
+    condition: still-referenced
+  - from: remove
+    to: test
+  - from: test
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: references-searched
+    title: References are searched
+    type: artifact
+    required: true
+    evidence: The reference search covers usages and public API exposure of the target.
+    evidence_refs:
+      - reference-search
+  - id: tests-pass
+    title: Tests pass after removal
+    type: command
+    required: false
+    command: make test || npm test || cargo test || go test ./...
+    evidence: Project tests pass after the removal.
+    evidence_refs:
+      - test-log
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - decision.recorded
+    - gate.completed
+    - flow.completed
+  metrics:
+    - references.found
+    - duration.seconds

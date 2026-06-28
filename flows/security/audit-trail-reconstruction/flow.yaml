@@ -1,0 +1,125 @@
+spec_version: agentic-flows/v1
+id: security.audit-trail-reconstruction
+version: 0.1.0
+title: Audit trail reconstruction
+summary: Reconstruct what happened in a run from logs, events, approvals, and artifacts, marking gaps explicitly.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - security
+  - audit
+  - forensics
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - crustcore
+    - standalone
+  required_capabilities:
+    - run.read
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: audit-evidence
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: run_sources
+      type: json
+      required: true
+      description: Logs, events, approvals, and artifact references to reconstruct from.
+    - id: incident
+      type: markdown
+      required: true
+      description: What is being reconstructed and why.
+  outputs:
+    - id: audit_trail
+      type: markdown
+      required: true
+      description: A source-backed timeline of what happened.
+    - id: gaps
+      type: json
+      required: true
+      description: The explicit gaps where evidence is missing.
+  artifacts:
+    - source-index
+    - reconstructed-timeline
+    - gap-list
+nodes:
+  - id: intake
+    type: intake
+    title: Intake sources
+    description: Capture the available sources and what must be reconstructed.
+    produces:
+      - audit-scope
+  - id: collect
+    type: tool
+    title: Index sources
+    description: Index the logs, events, approvals, and artifacts into a single ordered set.
+    tool: evidence-indexer
+    requires:
+      - audit-scope
+    produces:
+      - source-index
+  - id: reconstruct
+    type: agent_task
+    title: Reconstruct timeline
+    description: Build the timeline strictly from sources, never inferring claims as facts.
+    agent: forensic-analyst
+    requires:
+      - source-index
+    produces:
+      - reconstructed-timeline
+  - id: verify
+    type: verifier
+    title: Verify and mark gaps
+    description: Confirm each entry is source-backed and mark the gaps where evidence is missing.
+    requires:
+      - reconstructed-timeline
+    produces:
+      - gap-list
+  - id: final
+    type: finalizer
+    title: Close out reconstruction
+    description: Return the audit trail and the explicit gaps.
+    requires:
+      - reconstructed-timeline
+      - gap-list
+    produces:
+      - audit_trail
+      - gaps
+edges:
+  - from: intake
+    to: collect
+  - from: collect
+    to: reconstruct
+  - from: reconstruct
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: timeline-source-backed
+    title: Timeline entries are source-backed
+    type: review
+    required: true
+    evidence: Every timeline entry cites a source and inferences are not stated as facts.
+    evidence_refs:
+      - reconstructed-timeline
+  - id: gaps-marked
+    title: Evidence gaps are marked
+    type: artifact
+    required: true
+    evidence: The gap list records where evidence is missing.
+    evidence_refs:
+      - gap-list
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - sources.indexed
+    - duration.seconds

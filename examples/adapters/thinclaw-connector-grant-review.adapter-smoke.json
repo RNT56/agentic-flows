@@ -1,0 +1,29 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "thinclaw",
+  "flow": {
+    "id": "security.connector-grant-review",
+    "version": "0.1.0",
+    "source": "flows/security/connector-grant-review/flow.yaml"
+  },
+  "capability_support": [
+    "grant.read",
+    "policy.evaluate",
+    "human.review",
+    "decision.record",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "grant request intake",
+    "agent_task": "permission analyzer",
+    "decision": "least-privilege scoping decision",
+    "approval": "operator grant approval",
+    "finalizer": "grant review closeout"
+  },
+  "run_bundle": "runs/thinclaw-connector-grant-review.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible ThinClaw connector-grant-review adapter."
+}

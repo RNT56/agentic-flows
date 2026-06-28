@@ -1,0 +1,22 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "ops.flow-version-upgrade",
+    "version": "0.1.0",
+    "source": "flows/ops/flow-version-upgrade/flow.yaml"
+  },
+  "inputs": {
+    "pinned_flow": "coding.feature-implementation@0.1.0",
+    "target_version": "0.2.0"
+  },
+  "expected_outputs": {
+    "migration_plan": "1. Re-pin to coding.feature-implementation@0.2.0. 2. Map the renamed 'closeout' output to 'summary'. 3. Re-run the standalone sample to confirm contract fit.",
+    "upgrade_decision": {
+      "from": "0.1.0",
+      "to": "0.2.0",
+      "breaking": true,
+      "matrix_updated": true
+    }
+  },
+  "notes": "Migrates a pinned consumer across a flow version with ordered steps and a matrix update."
+}

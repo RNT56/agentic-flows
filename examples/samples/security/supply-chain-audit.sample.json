@@ -1,0 +1,24 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "security.supply-chain-audit",
+    "version": "0.1.0",
+    "source": "flows/security/supply-chain-audit/flow.yaml"
+  },
+  "inputs": {
+    "manifest": "file://requirements.lock",
+    "policy": "Reject GPL-incompatible licenses for distributed code. Flag any advisory with severity high or above."
+  },
+  "expected_outputs": {
+    "audit_findings": {
+      "advisories": [
+        {"dependency": "requests==2.19.0", "id": "CVE-2018-18074", "severity": "high", "source": "osv.dev/CVE-2018-18074"}
+      ],
+      "license_conflicts": [
+        {"dependency": "somegpl==1.2.0", "license": "GPL-3.0", "conflict": "distributed under Apache-2.0"}
+      ]
+    },
+    "remediation": "Upgrade requests to >=2.20.0 (fixes CVE-2018-18074). Replace somegpl with an Apache-2.0 alternative or isolate it as an optional plugin."
+  },
+  "notes": "Ranks advisory and license findings with sources and drafts remediation."
+}

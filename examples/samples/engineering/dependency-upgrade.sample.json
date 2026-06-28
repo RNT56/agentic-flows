@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.dependency-upgrade",
+    "version": "0.1.0",
+    "source": "flows/engineering/dependency-upgrade/flow.yaml"
+  },
+  "inputs": {
+    "dependency": "pydantic from 1.10 to 2.7",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "expected_outputs": {
+    "upgrade_patch": "diff --git a/pyproject.toml b/pyproject.toml\n@@ pydantic>=2.7 @@\ndiff --git a/app/models.py b/app/models.py\n@@ migrate validators to field_validator @@",
+    "release_notes": "Upgrade pydantic 1.10 -> 2.7. Migrated validators to v2 API. Tests pass. Rationale: v1 is end-of-life and v2 fixes a known parsing CVE."
+  },
+  "notes": "Upgrades a dependency, adapts code, and records before/after versions with rationale."
+}

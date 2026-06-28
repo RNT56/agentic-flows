@@ -1,0 +1,90 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "ops.adapter-certification",
+    "version": "0.1.0",
+    "source": "flows/ops/adapter-certification/flow.yaml"
+  },
+  "run": {
+    "id": "run-crustcore-adapter-certification-0001",
+    "core": "crustcore",
+    "status": "completed",
+    "started_at": "2026-06-27T21:20:00Z",
+    "completed_at": "2026-06-27T21:21:40Z"
+  },
+  "inputs": {
+    "consumer": "crustcore",
+    "flow": "file://flows/coding/feature-implementation/flow.yaml"
+  },
+  "outputs": {
+    "adapter_smoke": {
+      "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+      "consumer": "crustcore",
+      "flow_id": "coding.feature-implementation",
+      "result": "validates"
+    },
+    "certification_report": "Certified crustcore against coding.feature-implementation. Run bundle validates and the negative fixture failed as expected."
+  },
+  "artifacts": [
+    {
+      "id": "adapter-smoke-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-crustcore-adapter-certification-0001/adapter-smoke.log"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-adapter-certification-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T21:20:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-adapter-certification-0001",
+      "node_id": "certify",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T21:20:55Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-adapter-certification-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T21:21:15Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "adapter-smoke-validates",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "adapter-smoke-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-crustcore-adapter-certification-0001/adapter-smoke.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-adapter-certification-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T21:21:40Z",
+      "core": "crustcore",
+      "severity": "info"
+    }
+  ]
+}

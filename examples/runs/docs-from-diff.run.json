@@ -1,0 +1,80 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.docs-from-diff",
+    "version": "0.1.0",
+    "source": "flows/engineering/docs-from-diff/flow.yaml"
+  },
+  "run": {
+    "id": "run-docs-from-diff-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:15:00Z"
+  },
+  "inputs": {
+    "diff": "diff --git a/cli.py b/cli.py\n@@ rename --out to --output @@",
+    "docs_root": "file://docs"
+  },
+  "outputs": {
+    "docs_decision": {
+      "impacted": true,
+      "docs": [
+        "docs/getting-started.md",
+        "CHANGELOG.md"
+      ]
+    },
+    "docs_patch": "artifact://docs-diff"
+  },
+  "artifacts": [
+    {
+      "id": "docs-decision",
+      "kind": "json",
+      "uri": "artifact://runs/run-docs-from-diff-0001/docs-decision.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.docs-from-diff",
+      "flow_version": "0.1.0",
+      "run_id": "run-docs-from-diff-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.docs-from-diff",
+      "flow_version": "0.1.0",
+      "run_id": "run-docs-from-diff-0001",
+      "node_id": "decide",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "docs-impact-explicit",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "docs-decision",
+          "kind": "json",
+          "uri": "artifact://runs/run-docs-from-diff-0001/docs-decision.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.docs-from-diff",
+      "flow_version": "0.1.0",
+      "run_id": "run-docs-from-diff-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "docs.decision-record",
+    "version": "0.1.0",
+    "source": "flows/docs/decision-record/flow.yaml"
+  },
+  "run": {
+    "id": "run-thinclaw-decision-record-0001",
+    "core": "thinclaw",
+    "status": "completed",
+    "started_at": "2026-06-28T14:20:00Z",
+    "completed_at": "2026-06-28T14:21:40Z"
+  },
+  "inputs": {
+    "decision_context": "Choose a storage backend for run bundles: local files, SQLite, or object storage.",
+    "owner": "RNT56"
+  },
+  "outputs": {
+    "decision_record": "# Decision: store run bundles as local JSON files\n\nDecision: local JSON files. Alternatives rejected: SQLite, object storage.",
+    "decision_metadata": {
+      "owner": "RNT56",
+      "date": "2026-06-28",
+      "status": "accepted"
+    }
+  },
+  "artifacts": [
+    {
+      "id": "options-analysis",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-thinclaw-decision-record-0001/options.md"
+    },
+    {
+      "id": "decision-record",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-thinclaw-decision-record-0001/decision.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.decision-record",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-decision-record-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T14:20:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.decision-record",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-decision-record-0001",
+      "node_id": "record",
+      "event": "decision.recorded",
+      "timestamp": "2026-06-28T14:21:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "status": "accepted"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.decision-record",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-decision-record-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T14:21:20Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "owner-and-date-present",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "decision-record",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-thinclaw-decision-record-0001/decision.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.decision-record",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-decision-record-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T14:21:30Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "alternatives-documented",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "options-analysis",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-thinclaw-decision-record-0001/options.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.decision-record",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-decision-record-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T14:21:40Z",
+      "core": "thinclaw",
+      "severity": "info"
+    }
+  ]
+}

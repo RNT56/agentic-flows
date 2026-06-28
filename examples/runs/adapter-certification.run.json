@@ -1,0 +1,128 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "ops.adapter-certification",
+    "version": "0.1.0",
+    "source": "flows/ops/adapter-certification/flow.yaml"
+  },
+  "run": {
+    "id": "run-adapter-certification-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T21:00:00Z",
+    "completed_at": "2026-06-27T21:01:40Z"
+  },
+  "inputs": {
+    "consumer": "crustcore",
+    "flow": "file://flows/coding/feature-implementation/flow.yaml"
+  },
+  "outputs": {
+    "adapter_smoke": {
+      "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+      "consumer": "crustcore",
+      "flow_id": "coding.feature-implementation",
+      "result": "validates"
+    },
+    "certification_report": "Certified crustcore against coding.feature-implementation. Capabilities and node mappings covered; run bundle validates; negative fixture failed with the expected error."
+  },
+  "artifacts": [
+    {
+      "id": "loader-output",
+      "kind": "json",
+      "uri": "artifact://runs/run-adapter-certification-0001/loader-output.json"
+    },
+    {
+      "id": "adapter-smoke-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-adapter-certification-0001/adapter-smoke.log"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-adapter-certification-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T21:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-adapter-certification-0001",
+      "node_id": "intake",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T21:00:15Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-adapter-certification-0001",
+      "node_id": "certify",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T21:00:55Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-adapter-certification-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T21:01:15Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "adapter-smoke-validates",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "adapter-smoke-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-adapter-certification-0001/adapter-smoke.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-adapter-certification-0001",
+      "node_id": "verify",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T21:01:20Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-adapter-certification-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T21:01:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-adapter-certification-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T21:01:40Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

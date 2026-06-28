@@ -1,0 +1,122 @@
+spec_version: agentic-flows/v1
+id: research.market-and-user-value
+version: 0.1.0
+title: Market and user value
+summary: Evaluate whether a product idea has real user value and differentiation, ending with a next experiment.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - research
+  - product
+  - value
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - standalone
+  required_capabilities:
+    - source.retrieve
+    - evidence.capture
+  adapter_hints:
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: idea
+      type: markdown
+      required: true
+      description: The product idea to evaluate.
+    - id: context
+      type: markdown
+      required: true
+      description: The market and user context to evaluate against.
+  outputs:
+    - id: value_assessment
+      type: markdown
+      required: true
+      description: Target user, pain, alternatives, novelty, and risks.
+    - id: next_experiment
+      type: json
+      required: true
+      description: The next experiment to validate the idea cheaply.
+  artifacts:
+    - user-and-pain
+    - alternatives-analysis
+    - value-notes
+nodes:
+  - id: intake
+    type: intake
+    title: Intake idea
+    description: Capture the idea and the market and user context.
+    produces:
+      - idea-context
+  - id: analyze
+    type: agent_task
+    title: Analyze user and pain
+    description: Identify the target user and the pain the idea addresses.
+    agent: product-analyst
+    requires:
+      - idea-context
+    produces:
+      - user-and-pain
+  - id: compare
+    type: agent_task
+    title: Compare alternatives
+    description: Compare existing alternatives and assess novelty and differentiation.
+    agent: product-analyst
+    requires:
+      - user-and-pain
+    produces:
+      - alternatives-analysis
+  - id: assess
+    type: verifier
+    title: Assess value
+    description: Confirm target user, pain, alternatives, novelty, and risks are documented.
+    requires:
+      - user-and-pain
+      - alternatives-analysis
+    produces:
+      - value-notes
+  - id: final
+    type: finalizer
+    title: Close out assessment
+    description: Return the value assessment and the next experiment.
+    requires:
+      - value-notes
+    produces:
+      - value_assessment
+      - next_experiment
+edges:
+  - from: intake
+    to: analyze
+  - from: analyze
+    to: compare
+  - from: compare
+    to: assess
+  - from: assess
+    to: final
+quality_gates:
+  - id: user-and-pain-documented
+    title: Target user and pain documented
+    type: review
+    required: true
+    evidence: The analysis names the target user and the pain addressed.
+    evidence_refs:
+      - user-and-pain
+  - id: alternatives-and-novelty
+    title: Alternatives and novelty assessed
+    type: review
+    required: true
+    evidence: The analysis compares alternatives and assesses novelty and risks.
+    evidence_refs:
+      - alternatives-analysis
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - alternatives.count
+    - duration.seconds

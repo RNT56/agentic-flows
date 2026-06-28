@@ -1,0 +1,101 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.repository-bootstrap",
+    "version": "0.1.0",
+    "source": "flows/engineering/repository-bootstrap/flow.yaml"
+  },
+  "run": {
+    "id": "run-repository-bootstrap-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "project_brief": "A small CLI that validates YAML against a schema. Apache-2.0.",
+    "repo": "https://github.com/RNT56/new-cli"
+  },
+  "outputs": {
+    "scaffold_patch": "artifact://scaffold-diff",
+    "release_plan": "v0.1.0 after CI green: tag, build, release notes."
+  },
+  "artifacts": [
+    {
+      "id": "ci-log",
+      "kind": "json",
+      "uri": "artifact://runs/run-repository-bootstrap-0001/ci-log.json"
+    },
+    {
+      "id": "scaffold-plan",
+      "kind": "json",
+      "uri": "artifact://runs/run-repository-bootstrap-0001/scaffold-plan.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.repository-bootstrap",
+      "flow_version": "0.1.0",
+      "run_id": "run-repository-bootstrap-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.repository-bootstrap",
+      "flow_version": "0.1.0",
+      "run_id": "run-repository-bootstrap-0001",
+      "node_id": "ci",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "ci-passes",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "ci-log",
+          "kind": "json",
+          "uri": "artifact://runs/run-repository-bootstrap-0001/ci-log.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.repository-bootstrap",
+      "flow_version": "0.1.0",
+      "run_id": "run-repository-bootstrap-0001",
+      "node_id": "plan",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "product-and-license-present",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "scaffold-plan",
+          "kind": "json",
+          "uri": "artifact://runs/run-repository-bootstrap-0001/scaffold-plan.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.repository-bootstrap",
+      "flow_version": "0.1.0",
+      "run_id": "run-repository-bootstrap-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

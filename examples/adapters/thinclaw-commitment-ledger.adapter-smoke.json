@@ -1,0 +1,26 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "thinclaw",
+  "flow": {
+    "id": "personal.commitment-ledger",
+    "version": "0.1.0",
+    "source": "flows/personal/commitment-ledger/flow.yaml"
+  },
+  "capability_support": [
+    "source.retrieve",
+    "decision.record",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "finalizer": "closeout step",
+    "intake": "intake step",
+    "verifier": "verifier step"
+  },
+  "run_bundle": "runs/thinclaw-commitment-ledger.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible ThinClaw commitment-ledger adapter."
+}

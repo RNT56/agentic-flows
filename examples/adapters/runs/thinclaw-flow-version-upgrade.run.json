@@ -1,0 +1,106 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "ops.flow-version-upgrade",
+    "version": "0.1.0",
+    "source": "flows/ops/flow-version-upgrade/flow.yaml"
+  },
+  "run": {
+    "id": "run-thinclaw-flow-version-upgrade-0001",
+    "core": "thinclaw",
+    "status": "completed",
+    "started_at": "2026-06-28T10:00:00Z",
+    "completed_at": "2026-06-28T10:20:00Z"
+  },
+  "inputs": {
+    "pinned_flow": "coding.feature-implementation@0.1.0",
+    "target_version": "0.2.0"
+  },
+  "outputs": {
+    "migration_plan": "1. Re-pin to 0.2.0. 2. Map closeout->summary. 3. Re-run the sample.",
+    "upgrade_decision": {
+      "from": "0.1.0",
+      "to": "0.2.0",
+      "breaking": true,
+      "matrix_updated": true
+    }
+  },
+  "artifacts": [
+    {
+      "id": "migration-plan",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-flow-version-upgrade-0001/migration-plan.json"
+    },
+    {
+      "id": "compatibility-update",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-flow-version-upgrade-0001/compatibility-update.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-version-upgrade",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-flow-version-upgrade-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T10:00:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-version-upgrade",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-flow-version-upgrade-0001",
+      "node_id": "plan",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:10:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "migration-steps-exist",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "migration-plan",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-flow-version-upgrade-0001/migration-plan.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-version-upgrade",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-flow-version-upgrade-0001",
+      "node_id": "update",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:15:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "compatibility-updated",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "compatibility-update",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-flow-version-upgrade-0001/compatibility-update.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-version-upgrade",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-flow-version-upgrade-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T10:20:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    }
+  ]
+}

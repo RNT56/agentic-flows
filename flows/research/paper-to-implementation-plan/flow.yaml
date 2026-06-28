@@ -1,0 +1,134 @@
+spec_version: agentic-flows/v1
+id: research.paper-to-implementation-plan
+version: 0.1.0
+title: Paper to implementation plan
+summary: Translate a paper or spec into implementable slices and validation tasks, separating assumptions from claims.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - research
+  - planning
+  - implementation
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - standalone
+  required_capabilities:
+    - source.retrieve
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: paper
+      type: markdown
+      required: true
+      description: The paper or spec to translate.
+    - id: goal
+      type: markdown
+      required: true
+      description: What the implementation must achieve.
+  outputs:
+    - id: implementation_plan
+      type: markdown
+      required: true
+      description: Implementable slices derived from the source.
+    - id: validation_tasks
+      type: json
+      required: true
+      description: Experiments and acceptance metrics for the plan.
+  artifacts:
+    - claim-extraction
+    - plan-draft
+    - validation-tasks
+nodes:
+  - id: intake
+    type: intake
+    title: Intake paper
+    description: Capture the paper or spec and the implementation goal.
+    produces:
+      - paper-context
+  - id: extract
+    type: agent_task
+    title: Extract claims
+    description: Separate the source's claims from the reader's assumptions.
+    agent: researcher
+    requires:
+      - paper-context
+    produces:
+      - claim-extraction
+  - id: plan
+    type: plan
+    title: Plan slices
+    description: Translate the claims into implementable slices.
+    requires:
+      - claim-extraction
+    produces:
+      - plan-draft
+  - id: define
+    type: agent_task
+    title: Define validation
+    description: Define experiments and acceptance metrics for each slice.
+    agent: researcher
+    requires:
+      - plan-draft
+    produces:
+      - validation-tasks
+  - id: verify
+    type: verifier
+    title: Verify the plan
+    description: Confirm assumptions are separated from source claims and metrics are defined.
+    requires:
+      - plan-draft
+      - validation-tasks
+    produces:
+      - plan-check
+  - id: final
+    type: finalizer
+    title: Close out plan
+    description: Return the implementation plan and the validation tasks.
+    requires:
+      - plan-draft
+      - validation-tasks
+      - plan-check
+    produces:
+      - implementation_plan
+      - validation_tasks
+edges:
+  - from: intake
+    to: extract
+  - from: extract
+    to: plan
+  - from: plan
+    to: define
+  - from: define
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: assumptions-separated
+    title: Assumptions separated from source claims
+    type: review
+    required: true
+    evidence: The extraction distinguishes source claims from reader assumptions.
+    evidence_refs:
+      - claim-extraction
+  - id: metrics-defined
+    title: Experiments and acceptance metrics defined
+    type: artifact
+    required: true
+    evidence: Each slice has experiments and acceptance metrics.
+    evidence_refs:
+      - validation-tasks
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - slices.count
+    - duration.seconds

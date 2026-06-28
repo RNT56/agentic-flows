@@ -1,0 +1,122 @@
+spec_version: agentic-flows/v1
+id: personal.commitment-ledger
+version: 0.1.0
+title: Commitment ledger
+summary: Extract commitments from conversations into a durable ledger with source, owner, due date, and status.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - personal
+  - commitments
+  - tracking
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - standalone
+  required_capabilities:
+    - source.retrieve
+    - decision.record
+    - evidence.capture
+  adapter_hints:
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: source_text
+      type: markdown
+      required: true
+      description: The conversations or threads to extract commitments from.
+    - id: owner
+      type: text
+      required: true
+      description: The default owner when one is not explicit.
+  outputs:
+    - id: ledger
+      type: json
+      required: true
+      description: The commitment ledger entries.
+    - id: summary
+      type: markdown
+      required: true
+      description: A readable summary of the open commitments.
+  artifacts:
+    - extracted-commitments
+    - ledger-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake sources
+    description: Capture the conversations and the default owner.
+    produces:
+      - ledger-context
+  - id: extract
+    type: agent_task
+    title: Extract commitments
+    description: Extract each commitment with its source, owner, and due date or an unknown marker.
+    agent: assistant
+    requires:
+      - ledger-context
+    produces:
+      - extracted-commitments
+  - id: record
+    type: agent_task
+    title: Record ledger
+    description: Record the commitments into a durable ledger with status fields.
+    agent: assistant
+    requires:
+      - extracted-commitments
+    produces:
+      - ledger-record
+  - id: verify
+    type: verifier
+    title: Verify ledger
+    description: Confirm each commitment has a source, owner, due date or unknown marker, and a status.
+    requires:
+      - ledger-record
+    produces:
+      - ledger-check
+  - id: final
+    type: finalizer
+    title: Close out ledger
+    description: Return the ledger and a summary of open commitments.
+    requires:
+      - ledger-record
+      - ledger-check
+    produces:
+      - ledger
+      - summary
+edges:
+  - from: intake
+    to: extract
+  - from: extract
+    to: record
+  - from: record
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: commitments-have-source-and-owner
+    title: Commitments have source, owner, and status
+    type: artifact
+    required: true
+    evidence: Every ledger entry records a source, an owner, and a status.
+    evidence_refs:
+      - ledger-record
+  - id: due-or-unknown-marked
+    title: Due date or unknown marker present
+    type: review
+    required: true
+    evidence: Every commitment has a due date or an explicit unknown marker.
+    evidence_refs:
+      - extracted-commitments
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - commitments.count
+    - duration.seconds

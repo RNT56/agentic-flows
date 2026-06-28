@@ -1,0 +1,120 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "research.technology-radar",
+    "version": "0.1.0",
+    "source": "flows/research/technology-radar/flow.yaml"
+  },
+  "run": {
+    "id": "run-thinclaw-technology-radar-0001",
+    "core": "thinclaw",
+    "status": "completed",
+    "started_at": "2026-06-28T10:00:00Z",
+    "completed_at": "2026-06-28T10:20:00Z"
+  },
+  "inputs": {
+    "technologies": "uv, JSON Schema 2020-12, a niche ORM.",
+    "current_radar": {
+      "adopt": [],
+      "watch": [
+        "JSON Schema 2020-12"
+      ],
+      "reject": []
+    }
+  },
+  "outputs": {
+    "radar": {
+      "adopt": [
+        {
+          "name": "JSON Schema 2020-12",
+          "owner": "RNT56",
+          "next_review": "2026-12"
+        }
+      ],
+      "watch": [
+        {
+          "name": "uv"
+        }
+      ],
+      "reject": [
+        {
+          "name": "niche ORM"
+        }
+      ]
+    },
+    "radar_notes": "Promoted JSON Schema to adopt; uv to watch; rejected the niche ORM."
+  },
+  "artifacts": [
+    {
+      "id": "radar-entries",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-technology-radar-0001/radar-entries.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.technology-radar",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-technology-radar-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T10:00:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.technology-radar",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-technology-radar-0001",
+      "node_id": "place",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:10:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "entries-have-reason-and-date",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "radar-entries",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-technology-radar-0001/radar-entries.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.technology-radar",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-technology-radar-0001",
+      "node_id": "place",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:15:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "review-dates-set",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "radar-entries",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-technology-radar-0001/radar-entries.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.technology-radar",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-technology-radar-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T10:20:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    }
+  ]
+}

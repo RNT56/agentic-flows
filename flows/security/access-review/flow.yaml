@@ -1,0 +1,122 @@
+spec_version: agentic-flows/v1
+id: security.access-review
+version: 0.1.0
+title: Access review
+summary: Review user, connector, repo, and deployment permissions so each has an owner and reason, tracking removals.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - security
+  - access
+  - review
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - standalone
+  required_capabilities:
+    - grant.read
+    - decision.record
+    - evidence.capture
+  adapter_hints:
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: access_inventory
+      type: json
+      required: true
+      description: The current grants across users, connectors, repos, and deployments.
+    - id: policy
+      type: markdown
+      required: true
+      description: The least-privilege and review policy.
+  outputs:
+    - id: review_decisions
+      type: json
+      required: true
+      description: Keep, remove, or flag per grant, with owner and reason.
+    - id: review_report
+      type: markdown
+      required: true
+      description: A readable summary of the review.
+  artifacts:
+    - permission-inventory
+    - review-decisions
+nodes:
+  - id: intake
+    type: intake
+    title: Intake access
+    description: Capture the access inventory and the review policy.
+    produces:
+      - review-scope
+  - id: inventory
+    type: agent_task
+    title: Normalize inventory
+    description: Normalize each grant and attach its current owner and reason.
+    agent: security-analyst
+    requires:
+      - review-scope
+    produces:
+      - permission-inventory
+  - id: review
+    type: agent_task
+    title: Review grants
+    description: Decide keep, remove, or flag for each grant against the policy.
+    agent: security-analyst
+    requires:
+      - permission-inventory
+    produces:
+      - review-decisions
+  - id: verify
+    type: verifier
+    title: Verify review
+    description: Confirm every grant has an owner and reason and removals are tracked.
+    requires:
+      - review-decisions
+    produces:
+      - review-check
+  - id: final
+    type: finalizer
+    title: Close out review
+    description: Return the review decisions and the report.
+    requires:
+      - review-decisions
+      - review-check
+    produces:
+      - review_decisions
+      - review_report
+edges:
+  - from: intake
+    to: inventory
+  - from: inventory
+    to: review
+  - from: review
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: permissions-have-owner-and-reason
+    title: Every permission has owner and reason
+    type: artifact
+    required: true
+    evidence: The inventory records an owner and reason for each grant.
+    evidence_refs:
+      - permission-inventory
+  - id: removals-tracked
+    title: Removals and exceptions tracked
+    type: review
+    required: true
+    evidence: The decisions track each removal and exception.
+    evidence_refs:
+      - review-decisions
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - grants.reviewed
+    - duration.seconds

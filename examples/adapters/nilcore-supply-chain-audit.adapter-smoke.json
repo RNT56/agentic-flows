@@ -1,0 +1,28 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "security.supply-chain-audit",
+    "version": "0.1.0",
+    "source": "flows/security/supply-chain-audit/flow.yaml"
+  },
+  "capability_support": [
+    "dependency.read",
+    "advisory.lookup",
+    "license.check",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "audit scope intake",
+    "tool": "dependency scanner job",
+    "agent_task": "advisory and license auditor",
+    "verifier": "findings and source verifier",
+    "finalizer": "audit closeout"
+  },
+  "run_bundle": "runs/nilcore-supply-chain-audit.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore supply-chain-audit worker adapter."
+}

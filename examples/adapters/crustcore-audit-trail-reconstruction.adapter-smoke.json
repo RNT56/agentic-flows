@@ -1,0 +1,26 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "crustcore",
+  "flow": {
+    "id": "security.audit-trail-reconstruction",
+    "version": "0.1.0",
+    "source": "flows/security/audit-trail-reconstruction/flow.yaml"
+  },
+  "capability_support": [
+    "run.read",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "finalizer": "closeout step",
+    "intake": "intake step",
+    "tool": "tool runner",
+    "verifier": "verifier step"
+  },
+  "run_bundle": "runs/crustcore-audit-trail-reconstruction.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible CrustCore audit-trail-reconstruction adapter."
+}

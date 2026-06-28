@@ -1,0 +1,28 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "crustcore",
+  "flow": {
+    "id": "engineering.dependency-upgrade",
+    "version": "0.1.0",
+    "source": "flows/engineering/dependency-upgrade/flow.yaml"
+  },
+  "capability_support": [
+    "dependency.read",
+    "patch.apply",
+    "command.run",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "upgrade scope intake",
+    "agent_task": "upgrade and adapt worker",
+    "tool": "command evidence runner",
+    "verifier": "compatibility verifier",
+    "finalizer": "upgrade closeout"
+  },
+  "run_bundle": "runs/crustcore-dependency-upgrade.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible CrustCore dependency-upgrade proof adapter."
+}

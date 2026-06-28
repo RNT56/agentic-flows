@@ -1,0 +1,27 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "research.codebase-orientation",
+    "version": "0.1.0",
+    "source": "flows/research/codebase-orientation/flow.yaml"
+  },
+  "capability_support": [
+    "repo.checkout",
+    "command.run",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "orientation request intake",
+    "tool": "repo scan and probe runner",
+    "agent_task": "map synthesizer",
+    "verifier": "map completeness verifier",
+    "finalizer": "orientation closeout"
+  },
+  "run_bundle": "runs/nilcore-codebase-orientation.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore codebase-orientation worker adapter."
+}

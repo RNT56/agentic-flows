@@ -1,0 +1,23 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "program.connector-productionization",
+    "version": "0.1.0",
+    "source": "flows/program/connector-productionization/flow.yaml"
+  },
+  "inputs": {
+    "connector": "An experimental Slack connector that posts and reads channel messages.",
+    "readiness_policy": "Least-privilege scopes, tested failure modes, observability, and docs before production."
+  },
+  "expected_outputs": {
+    "readiness_report": {
+      "verdict": "not-ready",
+      "permissions": "reduced from admin to channels:read/write",
+      "failure_modes": "rate-limit and auth-expiry tested",
+      "observability": "metrics added",
+      "docs": "incomplete"
+    },
+    "production_checklist": "Remaining before production: complete the runbook and add an alert for auth-expiry."
+  },
+  "notes": "Assesses an experimental connector for production readiness with reviewed permissions and tested failures."
+}

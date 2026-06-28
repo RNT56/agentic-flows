@@ -1,0 +1,22 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "security.threat-modeling",
+    "version": "0.1.0",
+    "source": "flows/security/threat-modeling/flow.yaml"
+  },
+  "inputs": {
+    "system_description": "A webhook receiver that runs agent workflows from GitHub PR comments.",
+    "scope": "Trust boundary is the public webhook endpoint. Out of scope: GitHub's own auth."
+  },
+  "expected_outputs": {
+    "threat_model": "Assets: workflow runner, repo tokens. Actors: PR commenters (untrusted), maintainers. Boundaries: public webhook. Abuse paths: comment injection to trigger unintended runs; token exfiltration via crafted prompt. Mitigations below.",
+    "mitigations": {
+      "map": [
+        {"abuse_path": "comment injection", "mitigation": "treat comment bodies as untrusted; require maintainer label to run"},
+        {"abuse_path": "token exfiltration", "mitigation": "scope tokens per-repo; never echo secrets into model context"}
+      ]
+    }
+  },
+  "notes": "Enumerates assets, actors, boundaries, and abuse paths and maps each abuse path to a mitigation."
+}

@@ -1,0 +1,173 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "ops.flow-intake-and-routing",
+    "version": "0.1.0",
+    "source": "flows/ops/flow-intake-and-routing/flow.yaml"
+  },
+  "run": {
+    "id": "run-flow-intake-and-routing-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T15:00:00Z",
+    "completed_at": "2026-06-27T15:02:00Z"
+  },
+  "inputs": {
+    "request": "Refactor the billing module without changing behavior, then prove the public API is unchanged.",
+    "catalog": "https://github.com/RNT56/agentic-flows/tree/main/flows"
+  },
+  "outputs": {
+    "routing_decision": {
+      "selected_flow": "coding.refactor-and-verify",
+      "target_core": "nilcore",
+      "route": "high-risk-route",
+      "rationale": "Behavior-preserving refactor with a public API stability gate; routed for approval because it touches a shared contract."
+    },
+    "missing_context": "None - the request named the module, the no-behavior-change constraint, and the verification expectation."
+  },
+  "artifacts": [
+    {
+      "id": "routing-options",
+      "kind": "json",
+      "uri": "artifact://runs/run-flow-intake-and-routing-0001/routing-options.json"
+    },
+    {
+      "id": "routing-decision",
+      "kind": "json",
+      "uri": "artifact://runs/run-flow-intake-and-routing-0001/routing-decision.json"
+    },
+    {
+      "id": "approval-record",
+      "kind": "decision-record",
+      "uri": "artifact://runs/run-flow-intake-and-routing-0001/approval-record.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-intake-and-routing",
+      "flow_version": "0.1.0",
+      "run_id": "run-flow-intake-and-routing-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T15:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-intake-and-routing",
+      "flow_version": "0.1.0",
+      "run_id": "run-flow-intake-and-routing-0001",
+      "node_id": "intake",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T15:00:20Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-intake-and-routing",
+      "flow_version": "0.1.0",
+      "run_id": "run-flow-intake-and-routing-0001",
+      "node_id": "plan",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T15:00:50Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-intake-and-routing",
+      "flow_version": "0.1.0",
+      "run_id": "run-flow-intake-and-routing-0001",
+      "node_id": "route",
+      "event": "decision.recorded",
+      "timestamp": "2026-06-27T15:01:10Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "route": "high-risk-route",
+        "selected_flow": "coding.refactor-and-verify"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-intake-and-routing",
+      "flow_version": "0.1.0",
+      "run_id": "run-flow-intake-and-routing-0001",
+      "node_id": "route",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T15:01:15Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "route-compatible",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "routing-decision",
+          "kind": "json",
+          "uri": "artifact://runs/run-flow-intake-and-routing-0001/routing-decision.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-intake-and-routing",
+      "flow_version": "0.1.0",
+      "run_id": "run-flow-intake-and-routing-0001",
+      "node_id": "approval",
+      "event": "approval.completed",
+      "timestamp": "2026-06-27T15:01:40Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "decision": "approve"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-intake-and-routing",
+      "flow_version": "0.1.0",
+      "run_id": "run-flow-intake-and-routing-0001",
+      "node_id": "approval",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T15:01:45Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "high-risk-approval-logged",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "approval-record",
+          "kind": "decision-record",
+          "uri": "artifact://runs/run-flow-intake-and-routing-0001/approval-record.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-intake-and-routing",
+      "flow_version": "0.1.0",
+      "run_id": "run-flow-intake-and-routing-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T15:02:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.flow-intake-and-routing",
+      "flow_version": "0.1.0",
+      "run_id": "run-flow-intake-and-routing-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T15:02:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

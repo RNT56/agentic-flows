@@ -1,0 +1,112 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "personal.routine-authoring",
+    "version": "0.1.0",
+    "source": "flows/personal/routine-authoring/flow.yaml"
+  },
+  "run": {
+    "id": "run-thinclaw-routine-authoring-0001",
+    "core": "thinclaw",
+    "status": "completed",
+    "started_at": "2026-06-28T10:00:00Z",
+    "completed_at": "2026-06-28T10:20:00Z"
+  },
+  "inputs": {
+    "behavior_pattern": "Each morning I re-kick CI runs that failed on flaky tests.",
+    "constraints": "Max 2 re-kicks; CI workflows only."
+  },
+  "outputs": {
+    "routine_proposal": {
+      "trigger": "weekdays 08:00",
+      "action": "re-kick flaky CI failures",
+      "guardrails": [
+        "max 2 re-kicks",
+        "CI only"
+      ],
+      "rollback": "disable routine"
+    },
+    "enablement_decision": {
+      "decision": "approved",
+      "owner": "me"
+    }
+  },
+  "artifacts": [
+    {
+      "id": "routine-draft",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-routine-authoring-0001/routine-draft.json"
+    },
+    {
+      "id": "enablement-record",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-routine-authoring-0001/enablement-record.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "personal.routine-authoring",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-routine-authoring-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T10:00:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "personal.routine-authoring",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-routine-authoring-0001",
+      "node_id": "draft",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:10:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "routine-elements-present",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "routine-draft",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-routine-authoring-0001/routine-draft.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "personal.routine-authoring",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-routine-authoring-0001",
+      "node_id": "approval",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:15:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "enablement-approved",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "enablement-record",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-routine-authoring-0001/enablement-record.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "personal.routine-authoring",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-routine-authoring-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T10:20:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    }
+  ]
+}

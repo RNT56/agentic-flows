@@ -1,0 +1,27 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "orchestration.swarm-execution",
+    "version": "0.1.0",
+    "source": "flows/orchestration/swarm-execution/flow.yaml"
+  },
+  "capability_support": [
+    "task.decompose",
+    "worker.dispatch",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "finalizer": "closeout step",
+    "intake": "intake step",
+    "plan": "planning step",
+    "verifier": "verifier step"
+  },
+  "run_bundle": "runs/nilcore-swarm-execution.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore swarm-execution adapter."
+}

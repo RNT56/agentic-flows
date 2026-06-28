@@ -1,0 +1,124 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "security.access-review",
+    "version": "0.1.0",
+    "source": "flows/security/access-review/flow.yaml"
+  },
+  "run": {
+    "id": "run-access-review-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "access_inventory": {
+      "grants": [
+        {
+          "principal": "ci-bot",
+          "scope": "repo:write"
+        },
+        {
+          "principal": "alumni-user",
+          "scope": "deploy:prod"
+        }
+      ]
+    },
+    "policy": "Every grant needs owner and reason; revoke for departed users."
+  },
+  "outputs": {
+    "review_decisions": {
+      "decisions": [
+        {
+          "principal": "ci-bot",
+          "action": "keep",
+          "owner": "platform"
+        },
+        {
+          "principal": "alumni-user",
+          "action": "remove"
+        }
+      ]
+    },
+    "review_report": "1 kept with owner; 1 removed (departed)."
+  },
+  "artifacts": [
+    {
+      "id": "permission-inventory",
+      "kind": "json",
+      "uri": "artifact://runs/run-access-review-0001/permission-inventory.json"
+    },
+    {
+      "id": "review-decisions",
+      "kind": "json",
+      "uri": "artifact://runs/run-access-review-0001/review-decisions.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.access-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-access-review-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.access-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-access-review-0001",
+      "node_id": "inventory",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "permissions-have-owner-and-reason",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "permission-inventory",
+          "kind": "json",
+          "uri": "artifact://runs/run-access-review-0001/permission-inventory.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.access-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-access-review-0001",
+      "node_id": "review",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "removals-tracked",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "review-decisions",
+          "kind": "json",
+          "uri": "artifact://runs/run-access-review-0001/review-decisions.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.access-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-access-review-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

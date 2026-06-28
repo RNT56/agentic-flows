@@ -1,0 +1,107 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "orchestration.tool-creation",
+    "version": "0.1.0",
+    "source": "flows/orchestration/tool-creation/flow.yaml"
+  },
+  "run": {
+    "id": "run-crustcore-tool-creation-0001",
+    "core": "crustcore",
+    "status": "completed",
+    "started_at": "2026-06-28T10:00:00Z",
+    "completed_at": "2026-06-28T10:20:00Z"
+  },
+  "inputs": {
+    "need": "Diff two JSON Schemas reporting added/removed required fields.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "outputs": {
+    "tool_patch": "artifact://tool-diff",
+    "tool_schema": {
+      "name": "schemadiff",
+      "sandbox": "read-only-fs",
+      "permissions": [
+        "fs.read"
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "tool-schema",
+      "kind": "json",
+      "uri": "artifact://runs/run-crustcore-tool-creation-0001/tool-schema.json"
+    },
+    {
+      "id": "test-log",
+      "kind": "json",
+      "uri": "artifact://runs/run-crustcore-tool-creation-0001/test-log.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.tool-creation",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-tool-creation-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T10:00:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.tool-creation",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-tool-creation-0001",
+      "node_id": "design",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:10:00Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "schema-and-profile",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "tool-schema",
+          "kind": "json",
+          "uri": "artifact://runs/run-crustcore-tool-creation-0001/tool-schema.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.tool-creation",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-tool-creation-0001",
+      "node_id": "test",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:15:00Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "failure-tests",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "json",
+          "uri": "artifact://runs/run-crustcore-tool-creation-0001/test-log.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.tool-creation",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-tool-creation-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T10:20:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    }
+  ]
+}

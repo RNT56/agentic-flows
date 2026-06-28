@@ -1,0 +1,142 @@
+spec_version: agentic-flows/v1
+id: research.library-evaluation
+version: 0.1.0
+title: Library evaluation
+summary: Decide whether to adopt a library by inspecting primary docs, maintenance, license, and integration risk.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - research
+  - evaluation
+  - dependencies
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - standalone
+  required_capabilities:
+    - source.retrieve
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: library
+      type: text
+      required: true
+      description: The library or framework under evaluation.
+    - id: requirements
+      type: markdown
+      required: true
+      description: The needs and constraints the library must meet.
+  outputs:
+    - id: recommendation
+      type: json
+      required: true
+      description: Adopt or avoid decision with rationale.
+    - id: evaluation
+      type: markdown
+      required: true
+      description: The evaluation covering docs, maintenance, license, and integration risk.
+  artifacts:
+    - docs-review
+    - maintenance-check
+    - evaluation-notes
+nodes:
+  - id: intake
+    type: intake
+    title: Intake evaluation scope
+    description: Capture the library and the requirements it must meet.
+    produces:
+      - eval-scope
+  - id: inspect
+    type: agent_task
+    title: Inspect primary docs
+    description: Read the primary documentation and assess fit against the requirements.
+    agent: researcher
+    requires:
+      - eval-scope
+    produces:
+      - docs-review
+  - id: check
+    type: tool
+    title: Check maintenance and license
+    description: Check release cadence, open issues, and license, and run a smoke import.
+    tool: command-runner
+    requires:
+      - docs-review
+    produces:
+      - maintenance-check
+  - id: assess
+    type: verifier
+    title: Assess integration risk
+    description: Weigh fit, maintenance, license, and integration risk into an evaluation.
+    requires:
+      - docs-review
+      - maintenance-check
+    produces:
+      - evaluation-notes
+  - id: decide
+    type: decision
+    title: Adopt or avoid
+    description: Recommend adopting or avoiding the library with a rationale.
+    requires:
+      - evaluation-notes
+    produces:
+      - recommendation-record
+  - id: final
+    type: finalizer
+    title: Close out evaluation
+    description: Return the recommendation and the evaluation.
+    requires:
+      - evaluation-notes
+      - recommendation-record
+    produces:
+      - recommendation
+      - evaluation
+edges:
+  - from: intake
+    to: inspect
+  - from: inspect
+    to: check
+  - from: check
+    to: assess
+  - from: assess
+    to: decide
+  - from: decide
+    to: final
+    condition: adopt
+  - from: decide
+    to: final
+    condition: avoid
+quality_gates:
+  - id: primary-docs-inspected
+    title: Primary docs inspected
+    type: review
+    required: true
+    evidence: The review reflects the library's primary documentation, not secondhand summaries.
+    evidence_refs:
+      - docs-review
+  - id: maintenance-and-license-checked
+    title: Maintenance and license checked
+    type: artifact
+    required: true
+    evidence: Release cadence, open issues, and license are recorded.
+    evidence_refs:
+      - maintenance-check
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - decision.recorded
+    - gate.completed
+    - flow.completed
+  metrics:
+    - integration.risk
+    - duration.seconds

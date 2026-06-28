@@ -1,0 +1,22 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.large-refactor-safe-plan",
+    "version": "0.1.0",
+    "source": "flows/engineering/large-refactor-safe-plan/flow.yaml"
+  },
+  "inputs": {
+    "refactor_goal": "Extract the storage layer behind an interface without changing behavior.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "expected_outputs": {
+    "slice_plan": {
+      "slices": [
+        {"id": 1, "change": "introduce Storage interface, no callers changed", "acceptance": "tests green", "rollback": "revert interface commit"},
+        {"id": 2, "change": "route reads through interface", "acceptance": "tests green; behavior identical", "rollback": "revert read routing"}
+      ]
+    },
+    "baseline_evidence": "Baseline: 214 tests pass. Shared-contract tests for Storage added and passing before any behavior change."
+  },
+  "notes": "Splits a refactor into reversible slices and locks contract tests before behavior changes."
+}

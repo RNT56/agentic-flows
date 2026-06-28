@@ -6,9 +6,72 @@ This project follows semantic versioning for releases and keeps flow compatibili
 
 ## Unreleased
 
+### Added
+
+- Added the `ops.flow-intake-and-routing` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `ops.capability-negotiation` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `ops.event-and-evidence-bridge` reusable flow with a standalone run bundle, a multi-file event stream, and a NilCore contract smoke.
+- Added the `ops.adapter-certification` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `engineering.issue-to-verified-pr` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `proof.verified-patch-acceptance` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `engineering.ci-failure-diagnosis` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `engineering.pr-review-and-risk-notes` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `security.supply-chain-audit` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `orchestration.parallel-work-claiming` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `research.source-backed-brief` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `engineering.bug-reproduction-lab` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `engineering.dependency-upgrade` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `docs.decision-record` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `docs.postmortem` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `orchestration.handoff-and-resume` reusable flow (exercising the `handoff` node type) with a standalone run bundle and a NilCore contract smoke.
+- Added the `security.threat-modeling` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `proof.evidence-bundle-export` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `orchestration.agent-quality-review` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `research.codebase-orientation` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `engineering.schema-evolution` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `engineering.dead-code-retirement` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `security.connector-grant-review` reusable flow (approval-gated destructive grants) with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `engineering.docs-from-diff` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `engineering.flaky-test-stabilization` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `research.library-evaluation` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `orchestration.swarm-execution` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `proof.patch-risk-classification` reusable flow (fail-closed risk routing) with a standalone run bundle and a CrustCore contract smoke.
+- Added the `docs.migration-guide` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `ops.flow-version-upgrade` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `engineering.api-contract-change` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `engineering.large-refactor-safe-plan` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `orchestration.tool-creation` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `security.policy-exception` reusable flow (approval-gated bypass) with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `docs.operating-handbook` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `security.audit-trail-reconstruction` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `product.feedback-to-roadmap` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `docs.api-reference-refresh` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `research.paper-to-implementation-plan` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `research.market-and-user-value` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `orchestration.skill-authoring` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `program.research-to-roadmap` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `program.knowledge-base-maintenance` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `personal.commitment-ledger` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `personal.memory-curation` reusable flow (approval-gated sensitive memory) with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `personal.routine-authoring` reusable flow (approval-gated enablement) with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `engineering.security-hotfix` reusable flow (approval-gated release) with a standalone run bundle and a CrustCore contract smoke.
+- Added the `engineering.repository-bootstrap` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `engineering.monorepo-slice-execution` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `engineering.performance-regression` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `engineering.issue-backlog-grooming` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `proof.release-candidate-audit` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `security.untrusted-output-routing` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `security.access-review` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `research.technology-radar` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `ops.incident-response` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `orchestration.self-improvement-loop` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `program.connector-productionization` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added `docs/buildable-now.md`, an evidence-backed assessment of which backlog workflows can be built end-to-end now.
+
 ### Changed
 
 - Reworked the README into a full project landing page with vision, catalog status, workflow backlog links, runtime-boundary framing, and validation guidance.
+- Expanded the catalog to sixty-four reusable workflows, completing all 46 build-now candidates plus the 12 strongest contract-first backlog flows (security hotfix, repo bootstrap, monorepo slice, performance regression, backlog grooming, release-candidate audit, untrusted-output routing, access review, technology radar, incident response, self-improvement loop, connector productionization), and recorded their compatibility states.
 
 ## 0.1.1 - 2026-06-27
 

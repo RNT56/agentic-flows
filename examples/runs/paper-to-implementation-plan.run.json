@@ -1,0 +1,109 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "research.paper-to-implementation-plan",
+    "version": "0.1.0",
+    "source": "flows/research/paper-to-implementation-plan/flow.yaml"
+  },
+  "run": {
+    "id": "run-paper-to-implementation-plan-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "paper": "A cache eviction policy claiming 15% hit-rate gain over LRU.",
+    "goal": "Decide whether to implement it."
+  },
+  "outputs": {
+    "implementation_plan": "Slice 1 implement behind flag; Slice 2 replay traces; Slice 3 compare vs LRU. Assumption: our traces resemble theirs.",
+    "validation_tasks": {
+      "tasks": [
+        {
+          "experiment": "replay 7d traces",
+          "metric": "hit-rate delta",
+          "acceptance": ">=5% gain"
+        }
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "claim-extraction",
+      "kind": "json",
+      "uri": "artifact://runs/run-paper-to-implementation-plan-0001/claim-extraction.json"
+    },
+    {
+      "id": "validation-tasks",
+      "kind": "json",
+      "uri": "artifact://runs/run-paper-to-implementation-plan-0001/validation-tasks.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.paper-to-implementation-plan",
+      "flow_version": "0.1.0",
+      "run_id": "run-paper-to-implementation-plan-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.paper-to-implementation-plan",
+      "flow_version": "0.1.0",
+      "run_id": "run-paper-to-implementation-plan-0001",
+      "node_id": "extract",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "assumptions-separated",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "claim-extraction",
+          "kind": "json",
+          "uri": "artifact://runs/run-paper-to-implementation-plan-0001/claim-extraction.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.paper-to-implementation-plan",
+      "flow_version": "0.1.0",
+      "run_id": "run-paper-to-implementation-plan-0001",
+      "node_id": "define",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "metrics-defined",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "validation-tasks",
+          "kind": "json",
+          "uri": "artifact://runs/run-paper-to-implementation-plan-0001/validation-tasks.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.paper-to-implementation-plan",
+      "flow_version": "0.1.0",
+      "run_id": "run-paper-to-implementation-plan-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

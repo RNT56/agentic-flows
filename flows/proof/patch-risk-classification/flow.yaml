@@ -1,0 +1,137 @@
+spec_version: agentic-flows/v1
+id: proof.patch-risk-classification
+version: 0.1.0
+title: Patch risk classification
+summary: Classify a patch by reversibility, policy risk, required approval, and expected verification, failing closed on unknowns.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - proof
+  - risk
+  - policy
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - patch.inspect
+    - policy.evaluate
+    - human.review
+    - decision.record
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: risk-policy
+    nilcore:
+      execution_mode: preflight-check
+contracts:
+  inputs:
+    - id: patch
+      type: patch
+      required: true
+      description: The patch to classify.
+    - id: policy
+      type: markdown
+      required: true
+      description: The risk and approval policy to classify against.
+  outputs:
+    - id: risk_classification
+      type: json
+      required: true
+      description: Reversibility, policy risk, required approval, and expected verification.
+    - id: policy_decision
+      type: json
+      required: true
+      description: The logged policy decision, including fail-closed on unknown risk.
+  artifacts:
+    - risk-analysis
+    - policy-decision
+    - approval-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake patch
+    description: Capture the patch and the policy to classify against.
+    produces:
+      - classification-request
+  - id: analyze
+    type: agent_task
+    title: Analyze risk
+    description: Assess reversibility, blast radius, and policy-relevant operations.
+    agent: risk-analyst
+    requires:
+      - classification-request
+    produces:
+      - risk-analysis
+  - id: classify
+    type: decision
+    title: Classify and route
+    description: Classify the risk; unknown risk fails closed and destructive paths require approval.
+    requires:
+      - risk-analysis
+    produces:
+      - policy-decision
+  - id: approval
+    type: approval
+    title: Approve destructive or unknown risk
+    description: Require an explicit operator approval for destructive or unknown-risk patches.
+    requires:
+      - policy-decision
+    produces:
+      - approval-record
+    policy:
+      human_required_when:
+        - destructive_change
+        - unknown_risk
+  - id: final
+    type: finalizer
+    title: Close out classification
+    description: Return the risk classification and the logged policy decision.
+    requires:
+      - policy-decision
+    produces:
+      - risk_classification
+      - policy_decision
+edges:
+  - from: intake
+    to: analyze
+  - from: analyze
+    to: classify
+  - from: classify
+    to: approval
+    condition: destructive-or-unknown
+  - from: classify
+    to: final
+    condition: low-risk-reversible
+  - from: approval
+    to: final
+quality_gates:
+  - id: policy-decision-logged
+    title: Policy decision logged and fails closed
+    type: artifact
+    required: true
+    evidence: The policy decision is logged; unknown risk is classified as fail-closed.
+    evidence_refs:
+      - policy-decision
+  - id: destructive-requires-approval
+    title: Destructive or unknown risk requires approval
+    type: policy
+    required: false
+    evidence: Destructive or unknown-risk patches capture an explicit operator approval.
+    evidence_refs:
+      - approval-record
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - decision.recorded
+    - approval.requested
+    - approval.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - risk.level
+    - duration.seconds

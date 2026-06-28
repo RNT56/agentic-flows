@@ -1,0 +1,126 @@
+spec_version: agentic-flows/v1
+id: docs.postmortem
+version: 0.1.0
+title: Postmortem
+summary: Produce a blameless postmortem with a sourced timeline, impact, causes, and owned action items.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - docs
+  - postmortem
+  - incident
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - standalone
+  required_capabilities:
+    - timeline.assemble
+    - evidence.capture
+  adapter_hints:
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: incident
+      type: markdown
+      required: true
+      description: The incident summary and what is known so far.
+    - id: sources
+      type: json
+      required: true
+      description: Event, log, and chat sources used to build the timeline.
+  outputs:
+    - id: postmortem
+      type: markdown
+      required: true
+      description: The blameless postmortem with timeline, impact, causes, and unknowns.
+    - id: action_items
+      type: json
+      required: true
+      description: Action items, each with an owner.
+  artifacts:
+    - timeline
+    - cause-analysis
+    - action-items
+nodes:
+  - id: intake
+    type: intake
+    title: Intake incident
+    description: Capture the incident summary and the available sources.
+    produces:
+      - incident-context
+  - id: assemble
+    type: agent_task
+    title: Assemble timeline
+    description: Build a source-cited timeline of what happened and when.
+    agent: analyst
+    requires:
+      - incident-context
+    produces:
+      - timeline
+  - id: analyze
+    type: agent_task
+    title: Analyze causes
+    description: Identify impact, contributing causes, and owned action items without blame.
+    agent: analyst
+    requires:
+      - timeline
+    produces:
+      - cause-analysis
+      - action-items
+  - id: verify
+    type: verifier
+    title: Verify completeness
+    description: Confirm the timeline cites sources, action items have owners, and unknowns are explicit.
+    requires:
+      - timeline
+      - action-items
+    produces:
+      - postmortem-check
+  - id: final
+    type: finalizer
+    title: Close out postmortem
+    description: Return the postmortem and the owned action items.
+    requires:
+      - cause-analysis
+      - action-items
+      - postmortem-check
+    produces:
+      - postmortem
+      - action_items
+edges:
+  - from: intake
+    to: assemble
+  - from: assemble
+    to: analyze
+  - from: analyze
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: timeline-cited
+    title: Timeline entries cite sources
+    type: review
+    required: true
+    evidence: Each timeline entry cites the source it was drawn from.
+    evidence_refs:
+      - timeline
+  - id: action-items-owned
+    title: Action items have owners
+    type: artifact
+    required: true
+    evidence: Every action item names an owner.
+    evidence_refs:
+      - action-items
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - timeline.entries
+    - action.items
+    - duration.seconds

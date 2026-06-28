@@ -1,0 +1,113 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.issue-backlog-grooming",
+    "version": "0.1.0",
+    "source": "flows/engineering/issue-backlog-grooming/flow.yaml"
+  },
+  "run": {
+    "id": "run-thinclaw-issue-backlog-grooming-0001",
+    "core": "thinclaw",
+    "status": "completed",
+    "started_at": "2026-06-28T10:00:00Z",
+    "completed_at": "2026-06-28T10:20:00Z"
+  },
+  "inputs": {
+    "issues": "#12 crash; #15 dup of #12; #20 feature; #21 blocked on #12.",
+    "priorities": "Crashes P0; features P2."
+  },
+  "outputs": {
+    "dispositions": {
+      "issues": [
+        {
+          "id": 12,
+          "priority": "P0",
+          "next": "fix"
+        },
+        {
+          "id": 15,
+          "repro": "duplicate-of-12"
+        }
+      ]
+    },
+    "summary": "2 P0 (one dup), 1 blocked, 1 P2 deferred."
+  },
+  "artifacts": [
+    {
+      "id": "triage-table",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-issue-backlog-grooming-0001/triage-table.json"
+    },
+    {
+      "id": "duplicate-map",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-issue-backlog-grooming-0001/duplicate-map.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-backlog-grooming",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-issue-backlog-grooming-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T10:00:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-backlog-grooming",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-issue-backlog-grooming-0001",
+      "node_id": "triage",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:10:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "each-issue-disposed",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "triage-table",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-issue-backlog-grooming-0001/triage-table.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-backlog-grooming",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-issue-backlog-grooming-0001",
+      "node_id": "dedupe",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:15:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "duplicates-cite-evidence",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "duplicate-map",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-issue-backlog-grooming-0001/duplicate-map.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-backlog-grooming",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-issue-backlog-grooming-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T10:20:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    }
+  ]
+}

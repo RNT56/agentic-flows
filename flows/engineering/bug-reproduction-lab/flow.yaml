@@ -1,0 +1,141 @@
+spec_version: agentic-flows/v1
+id: engineering.bug-reproduction-lab
+version: 0.1.0
+title: Bug reproduction lab
+summary: Convert a bug report into a minimal reproduction and a test that fails before any fix.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - reproduction
+  - testing
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - command.run
+    - test.author
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: bug_report
+      type: markdown
+      required: true
+      description: The bug report with observed and expected behavior.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target.
+  outputs:
+    - id: reproduction
+      type: markdown
+      required: true
+      description: Minimal reproduction steps or an explanation of why it cannot be reproduced.
+    - id: failing_test
+      type: patch
+      required: true
+      description: A test that fails before the fix, or an explicit none when not reproducible.
+  artifacts:
+    - repro-command
+    - repro-notes
+    - failing-test
+    - repro-evidence
+nodes:
+  - id: intake
+    type: intake
+    title: Intake bug report
+    description: Capture the bug report, the repo target, and the observed and expected behavior.
+    produces:
+      - bug-context
+  - id: attempt
+    type: tool
+    title: Attempt reproduction
+    description: Try to reproduce the bug locally and capture the command and output.
+    tool: command-runner
+    requires:
+      - bug-context
+    produces:
+      - repro-command
+  - id: decide
+    type: decision
+    title: Reproducible or not
+    description: Decide whether the bug reproduced and record the reproduction or an impossibility note.
+    requires:
+      - repro-command
+    produces:
+      - repro-notes
+  - id: author
+    type: agent_task
+    title: Author failing test
+    description: Write the smallest test that captures the bug and fails before any fix.
+    agent: test-author
+    requires:
+      - repro-command
+    produces:
+      - failing-test
+  - id: verify
+    type: verifier
+    title: Confirm test fails
+    description: Run the authored test and confirm it fails before any fix is applied.
+    requires:
+      - failing-test
+    produces:
+      - repro-evidence
+  - id: final
+    type: finalizer
+    title: Close out reproduction
+    description: Return the reproduction or impossibility note and the failing test.
+    requires:
+      - repro-notes
+      - failing-test
+    produces:
+      - reproduction
+      - failing_test
+edges:
+  - from: intake
+    to: attempt
+  - from: attempt
+    to: decide
+  - from: decide
+    to: author
+    condition: reproduced
+  - from: decide
+    to: final
+    condition: not-reproducible
+  - from: author
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: repro-or-impossibility
+    title: Reproduction or impossibility recorded
+    type: review
+    required: true
+    evidence: A reproduction command exists or an explicit impossibility explanation is recorded.
+    evidence_refs:
+      - repro-notes
+  - id: test-fails-before-fix
+    title: Test fails before fix
+    type: command
+    required: false
+    command: make test || npm test || cargo test || go test ./...
+    evidence: The authored test fails before any fix is applied.
+    evidence_refs:
+      - repro-evidence
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - decision.recorded
+    - gate.completed
+    - flow.completed
+  metrics:
+    - reproduced
+    - duration.seconds

@@ -1,0 +1,27 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "engineering.docs-from-diff",
+    "version": "0.1.0",
+    "source": "flows/engineering/docs-from-diff/flow.yaml"
+  },
+  "capability_support": [
+    "diff.read",
+    "docs.read",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "decision": "decision step",
+    "finalizer": "closeout step",
+    "intake": "intake step",
+    "verifier": "verifier step"
+  },
+  "run_bundle": "runs/nilcore-docs-from-diff.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore docs-from-diff worker adapter."
+}

@@ -1,0 +1,23 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "proof.verified-patch-acceptance",
+    "version": "0.1.0",
+    "source": "flows/proof/verified-patch-acceptance/flow.yaml"
+  },
+  "inputs": {
+    "patch": "diff --git a/cli/status.py b/cli/status.py\n@@ add --json flag @@",
+    "acceptance_criteria": "Required gates: project tests pass; no public API change without a note. Accept only when both have passing evidence."
+  },
+  "expected_outputs": {
+    "acceptance_verdict": {
+      "verdict": "accept",
+      "gates": [
+        {"gate_id": "verifier-checks-pass", "status": "passed", "evidence": "test-log"},
+        {"gate_id": "verdict-present", "status": "passed", "evidence": "acceptance-verdict"}
+      ]
+    },
+    "proof_report": "Accepted. Both required gates have passing verifier evidence; no model completion claim was used."
+  },
+  "notes": "Accepts a patch only on complete, cited verifier evidence."
+}

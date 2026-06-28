@@ -1,0 +1,23 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "docs.migration-guide",
+    "version": "0.1.0",
+    "source": "flows/docs/migration-guide/flow.yaml"
+  },
+  "inputs": {
+    "breaking_change": "flowctl validate now requires a maturity rubric in every production flow README.",
+    "audience": "Maintainers with existing flows that lack a rubric section."
+  },
+  "expected_outputs": {
+    "migration_guide": "## Old vs new\nOld: READMEs were optional prose. New: production flow READMEs must contain a '## Maturity rubric'. ## Steps\n1. Add the rubric section. 2. Run flowctl report. ## Rollback\nPin the previous flowctl release until rubrics are added.",
+    "steps": {
+      "steps": [
+        "Add a '## Maturity rubric' section to each flow README",
+        "Run flowctl report to confirm no missing-rubric issues",
+        "Rollback: pin the previous flowctl release if needed"
+      ]
+    }
+  },
+  "notes": "Writes a migration guide comparing old and new behavior with ordered steps and a rollback."
+}

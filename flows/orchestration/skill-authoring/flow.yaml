@@ -1,0 +1,126 @@
+spec_version: agentic-flows/v1
+id: orchestration.skill-authoring
+version: 0.1.0
+title: Skill authoring
+summary: Turn repeated domain knowledge into a reusable skill with triggers, instructions, assets, and examples.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - orchestration
+  - skill
+  - knowledge
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - standalone
+  required_capabilities:
+    - knowledge.read
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: domain_knowledge
+      type: markdown
+      required: true
+      description: The repeated domain knowledge to capture.
+    - id: trigger
+      type: markdown
+      required: true
+      description: When the skill should apply.
+  outputs:
+    - id: skill
+      type: markdown
+      required: true
+      description: The reusable skill with triggers, instructions, and assets.
+    - id: validation_examples
+      type: json
+      required: true
+      description: Examples that demonstrate the skill applying correctly.
+  artifacts:
+    - skill-draft
+    - validation-examples
+nodes:
+  - id: intake
+    type: intake
+    title: Intake knowledge
+    description: Capture the domain knowledge and the trigger conditions.
+    produces:
+      - skill-scope
+  - id: author
+    type: agent_task
+    title: Author the skill
+    description: Write the skill with triggers, instructions, and any required assets.
+    agent: skill-author
+    requires:
+      - skill-scope
+    produces:
+      - skill-draft
+  - id: examples
+    type: agent_task
+    title: Add validation examples
+    description: Add examples that demonstrate the skill applying correctly.
+    agent: skill-author
+    requires:
+      - skill-draft
+    produces:
+      - validation-examples
+  - id: verify
+    type: verifier
+    title: Verify the skill
+    description: Confirm triggers, instructions, assets, and validation examples are present.
+    requires:
+      - skill-draft
+      - validation-examples
+    produces:
+      - skill-check
+  - id: final
+    type: finalizer
+    title: Close out skill
+    description: Return the skill and its validation examples.
+    requires:
+      - skill-draft
+      - validation-examples
+      - skill-check
+    produces:
+      - skill
+      - validation_examples
+edges:
+  - from: intake
+    to: author
+  - from: author
+    to: examples
+  - from: examples
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: skill-elements-present
+    title: Triggers, instructions, and assets present
+    type: review
+    required: true
+    evidence: The skill declares trigger conditions, instructions, and required assets.
+    evidence_refs:
+      - skill-draft
+  - id: validation-examples-present
+    title: Validation examples present
+    type: artifact
+    required: true
+    evidence: The skill includes examples demonstrating correct application.
+    evidence_refs:
+      - validation-examples
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - examples.count
+    - duration.seconds

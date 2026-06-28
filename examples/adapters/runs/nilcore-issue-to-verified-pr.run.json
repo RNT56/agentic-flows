@@ -1,0 +1,117 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.issue-to-verified-pr",
+    "version": "0.1.0",
+    "source": "flows/engineering/issue-to-verified-pr/flow.yaml"
+  },
+  "run": {
+    "id": "run-nilcore-issue-to-verified-pr-0001",
+    "core": "nilcore",
+    "status": "completed",
+    "started_at": "2026-06-27T19:20:00Z",
+    "completed_at": "2026-06-27T19:25:00Z"
+  },
+  "inputs": {
+    "issue": "Add a --json flag to the status command. Acceptance: existing text output unchanged; new flag emits valid JSON; tests cover both paths.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "outputs": {
+    "patch": "artifact://diff",
+    "pr_summary": "artifact://pr-summary"
+  },
+  "artifacts": [
+    {
+      "id": "diff",
+      "kind": "patch",
+      "uri": "artifact://runs/run-nilcore-issue-to-verified-pr-0001/diff.patch"
+    },
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-nilcore-issue-to-verified-pr-0001/test.log"
+    },
+    {
+      "id": "review-notes",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-nilcore-issue-to-verified-pr-0001/review-notes.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-issue-to-verified-pr-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T19:20:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-issue-to-verified-pr-0001",
+      "node_id": "implement",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T19:22:30Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-issue-to-verified-pr-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T19:24:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "tests-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-nilcore-issue-to-verified-pr-0001/test.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-issue-to-verified-pr-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T19:24:20Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "scope-frozen",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "review-notes",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-nilcore-issue-to-verified-pr-0001/review-notes.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-issue-to-verified-pr-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T19:25:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "security.access-review",
+    "version": "0.1.0",
+    "source": "flows/security/access-review/flow.yaml"
+  },
+  "inputs": {
+    "access_inventory": {
+      "grants": [
+        {"principal": "ci-bot", "scope": "repo:write", "owner": "unknown"},
+        {"principal": "alumni-user", "scope": "deploy:prod", "owner": "none"}
+      ]
+    },
+    "policy": "Every grant needs an owner and reason; revoke grants for departed users."
+  },
+  "expected_outputs": {
+    "review_decisions": {
+      "decisions": [
+        {"principal": "ci-bot", "action": "keep", "owner": "platform", "reason": "needed for releases"},
+        {"principal": "alumni-user", "action": "remove", "reason": "user departed"}
+      ]
+    },
+    "review_report": "1 grant kept with assigned owner; 1 removed (departed user). No unexplained grants remain."
+  },
+  "notes": "Reviews grants so each has an owner and reason, and tracks removals."
+}

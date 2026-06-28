@@ -1,0 +1,26 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "proof.evidence-bundle-export",
+    "version": "0.1.0",
+    "source": "flows/proof/evidence-bundle-export/flow.yaml"
+  },
+  "inputs": {
+    "run_bundle": "file://examples/runs/feature-implementation.run.json",
+    "verifier_outcome": {
+      "verdict": "accepted",
+      "verifier": "crustcore"
+    }
+  },
+  "expected_outputs": {
+    "proof_bundle": {
+      "flow": "coding.feature-implementation@0.1.0",
+      "events": 10,
+      "gates": ["project-checks-pass", "acceptance-covered"],
+      "artifacts": ["diff", "test-log", "review-notes", "closeout"],
+      "verdict": "accepted"
+    },
+    "export_manifest": "Proof bundle for run-feature-implementation-0001: flow version, 10 events, 2 passed gates with evidence, 4 artifact refs, verdict accepted."
+  },
+  "notes": "Exports a compact proof bundle for a completed run with the verifier outcome attached."
+}

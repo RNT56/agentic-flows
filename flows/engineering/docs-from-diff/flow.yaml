@@ -1,0 +1,138 @@
+spec_version: agentic-flows/v1
+id: engineering.docs-from-diff
+version: 0.1.0
+title: Docs from diff
+summary: Detect when a code change requires docs, examples, or changelog updates and make or justify them.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - docs
+  - changelog
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - standalone
+  required_capabilities:
+    - diff.read
+    - docs.read
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: diff
+      type: patch
+      required: true
+      description: The code change to assess for documentation impact.
+    - id: docs_root
+      type: uri
+      required: true
+      description: The documentation root to update.
+  outputs:
+    - id: docs_decision
+      type: json
+      required: true
+      description: Whether docs are impacted and which docs are affected.
+    - id: docs_patch
+      type: patch
+      required: true
+      description: The documentation updates, or an explicit none with justification.
+  artifacts:
+    - impact-analysis
+    - docs-decision
+    - docs-diff
+nodes:
+  - id: intake
+    type: intake
+    title: Intake the diff
+    description: Capture the code change and the documentation root.
+    produces:
+      - diff-context
+  - id: analyze
+    type: agent_task
+    title: Analyze docs impact
+    description: Determine whether the change touches documented behavior, examples, or the changelog.
+    agent: docs-analyst
+    requires:
+      - diff-context
+    produces:
+      - impact-analysis
+  - id: decide
+    type: decision
+    title: Docs needed or not
+    description: Decide explicitly whether documentation updates are required.
+    requires:
+      - impact-analysis
+    produces:
+      - docs-decision
+  - id: update
+    type: agent_task
+    title: Update docs
+    description: Apply the documentation, example, or changelog updates.
+    agent: docs-writer
+    requires:
+      - docs-decision
+    produces:
+      - docs-diff
+  - id: verify
+    type: verifier
+    title: Verify docs decision
+    description: Confirm the docs-impact decision is explicit and updates were made or non-impact justified.
+    requires:
+      - docs-decision
+    produces:
+      - docs-check
+  - id: final
+    type: finalizer
+    title: Close out docs impact
+    description: Return the docs decision and the documentation patch.
+    requires:
+      - docs-decision
+      - docs-check
+    produces:
+      - docs_decision
+      - docs_patch
+edges:
+  - from: intake
+    to: analyze
+  - from: analyze
+    to: decide
+  - from: decide
+    to: update
+    condition: docs-needed
+  - from: decide
+    to: final
+    condition: no-impact
+  - from: update
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: docs-impact-explicit
+    title: Docs-impact decision is explicit
+    type: review
+    required: true
+    evidence: The decision states whether docs are impacted and which docs are affected.
+    evidence_refs:
+      - docs-decision
+  - id: docs-updated-or-justified
+    title: Docs updated or non-impact justified
+    type: review
+    required: false
+    evidence: Affected docs are updated, or a non-impact is explicitly justified.
+    evidence_refs:
+      - docs-diff
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - decision.recorded
+    - gate.completed
+    - flow.completed
+  metrics:
+    - docs.touched
+    - duration.seconds

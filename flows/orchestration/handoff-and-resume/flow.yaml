@@ -1,0 +1,127 @@
+spec_version: agentic-flows/v1
+id: orchestration.handoff-and-resume
+version: 0.1.0
+title: Handoff and resume
+summary: Compact current work into a handoff packet so another agent or future run can resume cleanly.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - orchestration
+  - handoff
+  - resume
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - standalone
+  required_capabilities:
+    - state.compact
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+    thinclaw:
+      routine_type: durable-handoff
+contracts:
+  inputs:
+    - id: session_state
+      type: json
+      required: true
+      description: The current work state to compact for handoff.
+    - id: next_owner
+      type: text
+      required: true
+      description: The agent or future run that will resume the work.
+  outputs:
+    - id: handoff_packet
+      type: markdown
+      required: true
+      description: Compact state, decisions, blockers, validation status, and next commands.
+    - id: resume_checklist
+      type: json
+      required: true
+      description: Ordered next commands for the resuming owner.
+  artifacts:
+    - state-snapshot
+    - handoff-packet
+    - resume-checklist
+nodes:
+  - id: intake
+    type: intake
+    title: Intake session state
+    description: Capture the current work state and the next owner.
+    produces:
+      - session-context
+  - id: compact
+    type: agent_task
+    title: Compact state
+    description: Reduce the session into a snapshot of state, decisions, and blockers.
+    agent: compactor
+    requires:
+      - session-context
+    produces:
+      - state-snapshot
+  - id: handoff
+    type: handoff
+    title: Assemble handoff packet
+    description: Build the handoff packet and an ordered resume checklist for the next owner.
+    requires:
+      - state-snapshot
+    produces:
+      - handoff-packet
+      - resume-checklist
+  - id: verify
+    type: verifier
+    title: Verify handoff completeness
+    description: Confirm state, decisions, blockers, validation status, and next commands are present.
+    requires:
+      - handoff-packet
+      - resume-checklist
+    produces:
+      - handoff-check
+  - id: final
+    type: finalizer
+    title: Close out handoff
+    description: Return the handoff packet and the resume checklist.
+    requires:
+      - handoff-packet
+      - handoff-check
+    produces:
+      - handoff_packet
+      - resume_checklist
+edges:
+  - from: intake
+    to: compact
+  - from: compact
+    to: handoff
+  - from: handoff
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: state-preserved
+    title: Handoff preserves the working state
+    type: artifact
+    required: true
+    evidence: The packet preserves current state, decisions, blockers, validation, and next commands.
+    evidence_refs:
+      - handoff-packet
+  - id: resume-ordered
+    title: Resume checklist is ordered and runnable
+    type: review
+    required: false
+    evidence: The resume checklist lists ordered, runnable next commands.
+    evidence_refs:
+      - resume-checklist
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - handoff.recorded
+    - gate.completed
+    - flow.completed
+  metrics:
+    - blockers.count
+    - duration.seconds

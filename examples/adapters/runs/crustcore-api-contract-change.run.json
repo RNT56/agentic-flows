@@ -1,0 +1,101 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.api-contract-change",
+    "version": "0.1.0",
+    "source": "flows/engineering/api-contract-change/flow.yaml"
+  },
+  "run": {
+    "id": "run-crustcore-api-contract-change-0001",
+    "core": "crustcore",
+    "status": "completed",
+    "started_at": "2026-06-28T10:00:00Z",
+    "completed_at": "2026-06-28T10:20:00Z"
+  },
+  "inputs": {
+    "contract_change": "Return created_at as RFC3339 instead of epoch.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "outputs": {
+    "change_patch": "artifact://change-diff",
+    "compatibility_notes": "Consumers: web, mobile, billing. Dual-format shim added for one release."
+  },
+  "artifacts": [
+    {
+      "id": "consumer-inventory",
+      "kind": "json",
+      "uri": "artifact://runs/run-crustcore-api-contract-change-0001/consumer-inventory.json"
+    },
+    {
+      "id": "compatibility-notes",
+      "kind": "json",
+      "uri": "artifact://runs/run-crustcore-api-contract-change-0001/compatibility-notes.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.api-contract-change",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-api-contract-change-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T10:00:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.api-contract-change",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-api-contract-change-0001",
+      "node_id": "enumerate",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:10:00Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "consumers-enumerated",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "consumer-inventory",
+          "kind": "json",
+          "uri": "artifact://runs/run-crustcore-api-contract-change-0001/consumer-inventory.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.api-contract-change",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-api-contract-change-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:15:00Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "compatibility-story",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "compatibility-notes",
+          "kind": "json",
+          "uri": "artifact://runs/run-crustcore-api-contract-change-0001/compatibility-notes.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.api-contract-change",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-api-contract-change-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T10:20:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    }
+  ]
+}

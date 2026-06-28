@@ -1,0 +1,127 @@
+spec_version: agentic-flows/v1
+id: security.untrusted-output-routing
+version: 0.1.0
+title: Untrusted output routing
+summary: Route model, tool, or browser output through tainting and redaction before it can influence decisions.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - security
+  - tainting
+  - redaction
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - taint.track
+    - policy.evaluate
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: taint-policy
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: untrusted_output
+      type: markdown
+      required: true
+      description: The model, tool, or browser output to route.
+    - id: policy
+      type: markdown
+      required: true
+      description: The tainting and redaction policy.
+  outputs:
+    - id: routing_decision
+      type: json
+      required: true
+      description: How the output may be used and what is blocked.
+    - id: redaction_report
+      type: markdown
+      required: true
+      description: What was redacted and why.
+  artifacts:
+    - taint-analysis
+    - redaction-record
+    - routing-decision
+nodes:
+  - id: intake
+    type: intake
+    title: Intake output
+    description: Capture the untrusted output and the routing policy.
+    produces:
+      - routing-input
+  - id: taint
+    type: agent_task
+    title: Track taint
+    description: Mark the output as tainted and trace what it could influence.
+    agent: security-analyst
+    requires:
+      - routing-input
+    produces:
+      - taint-analysis
+  - id: redact
+    type: tool
+    title: Redact sensitive content
+    description: Redact sensitive spans and record what was removed.
+    tool: redactor
+    requires:
+      - taint-analysis
+    produces:
+      - redaction-record
+  - id: decide
+    type: verifier
+    title: Decide routing
+    description: Confirm tainted content cannot directly authorize actions and set the routing decision.
+    requires:
+      - taint-analysis
+      - redaction-record
+    produces:
+      - routing-decision
+  - id: final
+    type: finalizer
+    title: Close out routing
+    description: Return the routing decision and the redaction report.
+    requires:
+      - routing-decision
+      - redaction-record
+    produces:
+      - routing_decision
+      - redaction_report
+edges:
+  - from: intake
+    to: taint
+  - from: taint
+    to: redact
+  - from: redact
+    to: decide
+  - from: decide
+    to: final
+quality_gates:
+  - id: tainted-cannot-authorize
+    title: Tainted inputs cannot authorize actions
+    type: policy
+    required: true
+    evidence: The taint analysis shows tainted content cannot directly authorize an action.
+    evidence_refs:
+      - taint-analysis
+  - id: redaction-evidence
+    title: Redaction evidence exists
+    type: artifact
+    required: true
+    evidence: The redaction record lists what was removed and why.
+    evidence_refs:
+      - redaction-record
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - redactions.count
+    - duration.seconds

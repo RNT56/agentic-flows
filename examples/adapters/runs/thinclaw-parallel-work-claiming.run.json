@@ -1,0 +1,126 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "orchestration.parallel-work-claiming",
+    "version": "0.1.0",
+    "source": "flows/orchestration/parallel-work-claiming/flow.yaml"
+  },
+  "run": {
+    "id": "run-thinclaw-parallel-work-claiming-0001",
+    "core": "thinclaw",
+    "status": "completed",
+    "started_at": "2026-06-28T09:20:00Z",
+    "completed_at": "2026-06-28T09:22:00Z"
+  },
+  "inputs": {
+    "objective": "Add three new reusable flows to the catalog without colliding on shared docs.",
+    "active_claims": [
+      {"lane": "docs/README.md", "owner": "agent-a"}
+    ]
+  },
+  "outputs": {
+    "lane_assignments": {
+      "lanes": [
+        {"lane": "flows/engineering/ci-failure-diagnosis", "owner": "agent-b", "paths": ["flows/engineering/ci-failure-diagnosis/**"]}
+      ]
+    },
+    "claim_ledger": {
+      "active": [
+        {"lane": "docs/README.md", "owner": "agent-a"},
+        {"lane": "flows/engineering/ci-failure-diagnosis", "owner": "agent-b"}
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "lane-plan",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-parallel-work-claiming-0001/lane-plan.json"
+    },
+    {
+      "id": "claim-ledger",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-parallel-work-claiming-0001/claim-ledger.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.parallel-work-claiming",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-parallel-work-claiming-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.parallel-work-claiming",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-parallel-work-claiming-0001",
+      "node_id": "claim",
+      "event": "claim.registered",
+      "timestamp": "2026-06-28T09:21:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "lanes": 1
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.parallel-work-claiming",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-parallel-work-claiming-0001",
+      "node_id": "decompose",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:21:20Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "lanes-explicit",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "lane-plan",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-parallel-work-claiming-0001/lane-plan.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.parallel-work-claiming",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-parallel-work-claiming-0001",
+      "node_id": "detect",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:21:40Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "claims-checked",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "claim-ledger",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-parallel-work-claiming-0001/claim-ledger.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.parallel-work-claiming",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-parallel-work-claiming-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:22:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    }
+  ]
+}

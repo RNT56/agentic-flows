@@ -1,0 +1,122 @@
+spec_version: agentic-flows/v1
+id: proof.evidence-bundle-export
+version: 0.1.0
+title: Evidence bundle export
+summary: Export a compact proof bundle for a completed run with flow version, events, gate evidence, and verdict.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - proof
+  - evidence
+  - export
+entrypoint: intake
+runtime:
+  supported_cores:
+    - crustcore
+    - standalone
+  required_capabilities:
+    - run.read
+    - evidence.bundle
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: evidence-bundle
+contracts:
+  inputs:
+    - id: run_bundle
+      type: uri
+      required: true
+      description: The completed run bundle to export proof for.
+    - id: verifier_outcome
+      type: json
+      required: true
+      description: The verifier verdict to attach to the proof bundle.
+  outputs:
+    - id: proof_bundle
+      type: json
+      required: true
+      description: Compact proof bundle with flow version, event stream, gate evidence, and verdict.
+    - id: export_manifest
+      type: markdown
+      required: true
+      description: A human-readable description of what the bundle contains.
+  artifacts:
+    - bundle-index
+    - proof-bundle
+nodes:
+  - id: intake
+    type: intake
+    title: Intake run and verdict
+    description: Capture the completed run bundle and the verifier outcome to export.
+    produces:
+      - export-request
+  - id: collect
+    type: tool
+    title: Collect evidence
+    description: Gather the source flow version, event stream, gate evidence, and artifact refs.
+    tool: bundler
+    requires:
+      - export-request
+    produces:
+      - bundle-index
+  - id: assemble
+    type: agent_task
+    title: Assemble proof bundle
+    description: Compose the compact proof bundle from the collected evidence and the verdict.
+    agent: exporter
+    requires:
+      - bundle-index
+    produces:
+      - proof-bundle
+  - id: verify
+    type: verifier
+    title: Verify bundle completeness
+    description: Confirm the bundle includes flow version, event stream, gate evidence, artifact refs, and verdict.
+    requires:
+      - proof-bundle
+    produces:
+      - bundle-check
+  - id: final
+    type: finalizer
+    title: Close out export
+    description: Return the proof bundle and an export manifest.
+    requires:
+      - proof-bundle
+      - bundle-check
+    produces:
+      - proof_bundle
+      - export_manifest
+edges:
+  - from: intake
+    to: collect
+  - from: collect
+    to: assemble
+  - from: assemble
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: bundle-complete
+    title: Bundle includes all required proof elements
+    type: artifact
+    required: true
+    evidence: The bundle includes source flow version, event stream, gate evidence, artifact refs, and verdict.
+    evidence_refs:
+      - proof-bundle
+  - id: index-present
+    title: Bundle index present
+    type: review
+    required: false
+    evidence: The bundle index lists every included element.
+    evidence_refs:
+      - bundle-index
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - artifacts.count
+    - duration.seconds

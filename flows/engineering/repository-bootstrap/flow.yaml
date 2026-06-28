@@ -1,0 +1,136 @@
+spec_version: agentic-flows/v1
+id: engineering.repository-bootstrap
+version: 0.1.0
+title: Repository bootstrap
+summary: Initialize a new repo with docs, CI, license, and a first release plan, proving the toolchain runs.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - bootstrap
+  - scaffolding
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - patch.apply
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: project_brief
+      type: markdown
+      required: true
+      description: The product promise and constraints for the new repo.
+    - id: repo
+      type: uri
+      required: true
+      description: The target repository to initialize.
+  outputs:
+    - id: scaffold_patch
+      type: patch
+      required: true
+      description: The initial repository scaffold.
+    - id: release_plan
+      type: markdown
+      required: true
+      description: The documented first-release path.
+  artifacts:
+    - scaffold-plan
+    - scaffold-diff
+    - ci-log
+nodes:
+  - id: intake
+    type: intake
+    title: Intake project brief
+    description: Capture the product promise, constraints, and target repo.
+    produces:
+      - bootstrap-scope
+  - id: plan
+    type: plan
+    title: Plan the scaffold
+    description: Plan the docs, schemas, CI, license, and first-release path.
+    requires:
+      - bootstrap-scope
+    produces:
+      - scaffold-plan
+  - id: scaffold
+    type: agent_task
+    title: Create the scaffold
+    description: Create the initial files - README, license, CI, and issue templates.
+    agent: coding-worker
+    requires:
+      - scaffold-plan
+    produces:
+      - scaffold-diff
+  - id: ci
+    type: tool
+    title: Run CI locally
+    description: Run the initial CI to confirm the toolchain works.
+    tool: command-runner
+    requires:
+      - scaffold-diff
+    produces:
+      - ci-log
+  - id: verify
+    type: verifier
+    title: Verify bootstrap
+    description: Confirm CI passes, the README explains the product, and the license is present.
+    requires:
+      - scaffold-diff
+      - ci-log
+    produces:
+      - bootstrap-check
+  - id: final
+    type: finalizer
+    title: Close out bootstrap
+    description: Return the scaffold patch and the first-release plan.
+    requires:
+      - scaffold-plan
+      - bootstrap-check
+    produces:
+      - scaffold_patch
+      - release_plan
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: scaffold
+  - from: scaffold
+    to: ci
+  - from: ci
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: ci-passes
+    title: Initial CI passes
+    type: command
+    required: true
+    command: make test || npm test || pytest -q
+    evidence: The initial CI run succeeds.
+    evidence_refs:
+      - ci-log
+  - id: product-and-license-present
+    title: README explains product and license present
+    type: review
+    required: true
+    evidence: The scaffold plan confirms the README explains the product and a license is present.
+    evidence_refs:
+      - scaffold-plan
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - files.created
+    - duration.seconds

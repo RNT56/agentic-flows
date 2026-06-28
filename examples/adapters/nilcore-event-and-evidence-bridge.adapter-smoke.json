@@ -1,0 +1,28 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "ops.event-and-evidence-bridge",
+    "version": "0.1.0",
+    "source": "flows/ops/event-and-evidence-bridge/flow.yaml"
+  },
+  "capability_support": [
+    "log.read",
+    "evidence.transform",
+    "stream.validate",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "log intake job",
+    "tool": "evidence conversion worker",
+    "verifier": "stream validation step",
+    "finalizer": "bridge closeout"
+  },
+  "run_bundle": "runs/nilcore-event-and-evidence-bridge.run.json",
+  "event_stream": "../streams/event-and-evidence-bridge/event-and-evidence-bridge.stream.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore evidence-bridge worker adapter."
+}

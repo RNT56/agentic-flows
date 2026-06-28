@@ -1,0 +1,91 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "orchestration.agent-quality-review",
+    "version": "0.1.0",
+    "source": "flows/orchestration/agent-quality-review/flow.yaml"
+  },
+  "run": {
+    "id": "run-crustcore-agent-quality-review-0001",
+    "core": "crustcore",
+    "status": "completed",
+    "started_at": "2026-06-28T19:20:00Z",
+    "completed_at": "2026-06-28T19:21:30Z"
+  },
+  "inputs": {
+    "agent_work": "Claim: all tests pass and the public API is unchanged.",
+    "evidence_refs": {
+      "cited": ["test.log"]
+    }
+  },
+  "outputs": {
+    "review_report": "Verifier confirmed one unsupported claim. Residual risk: medium.",
+    "findings": {
+      "items": [
+        {"type": "hallucinated-claim", "claim": "public API unchanged", "severity": "high"}
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "review-findings",
+      "kind": "json",
+      "uri": "artifact://runs/run-crustcore-agent-quality-review-0001/findings.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.agent-quality-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-agent-quality-review-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T19:20:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.agent-quality-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-agent-quality-review-0001",
+      "node_id": "check",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T19:20:50Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.agent-quality-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-agent-quality-review-0001",
+      "node_id": "assess",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T19:21:10Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "findings-cite-evidence",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "review-findings",
+          "kind": "json",
+          "uri": "artifact://runs/run-crustcore-agent-quality-review-0001/findings.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.agent-quality-review",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-agent-quality-review-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T19:21:30Z",
+      "core": "crustcore",
+      "severity": "info"
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+spec_version: agentic-flows/v1
+id: engineering.issue-backlog-grooming
+version: 0.1.0
+title: Issue backlog grooming
+summary: Triage issues into priority, owner, reproduction status, and next action, citing evidence for each.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - triage
+  - backlog
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - standalone
+  required_capabilities:
+    - issue.read
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: issues
+      type: markdown
+      required: true
+      description: The issues to triage.
+    - id: priorities
+      type: markdown
+      required: true
+      description: The prioritization rubric.
+  outputs:
+    - id: dispositions
+      type: json
+      required: true
+      description: Per-issue priority, owner, reproduction status, and next action.
+    - id: summary
+      type: markdown
+      required: true
+      description: A readable triage summary.
+  artifacts:
+    - triage-table
+    - duplicate-map
+nodes:
+  - id: intake
+    type: intake
+    title: Intake issues
+    description: Capture the issues and the prioritization rubric.
+    produces:
+      - triage-scope
+  - id: triage
+    type: agent_task
+    title: Triage issues
+    description: Assign priority, owner, reproduction status, and next action to each issue.
+    agent: triage-assistant
+    requires:
+      - triage-scope
+    produces:
+      - triage-table
+  - id: dedupe
+    type: agent_task
+    title: Map duplicates and blockers
+    description: Identify duplicates and blocked items with cited source evidence.
+    agent: triage-assistant
+    requires:
+      - triage-table
+    produces:
+      - duplicate-map
+  - id: verify
+    type: verifier
+    title: Verify dispositions
+    description: Confirm each issue has a disposition and duplicates and blockers cite evidence.
+    requires:
+      - triage-table
+      - duplicate-map
+    produces:
+      - triage-check
+  - id: final
+    type: finalizer
+    title: Close out grooming
+    description: Return the per-issue dispositions and a summary.
+    requires:
+      - triage-table
+      - triage-check
+    produces:
+      - dispositions
+      - summary
+edges:
+  - from: intake
+    to: triage
+  - from: triage
+    to: dedupe
+  - from: dedupe
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: each-issue-disposed
+    title: Each issue receives a disposition
+    type: artifact
+    required: true
+    evidence: Every issue has a priority, owner, reproduction status, and next action.
+    evidence_refs:
+      - triage-table
+  - id: duplicates-cite-evidence
+    title: Duplicates and blockers cite evidence
+    type: review
+    required: true
+    evidence: Duplicate and blocked items cite the source evidence.
+    evidence_refs:
+      - duplicate-map
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - issues.triaged
+    - duration.seconds

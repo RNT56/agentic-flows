@@ -1,0 +1,129 @@
+spec_version: agentic-flows/v1
+id: orchestration.parallel-work-claiming
+version: 0.1.0
+title: Parallel work claiming
+summary: Divide a broad objective into lanes, claim ownership, and avoid path collisions with active work.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - orchestration
+  - claiming
+  - coordination
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - standalone
+  required_capabilities:
+    - objective.decompose
+    - claim.register
+    - conflict.detect
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: dispatch-planner
+    thinclaw:
+      routine_type: shared-claim-board
+contracts:
+  inputs:
+    - id: objective
+      type: markdown
+      required: true
+      description: The broad objective to divide into ownable lanes.
+    - id: active_claims
+      type: json
+      required: true
+      description: Currently active lane claims to avoid collisions with.
+  outputs:
+    - id: lane_assignments
+      type: json
+      required: true
+      description: Claimed lanes with owners and path boundaries.
+    - id: claim_ledger
+      type: json
+      required: true
+      description: The updated claim ledger after registering new claims.
+  artifacts:
+    - lane-plan
+    - claim-ledger
+    - conflict-report
+nodes:
+  - id: intake
+    type: intake
+    title: Intake objective and claims
+    description: Capture the objective and the set of currently active claims.
+    produces:
+      - objective-scope
+  - id: decompose
+    type: plan
+    title: Decompose into lanes
+    description: Split the objective into independent lanes with explicit path boundaries and dependencies.
+    requires:
+      - objective-scope
+    produces:
+      - lane-plan
+  - id: claim
+    type: agent_task
+    title: Register claims
+    description: Check active claims and register ownership for non-overlapping lanes only.
+    agent: claim-coordinator
+    requires:
+      - lane-plan
+    produces:
+      - claim-ledger
+  - id: detect
+    type: verifier
+    title: Detect collisions
+    description: Confirm no claimed lane overlaps an active claim or another new lane.
+    requires:
+      - lane-plan
+      - claim-ledger
+    produces:
+      - conflict-report
+  - id: final
+    type: finalizer
+    title: Close out claiming
+    description: Return the lane assignments and the updated claim ledger.
+    requires:
+      - claim-ledger
+      - conflict-report
+    produces:
+      - lane_assignments
+      - claim_ledger
+edges:
+  - from: intake
+    to: decompose
+  - from: decompose
+    to: claim
+  - from: claim
+    to: detect
+  - from: detect
+    to: final
+quality_gates:
+  - id: lanes-explicit
+    title: Lane boundaries and dependencies are explicit
+    type: review
+    required: true
+    evidence: The lane plan declares owners, path boundaries, and cross-lane dependencies.
+    evidence_refs:
+      - lane-plan
+  - id: claims-checked
+    title: Active claims checked before execution
+    type: artifact
+    required: true
+    evidence: The claim ledger shows active claims were checked and no path collisions remain.
+    evidence_refs:
+      - claim-ledger
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - claim.registered
+    - gate.completed
+    - flow.completed
+  metrics:
+    - lanes.count
+    - conflicts.count
+    - duration.seconds

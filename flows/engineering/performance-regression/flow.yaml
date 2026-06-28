@@ -1,0 +1,141 @@
+spec_version: agentic-flows/v1
+id: engineering.performance-regression
+version: 0.1.0
+title: Performance regression
+summary: Measure, isolate, and fix a performance regression with a recorded method and before/after numbers.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - performance
+  - regression
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - command.run
+    - patch.apply
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: verified-patch
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: regression_report
+      type: markdown
+      required: true
+      description: The reported slowdown and how it was noticed.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target.
+  outputs:
+    - id: fix_patch
+      type: patch
+      required: true
+      description: The performance fix.
+    - id: benchmark_report
+      type: markdown
+      required: true
+      description: Method, variance bounds, and before/after numbers.
+  artifacts:
+    - benchmark-method
+    - baseline-numbers
+    - fix-diff
+    - after-numbers
+nodes:
+  - id: intake
+    type: intake
+    title: Intake regression
+    description: Capture the reported slowdown and the repo target.
+    produces:
+      - regression-scope
+  - id: measure
+    type: tool
+    title: Measure baseline
+    description: Record the benchmark method and the baseline numbers with bounded variance.
+    tool: benchmark-runner
+    requires:
+      - regression-scope
+    produces:
+      - benchmark-method
+      - baseline-numbers
+  - id: fix
+    type: agent_task
+    title: Isolate and fix
+    description: Isolate the cause and apply a fix.
+    agent: coding-worker
+    requires:
+      - baseline-numbers
+    produces:
+      - fix-diff
+  - id: remeasure
+    type: tool
+    title: Measure after
+    description: Re-run the same benchmark and record the after numbers.
+    tool: benchmark-runner
+    requires:
+      - fix-diff
+    produces:
+      - after-numbers
+  - id: verify
+    type: verifier
+    title: Verify improvement
+    description: Confirm the method is recorded, variance is bounded, and the after numbers improve.
+    requires:
+      - baseline-numbers
+      - after-numbers
+    produces:
+      - perf-check
+  - id: final
+    type: finalizer
+    title: Close out regression
+    description: Return the fix and the benchmark report.
+    requires:
+      - perf-check
+      - after-numbers
+    produces:
+      - fix_patch
+      - benchmark_report
+edges:
+  - from: intake
+    to: measure
+  - from: measure
+    to: fix
+  - from: fix
+    to: remeasure
+  - from: remeasure
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: benchmark-method-recorded
+    title: Benchmark method recorded
+    type: artifact
+    required: true
+    evidence: The benchmark method and environment are recorded.
+    evidence_refs:
+      - benchmark-method
+  - id: before-after-bounded
+    title: Before/after numbers with bounded variance
+    type: review
+    required: true
+    evidence: Before and after numbers are reported with bounded variance.
+    evidence_refs:
+      - after-numbers
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - speedup.ratio
+    - duration.seconds

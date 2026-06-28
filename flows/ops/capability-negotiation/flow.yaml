@@ -1,0 +1,122 @@
+spec_version: agentic-flows/v1
+id: ops.capability-negotiation
+version: 0.1.0
+title: Capability negotiation
+summary: Compare a flow's required capabilities against a runtime profile and fail closed on anything unsupported.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - ops
+  - capability
+  - policy
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - capability.introspect
+    - policy.evaluate
+    - decision.record
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: capability-policy
+    nilcore:
+      execution_mode: preflight-check
+contracts:
+  inputs:
+    - id: flow_requirements
+      type: json
+      required: true
+      description: The candidate flow's required capabilities and supported cores.
+    - id: runtime_profile
+      type: json
+      required: true
+      description: The runtime's available tools, permissions, sandbox, and approval policy.
+  outputs:
+    - id: negotiation_report
+      type: markdown
+      required: true
+      description: Summary of supported and unsupported capabilities and the fail-closed decision.
+    - id: capability_decision
+      type: json
+      required: true
+      description: Per-capability support status and the overall proceed-or-fail-closed verdict.
+  artifacts:
+    - capability-matrix
+    - negotiation-report
+nodes:
+  - id: intake
+    type: intake
+    title: Intake requirements and profile
+    description: Normalize the flow's required capabilities and the runtime profile into one comparable set.
+    produces:
+      - negotiation-inputs
+  - id: compare
+    type: verifier
+    title: Compare required against supported
+    description: Match each required capability against the runtime profile and record unsupported entries.
+    requires:
+      - negotiation-inputs
+    produces:
+      - capability-matrix
+  - id: decide
+    type: decision
+    title: Proceed or fail closed
+    description: Decide to proceed only when every required capability is supported, otherwise fail closed.
+    requires:
+      - capability-matrix
+    produces:
+      - support-verdict
+  - id: final
+    type: finalizer
+    title: Close out negotiation
+    description: Return the negotiation report and the per-capability decision.
+    requires:
+      - capability-matrix
+      - support-verdict
+    produces:
+      - negotiation_report
+      - capability_decision
+edges:
+  - from: intake
+    to: compare
+  - from: compare
+    to: decide
+  - from: decide
+    to: final
+    condition: all-supported
+  - from: decide
+    to: final
+    condition: unsupported-fail-closed
+quality_gates:
+  - id: capabilities-fail-closed
+    title: Unsupported capabilities fail closed
+    type: command
+    required: true
+    command: python tools/check_capabilities.py --strict
+    evidence: Capability matrix shows no undeclared use and no unsupported capability marked as proceed.
+    evidence_refs:
+      - capability-matrix
+  - id: no-undeclared-capabilities
+    title: No undeclared capabilities used
+    type: policy
+    required: false
+    evidence: Every used capability is declared by the flow contract.
+    evidence_refs:
+      - capability-matrix
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - decision.recorded
+    - gate.completed
+    - flow.completed
+  metrics:
+    - capabilities.required
+    - capabilities.unsupported
+    - duration.seconds

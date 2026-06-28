@@ -1,0 +1,22 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "orchestration.tool-creation",
+    "version": "0.1.0",
+    "source": "flows/orchestration/tool-creation/flow.yaml"
+  },
+  "inputs": {
+    "need": "We repeatedly need to diff two JSON Schemas; no existing tool reports added/removed required fields.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "expected_outputs": {
+    "tool_patch": "diff --git a/tools/schemadiff.py b/tools/schemadiff.py\n@@ implement schema diff with failure handling @@",
+    "tool_schema": {
+      "name": "schemadiff",
+      "inputs": ["old_schema", "new_schema"],
+      "sandbox": "read-only-fs",
+      "permissions": ["fs.read"]
+    }
+  },
+  "notes": "Creates a new tool with a schema, sandbox and permission profile, and failure-covering tests."
+}

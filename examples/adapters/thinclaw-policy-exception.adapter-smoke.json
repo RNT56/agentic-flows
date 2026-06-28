@@ -1,0 +1,28 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "thinclaw",
+  "flow": {
+    "id": "security.policy-exception",
+    "version": "0.1.0",
+    "source": "flows/security/policy-exception/flow.yaml"
+  },
+  "capability_support": [
+    "policy.evaluate",
+    "human.review",
+    "decision.record",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "approval": "operator approval",
+    "decision": "decision step",
+    "finalizer": "closeout step",
+    "intake": "intake step"
+  },
+  "run_bundle": "runs/thinclaw-policy-exception.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible ThinClaw policy-exception adapter."
+}

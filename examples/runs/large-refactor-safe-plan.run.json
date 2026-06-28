@@ -1,0 +1,109 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.large-refactor-safe-plan",
+    "version": "0.1.0",
+    "source": "flows/engineering/large-refactor-safe-plan/flow.yaml"
+  },
+  "run": {
+    "id": "run-large-refactor-safe-plan-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "refactor_goal": "Extract the storage layer behind an interface without changing behavior.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "outputs": {
+    "slice_plan": {
+      "slices": [
+        {
+          "id": 1,
+          "acceptance": "tests green",
+          "rollback": "revert interface commit"
+        }
+      ]
+    },
+    "baseline_evidence": "Baseline: 214 tests pass; contract tests added and passing."
+  },
+  "artifacts": [
+    {
+      "id": "slice-plan",
+      "kind": "json",
+      "uri": "artifact://runs/run-large-refactor-safe-plan-0001/slice-plan.json"
+    },
+    {
+      "id": "contract-tests",
+      "kind": "json",
+      "uri": "artifact://runs/run-large-refactor-safe-plan-0001/contract-tests.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.large-refactor-safe-plan",
+      "flow_version": "0.1.0",
+      "run_id": "run-large-refactor-safe-plan-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.large-refactor-safe-plan",
+      "flow_version": "0.1.0",
+      "run_id": "run-large-refactor-safe-plan-0001",
+      "node_id": "plan",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "slices-have-criteria",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "slice-plan",
+          "kind": "json",
+          "uri": "artifact://runs/run-large-refactor-safe-plan-0001/slice-plan.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.large-refactor-safe-plan",
+      "flow_version": "0.1.0",
+      "run_id": "run-large-refactor-safe-plan-0001",
+      "node_id": "contracts",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "contracts-tested-first",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "contract-tests",
+          "kind": "json",
+          "uri": "artifact://runs/run-large-refactor-safe-plan-0001/contract-tests.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.large-refactor-safe-plan",
+      "flow_version": "0.1.0",
+      "run_id": "run-large-refactor-safe-plan-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.pr-review-and-risk-notes",
+    "version": "0.1.0",
+    "source": "flows/engineering/pr-review-and-risk-notes/flow.yaml"
+  },
+  "run": {
+    "id": "run-crustcore-pr-review-and-risk-notes-0001",
+    "core": "crustcore",
+    "status": "completed",
+    "started_at": "2026-06-27T23:20:00Z",
+    "completed_at": "2026-06-27T23:21:40Z"
+  },
+  "inputs": {
+    "diff": "diff --git a/api/auth.py b/api/auth.py\n@@ skip token expiry check when debug=true @@",
+    "context": "Adds a debug bypass for local testing. Review focus: security and tests."
+  },
+  "outputs": {
+    "review_findings": {
+      "findings": [
+        {"file": "api/auth.py", "line": 42, "severity": "high", "note": "Debug bypass skips token expiry; can ship enabled."}
+      ]
+    },
+    "risk_notes": "Release risk: high. Verifier confirmed the cited high-severity finding before sign-off."
+  },
+  "artifacts": [
+    {
+      "id": "review-findings",
+      "kind": "json",
+      "uri": "artifact://runs/run-crustcore-pr-review-and-risk-notes-0001/findings.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.pr-review-and-risk-notes",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-pr-review-and-risk-notes-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T23:20:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.pr-review-and-risk-notes",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-pr-review-and-risk-notes-0001",
+      "node_id": "analyze",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T23:20:50Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.pr-review-and-risk-notes",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-pr-review-and-risk-notes-0001",
+      "node_id": "assess",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T23:21:20Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "findings-cite-locations",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "review-findings",
+          "kind": "json",
+          "uri": "artifact://runs/run-crustcore-pr-review-and-risk-notes-0001/findings.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.pr-review-and-risk-notes",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-pr-review-and-risk-notes-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T23:21:40Z",
+      "core": "crustcore",
+      "severity": "info"
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "program.knowledge-base-maintenance",
+    "version": "0.1.0",
+    "source": "flows/program/knowledge-base-maintenance/flow.yaml"
+  },
+  "run": {
+    "id": "run-knowledge-base-maintenance-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "knowledge_root": "file://docs",
+    "scope": "Refresh process docs; do not touch LICENSE or tags."
+  },
+  "outputs": {
+    "maintenance_report": "3 stale docs referenced a removed command; updated from cli.py; 2 ambiguous claims flagged, not deleted.",
+    "updates": {
+      "updates": [
+        {
+          "file": "docs/getting-started.md",
+          "source": "cli.py"
+        }
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "staleness-scan",
+      "kind": "json",
+      "uri": "artifact://runs/run-knowledge-base-maintenance-0001/staleness-scan.json"
+    },
+    {
+      "id": "update-plan",
+      "kind": "json",
+      "uri": "artifact://runs/run-knowledge-base-maintenance-0001/update-plan.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.knowledge-base-maintenance",
+      "flow_version": "0.1.0",
+      "run_id": "run-knowledge-base-maintenance-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.knowledge-base-maintenance",
+      "flow_version": "0.1.0",
+      "run_id": "run-knowledge-base-maintenance-0001",
+      "node_id": "scan",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "stale-items-detected",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "staleness-scan",
+          "kind": "json",
+          "uri": "artifact://runs/run-knowledge-base-maintenance-0001/staleness-scan.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.knowledge-base-maintenance",
+      "flow_version": "0.1.0",
+      "run_id": "run-knowledge-base-maintenance-0001",
+      "node_id": "plan",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "updates-cite-sources",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "update-plan",
+          "kind": "json",
+          "uri": "artifact://runs/run-knowledge-base-maintenance-0001/update-plan.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.knowledge-base-maintenance",
+      "flow_version": "0.1.0",
+      "run_id": "run-knowledge-base-maintenance-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

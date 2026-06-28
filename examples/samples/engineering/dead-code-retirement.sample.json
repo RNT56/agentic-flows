@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.dead-code-retirement",
+    "version": "0.1.0",
+    "source": "flows/engineering/dead-code-retirement/flow.yaml"
+  },
+  "inputs": {
+    "target": "The legacy_export() helper in app/io.py looks unused.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "expected_outputs": {
+    "removal_patch": "diff --git a/app/io.py b/app/io.py\n@@ remove legacy_export and its import @@",
+    "impact_report": "References: 0 internal callers; not exported in __all__. Public API impact: none. Tests: pass after removal."
+  },
+  "notes": "Proves code is unused via reference search, removes it, and confirms tests pass."
+}

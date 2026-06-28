@@ -1,0 +1,27 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "crustcore",
+  "flow": {
+    "id": "ops.capability-negotiation",
+    "version": "0.1.0",
+    "source": "flows/ops/capability-negotiation/flow.yaml"
+  },
+  "capability_support": [
+    "capability.introspect",
+    "policy.evaluate",
+    "decision.record",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "negotiation request intake",
+    "verifier": "capability policy verifier",
+    "decision": "proceed-or-fail-closed decision",
+    "finalizer": "negotiation closeout"
+  },
+  "run_bundle": "runs/crustcore-capability-negotiation.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible CrustCore capability-policy adapter."
+}

@@ -1,0 +1,30 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "orchestration.parallel-work-claiming",
+    "version": "0.1.0",
+    "source": "flows/orchestration/parallel-work-claiming/flow.yaml"
+  },
+  "inputs": {
+    "objective": "Add three new reusable flows to the catalog without colliding on shared docs.",
+    "active_claims": [
+      {"lane": "docs/README.md", "owner": "agent-a"}
+    ]
+  },
+  "expected_outputs": {
+    "lane_assignments": {
+      "lanes": [
+        {"lane": "flows/engineering/ci-failure-diagnosis", "owner": "agent-b", "paths": ["flows/engineering/ci-failure-diagnosis/**"]},
+        {"lane": "flows/security/supply-chain-audit", "owner": "agent-c", "paths": ["flows/security/supply-chain-audit/**"]}
+      ]
+    },
+    "claim_ledger": {
+      "active": [
+        {"lane": "docs/README.md", "owner": "agent-a"},
+        {"lane": "flows/engineering/ci-failure-diagnosis", "owner": "agent-b"},
+        {"lane": "flows/security/supply-chain-audit", "owner": "agent-c"}
+      ]
+    }
+  },
+  "notes": "Divides work into non-overlapping lanes and checks active claims before registering ownership."
+}

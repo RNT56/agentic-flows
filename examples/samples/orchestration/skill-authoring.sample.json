@@ -1,0 +1,21 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "orchestration.skill-authoring",
+    "version": "0.1.0",
+    "source": "flows/orchestration/skill-authoring/flow.yaml"
+  },
+  "inputs": {
+    "domain_knowledge": "How to author a new agentic-flows flow end-to-end and pass every flowctl validator.",
+    "trigger": "When a contributor wants to add a new reusable flow."
+  },
+  "expected_outputs": {
+    "skill": "# Authoring a flow\nTrigger: adding a reusable flow. Instructions: write flow.yaml + README + sample + run + adapter-smoke; run flowctl validate/validate-samples/validate-run/validate-adapter-smoke/release-check. Assets: the feature-implementation flow as a template.",
+    "validation_examples": {
+      "examples": [
+        {"given": "a new flow.yaml", "then": "flowctl validate passes and report shows 0 issues"}
+      ]
+    }
+  },
+  "notes": "Captures repeated authoring knowledge into a skill with triggers, instructions, and examples."
+}

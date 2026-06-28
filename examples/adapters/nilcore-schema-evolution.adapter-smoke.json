@@ -1,0 +1,29 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "engineering.schema-evolution",
+    "version": "0.1.0",
+    "source": "flows/engineering/schema-evolution/flow.yaml"
+  },
+  "capability_support": [
+    "schema.read",
+    "patch.apply",
+    "command.run",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "intake": "schema change intake",
+    "plan": "migration planner",
+    "agent_task": "schema and fixture worker",
+    "tool": "validator runner",
+    "verifier": "migration and fixture verifier",
+    "finalizer": "evolution closeout"
+  },
+  "run_bundle": "runs/nilcore-schema-evolution.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore schema-evolution worker adapter."
+}

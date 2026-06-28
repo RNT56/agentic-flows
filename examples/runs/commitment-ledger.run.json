@@ -1,0 +1,110 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "personal.commitment-ledger",
+    "version": "0.1.0",
+    "source": "flows/personal/commitment-ledger/flow.yaml"
+  },
+  "run": {
+    "id": "run-commitment-ledger-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "source_text": "Ana sends API spec by Friday; Bo investigates flaky test (no date); I add a changelog entry.",
+    "owner": "me"
+  },
+  "outputs": {
+    "ledger": {
+      "entries": [
+        {
+          "commitment": "send API spec",
+          "owner": "Ana",
+          "due": "2026-07-03",
+          "status": "open"
+        }
+      ]
+    },
+    "summary": "3 open commitments tracked with sources and owners."
+  },
+  "artifacts": [
+    {
+      "id": "ledger-record",
+      "kind": "json",
+      "uri": "artifact://runs/run-commitment-ledger-0001/ledger-record.json"
+    },
+    {
+      "id": "extracted-commitments",
+      "kind": "json",
+      "uri": "artifact://runs/run-commitment-ledger-0001/extracted-commitments.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "personal.commitment-ledger",
+      "flow_version": "0.1.0",
+      "run_id": "run-commitment-ledger-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "personal.commitment-ledger",
+      "flow_version": "0.1.0",
+      "run_id": "run-commitment-ledger-0001",
+      "node_id": "record",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "commitments-have-source-and-owner",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "ledger-record",
+          "kind": "json",
+          "uri": "artifact://runs/run-commitment-ledger-0001/ledger-record.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "personal.commitment-ledger",
+      "flow_version": "0.1.0",
+      "run_id": "run-commitment-ledger-0001",
+      "node_id": "extract",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "due-or-unknown-marked",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "extracted-commitments",
+          "kind": "json",
+          "uri": "artifact://runs/run-commitment-ledger-0001/extracted-commitments.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "personal.commitment-ledger",
+      "flow_version": "0.1.0",
+      "run_id": "run-commitment-ledger-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

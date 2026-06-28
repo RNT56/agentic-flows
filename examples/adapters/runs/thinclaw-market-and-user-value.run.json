@@ -1,0 +1,104 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "research.market-and-user-value",
+    "version": "0.1.0",
+    "source": "flows/research/market-and-user-value/flow.yaml"
+  },
+  "run": {
+    "id": "run-thinclaw-market-and-user-value-0001",
+    "core": "thinclaw",
+    "status": "completed",
+    "started_at": "2026-06-28T10:00:00Z",
+    "completed_at": "2026-06-28T10:20:00Z"
+  },
+  "inputs": {
+    "idea": "A shared claim board for parallel agents.",
+    "context": "Teams running many agents hit merge collisions."
+  },
+  "outputs": {
+    "value_assessment": "User: teams running parallel agents. Pain: path collisions. Alternatives: ad-hoc locking. Novelty: contract-level claim board. Risk: adoption friction.",
+    "next_experiment": {
+      "experiment": "two agents on one repo with/without the board",
+      "success": "collisions near zero"
+    }
+  },
+  "artifacts": [
+    {
+      "id": "user-and-pain",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-market-and-user-value-0001/user-and-pain.json"
+    },
+    {
+      "id": "alternatives-analysis",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-market-and-user-value-0001/alternatives-analysis.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.market-and-user-value",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-market-and-user-value-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T10:00:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.market-and-user-value",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-market-and-user-value-0001",
+      "node_id": "analyze",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:10:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "user-and-pain-documented",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "user-and-pain",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-market-and-user-value-0001/user-and-pain.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.market-and-user-value",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-market-and-user-value-0001",
+      "node_id": "compare",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:15:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "alternatives-and-novelty",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "alternatives-analysis",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-market-and-user-value-0001/alternatives-analysis.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.market-and-user-value",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-market-and-user-value-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T10:20:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    }
+  ]
+}

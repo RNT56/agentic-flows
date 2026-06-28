@@ -1,0 +1,151 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "security.supply-chain-audit",
+    "version": "0.1.0",
+    "source": "flows/security/supply-chain-audit/flow.yaml"
+  },
+  "run": {
+    "id": "run-supply-chain-audit-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T10:00:00Z",
+    "completed_at": "2026-06-28T10:03:00Z"
+  },
+  "inputs": {
+    "manifest": "file://requirements.lock",
+    "policy": "Reject GPL-incompatible licenses for distributed code. Flag any advisory with severity high or above."
+  },
+  "outputs": {
+    "audit_findings": {
+      "advisories": [
+        {"dependency": "requests==2.19.0", "id": "CVE-2018-18074", "severity": "high", "source": "osv.dev/CVE-2018-18074"}
+      ],
+      "license_conflicts": [
+        {"dependency": "somegpl==1.2.0", "license": "GPL-3.0", "conflict": "distributed under Apache-2.0"}
+      ]
+    },
+    "remediation": "Upgrade requests to >=2.20.0 (fixes CVE-2018-18074). Replace somegpl with an Apache-2.0 alternative."
+  },
+  "artifacts": [
+    {
+      "id": "dependency-inventory",
+      "kind": "json",
+      "uri": "artifact://runs/run-supply-chain-audit-0001/inventory.json"
+    },
+    {
+      "id": "advisory-report",
+      "kind": "json",
+      "uri": "artifact://runs/run-supply-chain-audit-0001/advisories.json"
+    },
+    {
+      "id": "license-report",
+      "kind": "json",
+      "uri": "artifact://runs/run-supply-chain-audit-0001/licenses.json"
+    },
+    {
+      "id": "remediation-plan",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-supply-chain-audit-0001/remediation.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.supply-chain-audit",
+      "flow_version": "0.1.0",
+      "run_id": "run-supply-chain-audit-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T10:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.supply-chain-audit",
+      "flow_version": "0.1.0",
+      "run_id": "run-supply-chain-audit-0001",
+      "node_id": "inventory",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T10:00:45Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.supply-chain-audit",
+      "flow_version": "0.1.0",
+      "run_id": "run-supply-chain-audit-0001",
+      "node_id": "assess",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T10:01:45Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.supply-chain-audit",
+      "flow_version": "0.1.0",
+      "run_id": "run-supply-chain-audit-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:02:10Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "advisory-sources-captured",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "advisory-report",
+          "kind": "json",
+          "uri": "artifact://runs/run-supply-chain-audit-0001/advisories.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.supply-chain-audit",
+      "flow_version": "0.1.0",
+      "run_id": "run-supply-chain-audit-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:02:25Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "license-conflicts-reported",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "license-report",
+          "kind": "json",
+          "uri": "artifact://runs/run-supply-chain-audit-0001/licenses.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.supply-chain-audit",
+      "flow_version": "0.1.0",
+      "run_id": "run-supply-chain-audit-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T10:03:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.supply-chain-audit",
+      "flow_version": "0.1.0",
+      "run_id": "run-supply-chain-audit-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T10:03:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

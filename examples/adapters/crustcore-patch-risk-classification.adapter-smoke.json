@@ -1,0 +1,29 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "crustcore",
+  "flow": {
+    "id": "proof.patch-risk-classification",
+    "version": "0.1.0",
+    "source": "flows/proof/patch-risk-classification/flow.yaml"
+  },
+  "capability_support": [
+    "patch.inspect",
+    "policy.evaluate",
+    "human.review",
+    "decision.record",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "approval": "operator approval",
+    "decision": "decision step",
+    "finalizer": "closeout step",
+    "intake": "intake step"
+  },
+  "run_bundle": "runs/crustcore-patch-risk-classification.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible CrustCore patch-risk-classification adapter."
+}

@@ -1,0 +1,136 @@
+spec_version: agentic-flows/v1
+id: engineering.flaky-test-stabilization
+version: 0.1.0
+title: Flaky test stabilization
+summary: Isolate flaky behavior with repeated runs and logs, then apply a minimal, root-cause stabilization.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - testing
+  - flaky
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - command.run
+    - patch.apply
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: test_id
+      type: text
+      required: true
+      description: The flaky test to stabilize.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target.
+  outputs:
+    - id: stabilization_patch
+      type: patch
+      required: true
+      description: The minimal stabilization patch.
+    - id: analysis
+      type: markdown
+      required: true
+      description: Root cause distinguished from mitigation, with the repeated-run evidence.
+  artifacts:
+    - repeated-run-log
+    - root-cause-notes
+    - stabilization-diff
+nodes:
+  - id: intake
+    type: intake
+    title: Intake flaky test
+    description: Capture the flaky test id and the repo target.
+    produces:
+      - flaky-context
+  - id: repeat
+    type: tool
+    title: Run repeatedly
+    description: Run the test many times to capture the flaky behavior and its frequency.
+    tool: command-runner
+    requires:
+      - flaky-context
+    produces:
+      - repeated-run-log
+  - id: analyze
+    type: agent_task
+    title: Find root cause
+    description: Distinguish the root cause from a mitigation, avoiding broad sleeps without justification.
+    agent: debugger
+    requires:
+      - repeated-run-log
+    produces:
+      - root-cause-notes
+  - id: stabilize
+    type: agent_task
+    title: Apply minimal stabilization
+    description: Apply the smallest change that addresses the root cause.
+    agent: coding-worker
+    requires:
+      - root-cause-notes
+    produces:
+      - stabilization-diff
+  - id: verify
+    type: verifier
+    title: Verify stabilization
+    description: Confirm repeated-run evidence exists and the change targets the root cause.
+    requires:
+      - stabilization-diff
+      - repeated-run-log
+    produces:
+      - stabilization-check
+  - id: final
+    type: finalizer
+    title: Close out stabilization
+    description: Return the stabilization patch and the analysis.
+    requires:
+      - root-cause-notes
+      - stabilization-check
+    produces:
+      - stabilization_patch
+      - analysis
+edges:
+  - from: intake
+    to: repeat
+  - from: repeat
+    to: analyze
+  - from: analyze
+    to: stabilize
+  - from: stabilize
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: repeated-run-evidence
+    title: Repeated-run evidence exists
+    type: artifact
+    required: true
+    evidence: A repeated-run log captures the flaky behavior and its frequency.
+    evidence_refs:
+      - repeated-run-log
+  - id: root-cause-vs-mitigation
+    title: Root cause distinguished from mitigation
+    type: review
+    required: true
+    evidence: The notes distinguish the root cause from a mitigation and justify any sleeps.
+    evidence_refs:
+      - root-cause-notes
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - runs.executed
+    - duration.seconds

@@ -1,0 +1,27 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "personal.memory-curation",
+    "version": "0.1.0",
+    "source": "flows/personal/memory-curation/flow.yaml"
+  },
+  "inputs": {
+    "candidate_memories": [
+      {"item": "prefers dark mode", "sensitivity": "low"},
+      {"item": "home address", "sensitivity": "high"},
+      {"item": "current project codename", "sensitivity": "medium"}
+    ],
+    "policy": "Keep durable preferences; localize project context; sensitive items require approval."
+  },
+  "expected_outputs": {
+    "curation_decision": {
+      "decisions": [
+        {"item": "prefers dark mode", "action": "keep", "scope": "global", "retention": "long"},
+        {"item": "home address", "action": "keep", "scope": "private", "retention": "long", "approved": true},
+        {"item": "current project codename", "action": "localize", "scope": "project", "retention": "short"}
+      ]
+    },
+    "memory_record": "Kept dark-mode preference (global). Saved home address (private) after explicit approval. Localized project codename to the project scope."
+  },
+  "notes": "Curates memory with scope and retention metadata and gates sensitive items on approval."
+}

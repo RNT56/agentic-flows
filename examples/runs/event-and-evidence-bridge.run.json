@@ -1,0 +1,133 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "ops.event-and-evidence-bridge",
+    "version": "0.1.0",
+    "source": "flows/ops/event-and-evidence-bridge/flow.yaml"
+  },
+  "run": {
+    "id": "run-event-and-evidence-bridge-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T17:00:00Z",
+    "completed_at": "2026-06-27T17:01:30Z"
+  },
+  "inputs": {
+    "runtime_logs": {
+      "run_id": "native-run-7781",
+      "entries": 4
+    },
+    "source_flow": "flows/coding/feature-implementation/flow.yaml"
+  },
+  "outputs": {
+    "run_bundle": {
+      "run_version": "agentic-flows.run/v1",
+      "status": "completed",
+      "events_converted": 4
+    },
+    "bridge_report": "Converted 4 native log entries into a valid event stream and run bundle. Stream validated against coding.feature-implementation@0.1.0."
+  },
+  "artifacts": [
+    {
+      "id": "event-stream",
+      "kind": "event-stream",
+      "uri": "artifact://runs/run-event-and-evidence-bridge-0001/feature-implementation.stream.json"
+    },
+    {
+      "id": "run-bundle",
+      "kind": "json",
+      "uri": "artifact://runs/run-event-and-evidence-bridge-0001/converted.run.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.event-and-evidence-bridge",
+      "flow_version": "0.1.0",
+      "run_id": "run-event-and-evidence-bridge-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T17:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.event-and-evidence-bridge",
+      "flow_version": "0.1.0",
+      "run_id": "run-event-and-evidence-bridge-0001",
+      "node_id": "intake",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T17:00:20Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.event-and-evidence-bridge",
+      "flow_version": "0.1.0",
+      "run_id": "run-event-and-evidence-bridge-0001",
+      "node_id": "convert",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T17:00:50Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.event-and-evidence-bridge",
+      "flow_version": "0.1.0",
+      "run_id": "run-event-and-evidence-bridge-0001",
+      "node_id": "validate",
+      "event": "stream.validated",
+      "timestamp": "2026-06-27T17:01:05Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "events_converted": 4
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.event-and-evidence-bridge",
+      "flow_version": "0.1.0",
+      "run_id": "run-event-and-evidence-bridge-0001",
+      "node_id": "validate",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T17:01:10Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "stream-validates",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "event-stream",
+          "kind": "event-stream",
+          "uri": "artifact://runs/run-event-and-evidence-bridge-0001/feature-implementation.stream.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.event-and-evidence-bridge",
+      "flow_version": "0.1.0",
+      "run_id": "run-event-and-evidence-bridge-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T17:01:30Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.event-and-evidence-bridge",
+      "flow_version": "0.1.0",
+      "run_id": "run-event-and-evidence-bridge-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T17:01:30Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

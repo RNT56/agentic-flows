@@ -1,0 +1,108 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.monorepo-slice-execution",
+    "version": "0.1.0",
+    "source": "flows/engineering/monorepo-slice-execution/flow.yaml"
+  },
+  "run": {
+    "id": "run-monorepo-slice-execution-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "slice": "Add input validation to packages/billing only.",
+    "active_claims": [
+      {
+        "owner": "agent-a",
+        "paths": [
+          "packages/auth/**"
+        ]
+      }
+    ]
+  },
+  "outputs": {
+    "slice_patch": "artifact://slice-diff",
+    "conflict_report": "No conflicts: claimed packages/billing/**; no overlap with agent-a."
+  },
+  "artifacts": [
+    {
+      "id": "claim-record",
+      "kind": "json",
+      "uri": "artifact://runs/run-monorepo-slice-execution-0001/claim-record.json"
+    },
+    {
+      "id": "test-log",
+      "kind": "json",
+      "uri": "artifact://runs/run-monorepo-slice-execution-0001/test-log.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.monorepo-slice-execution",
+      "flow_version": "0.1.0",
+      "run_id": "run-monorepo-slice-execution-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.monorepo-slice-execution",
+      "flow_version": "0.1.0",
+      "run_id": "run-monorepo-slice-execution-0001",
+      "node_id": "claim",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "claim-checked",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "claim-record",
+          "kind": "json",
+          "uri": "artifact://runs/run-monorepo-slice-execution-0001/claim-record.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.monorepo-slice-execution",
+      "flow_version": "0.1.0",
+      "run_id": "run-monorepo-slice-execution-0001",
+      "node_id": "test",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "scope-and-conflicts-clear",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "json",
+          "uri": "artifact://runs/run-monorepo-slice-execution-0001/test-log.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.monorepo-slice-execution",
+      "flow_version": "0.1.0",
+      "run_id": "run-monorepo-slice-execution-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

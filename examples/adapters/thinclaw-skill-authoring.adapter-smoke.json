@@ -1,0 +1,25 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "thinclaw",
+  "flow": {
+    "id": "orchestration.skill-authoring",
+    "version": "0.1.0",
+    "source": "flows/orchestration/skill-authoring/flow.yaml"
+  },
+  "capability_support": [
+    "knowledge.read",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "finalizer": "closeout step",
+    "intake": "intake step",
+    "verifier": "verifier step"
+  },
+  "run_bundle": "runs/thinclaw-skill-authoring.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible ThinClaw skill-authoring adapter."
+}

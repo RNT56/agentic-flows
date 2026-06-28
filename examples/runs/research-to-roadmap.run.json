@@ -1,0 +1,109 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "program.research-to-roadmap",
+    "version": "0.1.0",
+    "source": "flows/program/research-to-roadmap/flow.yaml"
+  },
+  "run": {
+    "id": "run-research-to-roadmap-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "research_signals": "s1 (2026-05) want JSON output; s2 (2024) stale benchmark; s3 (2026-06) competitors added schemas.",
+    "goals": "Improve integrator adoption."
+  },
+  "outputs": {
+    "roadmap": "1. Ship JSON output and schemas (s1, s3). s2 excluded as stale.",
+    "experiments": {
+      "experiments": [
+        {
+          "hypothesis": "JSON output lifts adoption",
+          "measure": "integrations/30d",
+          "success": "+20%"
+        }
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "signal-digest",
+      "kind": "json",
+      "uri": "artifact://runs/run-research-to-roadmap-0001/signal-digest.json"
+    },
+    {
+      "id": "opportunity-ranking",
+      "kind": "json",
+      "uri": "artifact://runs/run-research-to-roadmap-0001/opportunity-ranking.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.research-to-roadmap",
+      "flow_version": "0.1.0",
+      "run_id": "run-research-to-roadmap-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.research-to-roadmap",
+      "flow_version": "0.1.0",
+      "run_id": "run-research-to-roadmap-0001",
+      "node_id": "digest",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "signals-fresh-and-cited",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "signal-digest",
+          "kind": "json",
+          "uri": "artifact://runs/run-research-to-roadmap-0001/signal-digest.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.research-to-roadmap",
+      "flow_version": "0.1.0",
+      "run_id": "run-research-to-roadmap-0001",
+      "node_id": "rank",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "opportunities-ranked",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "opportunity-ranking",
+          "kind": "json",
+          "uri": "artifact://runs/run-research-to-roadmap-0001/opportunity-ranking.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.research-to-roadmap",
+      "flow_version": "0.1.0",
+      "run_id": "run-research-to-roadmap-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

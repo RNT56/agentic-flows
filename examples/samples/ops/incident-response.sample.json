@@ -1,0 +1,22 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "ops.incident-response",
+    "version": "0.1.0",
+    "source": "flows/ops/incident-response/flow.yaml"
+  },
+  "inputs": {
+    "incident": "Error rate on the API jumped to 30% at 02:10 UTC after a config push.",
+    "severity_policy": "SEV1 if user-facing errors above 10%; declare within 5 minutes."
+  },
+  "expected_outputs": {
+    "incident_record": {
+      "severity": "SEV1",
+      "mitigation": "rolled back the config push",
+      "timeline": ["02:10 spike", "02:14 SEV1 declared", "02:21 rollback", "02:25 recovered"],
+      "follow_ups": ["add config-change canary"]
+    },
+    "postmortem_seed": "Config push at 02:10 caused a 30% error spike; rolled back by 02:21. Follow-up: canary config changes."
+  },
+  "notes": "Triages and mitigates an incident with a declared severity and recorded timeline."
+}

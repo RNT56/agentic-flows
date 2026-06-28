@@ -1,0 +1,139 @@
+spec_version: agentic-flows/v1
+id: engineering.schema-evolution
+version: 0.1.0
+title: Schema evolution
+summary: Evolve a JSON, database, or protocol schema with a migration path and fixtures for the new failures.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - schema
+  - migration
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - schema.read
+    - patch.apply
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: verified-patch
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: schema_change
+      type: markdown
+      required: true
+      description: The proposed schema change and its motivation.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target.
+  outputs:
+    - id: migration
+      type: markdown
+      required: true
+      description: The migration path and compatibility notes.
+    - id: schema_patch
+      type: patch
+      required: true
+      description: The schema change plus fixtures covering the new failure modes.
+  artifacts:
+    - migration-plan
+    - schema-diff
+    - fixture-log
+nodes:
+  - id: intake
+    type: intake
+    title: Intake schema change
+    description: Capture the proposed schema change and the repo target.
+    produces:
+      - change-scope
+  - id: plan
+    type: plan
+    title: Plan migration
+    description: Define the migration path, the affected consumers, and the new failure modes to cover.
+    requires:
+      - change-scope
+    produces:
+      - migration-plan
+  - id: apply
+    type: agent_task
+    title: Apply schema change
+    description: Apply the schema change and add fixtures for the new valid and invalid cases.
+    agent: coding-worker
+    requires:
+      - migration-plan
+    produces:
+      - schema-diff
+  - id: test
+    type: tool
+    title: Run validators
+    description: Run the schema validators against the new valid and invalid fixtures.
+    tool: command-runner
+    requires:
+      - schema-diff
+    produces:
+      - fixture-log
+  - id: verify
+    type: verifier
+    title: Verify migration and fixtures
+    description: Confirm a migration path exists and invalid fixtures cover the new failures.
+    requires:
+      - schema-diff
+      - fixture-log
+    produces:
+      - compat-check
+  - id: final
+    type: finalizer
+    title: Close out evolution
+    description: Return the migration notes and the schema patch.
+    requires:
+      - migration-plan
+      - compat-check
+    produces:
+      - migration
+      - schema_patch
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: apply
+  - from: apply
+    to: test
+  - from: test
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: migration-path-exists
+    title: Migration path exists
+    type: review
+    required: true
+    evidence: The migration plan documents the path and compatibility impact.
+    evidence_refs:
+      - migration-plan
+  - id: fixtures-cover-failures
+    title: Invalid fixtures cover new failures
+    type: command
+    required: true
+    command: flowctl validate || pytest -q
+    evidence: Validator output over the new valid and invalid fixtures.
+    evidence_refs:
+      - fixture-log
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - fixtures.added
+    - duration.seconds

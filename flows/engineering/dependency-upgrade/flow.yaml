@@ -1,0 +1,138 @@
+spec_version: agentic-flows/v1
+id: engineering.dependency-upgrade
+version: 0.1.0
+title: Dependency upgrade
+summary: Upgrade a dependency, adapt code, confirm tests pass, and record before/after versions with rationale.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - dependencies
+  - upgrade
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - dependency.read
+    - patch.apply
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: verified-patch
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: dependency
+      type: text
+      required: true
+      description: The dependency and the target version to upgrade to.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target.
+  outputs:
+    - id: upgrade_patch
+      type: patch
+      required: true
+      description: The dependency bump and any code adaptations.
+    - id: release_notes
+      type: markdown
+      required: true
+      description: Before/after versions and a compatibility or security rationale.
+  artifacts:
+    - version-record
+    - upgrade-diff
+    - test-log
+    - compatibility-notes
+nodes:
+  - id: intake
+    type: intake
+    title: Intake upgrade scope
+    description: Capture the dependency, the target version, and the current version.
+    produces:
+      - upgrade-scope
+      - version-record
+  - id: upgrade
+    type: agent_task
+    title: Apply the upgrade
+    description: Bump the dependency and adapt code for any breaking changes.
+    agent: coding-worker
+    requires:
+      - upgrade-scope
+    produces:
+      - upgrade-diff
+  - id: test
+    type: tool
+    title: Run checks
+    description: Run the project tests and build against the upgraded dependency.
+    tool: command-runner
+    requires:
+      - upgrade-diff
+    produces:
+      - test-log
+  - id: verify
+    type: verifier
+    title: Verify compatibility
+    description: Confirm tests pass and capture a compatibility or security rationale.
+    requires:
+      - upgrade-diff
+      - test-log
+    produces:
+      - compatibility-notes
+  - id: final
+    type: finalizer
+    title: Close out upgrade
+    description: Return the upgrade patch and release notes with before/after versions.
+    requires:
+      - version-record
+      - compatibility-notes
+    produces:
+      - upgrade_patch
+      - release_notes
+edges:
+  - from: intake
+    to: upgrade
+  - from: upgrade
+    to: test
+  - from: test
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: versions-recorded
+    title: Before and after versions recorded
+    type: artifact
+    required: true
+    evidence: The version record captures the prior and target versions.
+    evidence_refs:
+      - version-record
+  - id: tests-pass
+    title: Project checks pass after upgrade
+    type: command
+    required: true
+    command: make test || npm test || cargo test || go test ./...
+    evidence: Test or build output against the upgraded dependency.
+    evidence_refs:
+      - test-log
+  - id: rationale-present
+    title: Compatibility or security rationale present
+    type: review
+    required: false
+    evidence: Notes explain why the upgrade is safe or necessary.
+    evidence_refs:
+      - compatibility-notes
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - tests.executed
+    - duration.seconds

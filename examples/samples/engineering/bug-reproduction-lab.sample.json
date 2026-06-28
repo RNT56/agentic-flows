@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.bug-reproduction-lab",
+    "version": "0.1.0",
+    "source": "flows/engineering/bug-reproduction-lab/flow.yaml"
+  },
+  "inputs": {
+    "bug_report": "parse_date crashes on empty string. Expected: returns None. Observed: ValueError.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "expected_outputs": {
+    "reproduction": "Reproduced: call parse_date(\"\") in a Python shell; it raises ValueError instead of returning None.",
+    "failing_test": "diff --git a/tests/test_dates.py b/tests/test_dates.py\n@@ assert parse_date('') is None @@"
+  },
+  "notes": "Turns a bug report into a minimal reproduction and a test that fails before the fix."
+}

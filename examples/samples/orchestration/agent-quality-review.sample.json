@@ -1,0 +1,23 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "orchestration.agent-quality-review",
+    "version": "0.1.0",
+    "source": "flows/orchestration/agent-quality-review/flow.yaml"
+  },
+  "inputs": {
+    "agent_work": "Claim: all tests pass and the public API is unchanged. Edited api/users.py and tests/test_users.py.",
+    "evidence_refs": {
+      "cited": ["test.log"]
+    }
+  },
+  "expected_outputs": {
+    "review_report": "One confirmed issue: the 'public API unchanged' claim is unsupported - api/users.py changed a function signature. The 'tests pass' claim is supported by test.log. Residual risk: medium until an API-diff check is added.",
+    "findings": {
+      "items": [
+        {"type": "hallucinated-claim", "claim": "public API unchanged", "evidence": "api/users.py signature changed", "severity": "high"}
+      ]
+    }
+  },
+  "notes": "Reviews agent work for unsupported claims and unsafe edits with cited findings and residual risk."
+}

@@ -1,0 +1,105 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "program.connector-productionization",
+    "version": "0.1.0",
+    "source": "flows/program/connector-productionization/flow.yaml"
+  },
+  "run": {
+    "id": "run-connector-productionization-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "connector": "Experimental Slack connector posting and reading messages.",
+    "readiness_policy": "Least-privilege scopes, tested failures, observability, docs."
+  },
+  "outputs": {
+    "readiness_report": {
+      "verdict": "not-ready",
+      "permissions": "reduced to channels:read/write",
+      "docs": "incomplete"
+    },
+    "production_checklist": "Complete the runbook and add an auth-expiry alert."
+  },
+  "artifacts": [
+    {
+      "id": "permission-review",
+      "kind": "json",
+      "uri": "artifact://runs/run-connector-productionization-0001/permission-review.json"
+    },
+    {
+      "id": "failure-tests",
+      "kind": "json",
+      "uri": "artifact://runs/run-connector-productionization-0001/failure-tests.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.connector-productionization",
+      "flow_version": "0.1.0",
+      "run_id": "run-connector-productionization-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.connector-productionization",
+      "flow_version": "0.1.0",
+      "run_id": "run-connector-productionization-0001",
+      "node_id": "permissions",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "permissions-reviewed",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "permission-review",
+          "kind": "json",
+          "uri": "artifact://runs/run-connector-productionization-0001/permission-review.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.connector-productionization",
+      "flow_version": "0.1.0",
+      "run_id": "run-connector-productionization-0001",
+      "node_id": "harden",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "failure-modes-tested",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "failure-tests",
+          "kind": "json",
+          "uri": "artifact://runs/run-connector-productionization-0001/failure-tests.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.connector-productionization",
+      "flow_version": "0.1.0",
+      "run_id": "run-connector-productionization-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

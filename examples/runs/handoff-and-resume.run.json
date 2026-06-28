@@ -1,0 +1,131 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "orchestration.handoff-and-resume",
+    "version": "0.1.0",
+    "source": "flows/orchestration/handoff-and-resume/flow.yaml"
+  },
+  "run": {
+    "id": "run-handoff-and-resume-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T16:00:00Z",
+    "completed_at": "2026-06-28T16:01:40Z"
+  },
+  "inputs": {
+    "session_state": {
+      "task": "Add five reusable flows to the catalog",
+      "done": ["bug-reproduction-lab", "dependency-upgrade"],
+      "remaining": ["decision-record", "postmortem", "handoff-and-resume"],
+      "blockers": []
+    },
+    "next_owner": "agent-resume-1"
+  },
+  "outputs": {
+    "handoff_packet": "## State\nTwo of five flows added. ## Decisions\nOne contract-smoke per flow. ## Blockers\nNone. ## Validation\nflowctl + pytest green. ## Next commands\nSee checklist.",
+    "resume_checklist": {
+      "steps": [
+        "Author flows/docs/decision-record with full artifact set",
+        "Author flows/docs/postmortem with full artifact set",
+        "Run flowctl validate && pytest -q"
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "state-snapshot",
+      "kind": "json",
+      "uri": "artifact://runs/run-handoff-and-resume-0001/snapshot.json"
+    },
+    {
+      "id": "handoff-packet",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-handoff-and-resume-0001/handoff.md"
+    },
+    {
+      "id": "resume-checklist",
+      "kind": "json",
+      "uri": "artifact://runs/run-handoff-and-resume-0001/resume.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.handoff-and-resume",
+      "flow_version": "0.1.0",
+      "run_id": "run-handoff-and-resume-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T16:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.handoff-and-resume",
+      "flow_version": "0.1.0",
+      "run_id": "run-handoff-and-resume-0001",
+      "node_id": "compact",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T16:00:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.handoff-and-resume",
+      "flow_version": "0.1.0",
+      "run_id": "run-handoff-and-resume-0001",
+      "node_id": "handoff",
+      "event": "handoff.recorded",
+      "timestamp": "2026-06-28T16:01:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "next_owner": "agent-resume-1"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.handoff-and-resume",
+      "flow_version": "0.1.0",
+      "run_id": "run-handoff-and-resume-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T16:01:20Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "state-preserved",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "handoff-packet",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-handoff-and-resume-0001/handoff.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.handoff-and-resume",
+      "flow_version": "0.1.0",
+      "run_id": "run-handoff-and-resume-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T16:01:40Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.handoff-and-resume",
+      "flow_version": "0.1.0",
+      "run_id": "run-handoff-and-resume-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T16:01:40Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

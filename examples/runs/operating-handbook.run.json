@@ -1,0 +1,105 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "docs.operating-handbook",
+    "version": "0.1.0",
+    "source": "flows/docs/operating-handbook/flow.yaml"
+  },
+  "run": {
+    "id": "run-operating-handbook-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "project": "agentic-flows: refresh the operating handbook.",
+    "docs_root": "file://docs"
+  },
+  "outputs": {
+    "handbook": "# Operating handbook\n\nIndex links every process doc; quick start verified.",
+    "index_check": {
+      "links_total": 24,
+      "links_resolved": 24,
+      "commands_runnable": true
+    }
+  },
+  "artifacts": [
+    {
+      "id": "docs-inventory",
+      "kind": "json",
+      "uri": "artifact://runs/run-operating-handbook-0001/docs-inventory.json"
+    },
+    {
+      "id": "command-log",
+      "kind": "json",
+      "uri": "artifact://runs/run-operating-handbook-0001/command-log.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.operating-handbook",
+      "flow_version": "0.1.0",
+      "run_id": "run-operating-handbook-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.operating-handbook",
+      "flow_version": "0.1.0",
+      "run_id": "run-operating-handbook-0001",
+      "node_id": "inventory",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "index-links-resolve",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "docs-inventory",
+          "kind": "json",
+          "uri": "artifact://runs/run-operating-handbook-0001/docs-inventory.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.operating-handbook",
+      "flow_version": "0.1.0",
+      "run_id": "run-operating-handbook-0001",
+      "node_id": "check",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "commands-runnable",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "command-log",
+          "kind": "json",
+          "uri": "artifact://runs/run-operating-handbook-0001/command-log.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.operating-handbook",
+      "flow_version": "0.1.0",
+      "run_id": "run-operating-handbook-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

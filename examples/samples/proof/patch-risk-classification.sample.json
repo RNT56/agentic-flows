@@ -1,0 +1,26 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "proof.patch-risk-classification",
+    "version": "0.1.0",
+    "source": "flows/proof/patch-risk-classification/flow.yaml"
+  },
+  "inputs": {
+    "patch": "diff --git a/migrations/004_drop_legacy.sql b/migrations/004_drop_legacy.sql\n@@ DROP TABLE legacy_users @@",
+    "policy": "Schema drops are destructive and irreversible; they require approval and a backup check."
+  },
+  "expected_outputs": {
+    "risk_classification": {
+      "reversibility": "irreversible",
+      "policy_risk": "high",
+      "required_approval": true,
+      "expected_verification": "backup-restore drill before apply"
+    },
+    "policy_decision": {
+      "decision": "approval-required",
+      "fail_closed": false,
+      "reason": "destructive schema drop"
+    }
+  },
+  "notes": "Classifies a destructive migration, routes it through approval, and logs the policy decision."
+}

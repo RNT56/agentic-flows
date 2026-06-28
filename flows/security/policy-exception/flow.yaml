@@ -1,0 +1,136 @@
+spec_version: agentic-flows/v1
+id: security.policy-exception
+version: 0.1.0
+title: Policy exception
+summary: Handle a request to bypass policy, sandbox, or approval with owner, expiry, risk, controls, and approval.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - security
+  - policy
+  - exception
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - crustcore
+    - standalone
+  required_capabilities:
+    - policy.evaluate
+    - human.review
+    - decision.record
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: policy-exception
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: exception_request
+      type: markdown
+      required: true
+      description: The requested bypass of policy, sandbox, or approval.
+    - id: policy
+      type: markdown
+      required: true
+      description: The policy the request would bypass.
+  outputs:
+    - id: exception_decision
+      type: json
+      required: true
+      description: Grant or deny with owner, expiry, risk, and compensating controls.
+    - id: exception_record
+      type: markdown
+      required: true
+      description: The full exception record for audit.
+  artifacts:
+    - risk-assessment
+    - exception-record
+    - approval-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake exception request
+    description: Capture the requested bypass and the policy it would affect.
+    produces:
+      - exception-context
+  - id: assess
+    type: agent_task
+    title: Assess risk and controls
+    description: Assess the risk and define compensating controls for the requested bypass.
+    agent: security-analyst
+    requires:
+      - exception-context
+    produces:
+      - risk-assessment
+  - id: decide
+    type: decision
+    title: Scope the exception
+    description: Decide grant or deny and set owner, expiry, and compensating controls.
+    requires:
+      - risk-assessment
+    produces:
+      - exception-record
+  - id: approval
+    type: approval
+    title: Approve the exception
+    description: Require an explicit operator approval before any exception is granted.
+    requires:
+      - exception-record
+    produces:
+      - approval-record
+    policy:
+      human_required_when:
+        - policy_bypass
+        - sandbox_bypass
+  - id: final
+    type: finalizer
+    title: Close out exception
+    description: Return the exception decision and the audit record.
+    requires:
+      - exception-record
+    produces:
+      - exception_decision
+      - exception_record
+edges:
+  - from: intake
+    to: assess
+  - from: assess
+    to: decide
+  - from: decide
+    to: approval
+    condition: exception-granted
+  - from: decide
+    to: final
+    condition: exception-denied
+  - from: approval
+    to: final
+quality_gates:
+  - id: exception-fields-complete
+    title: Exception has owner, expiry, risk, and controls
+    type: artifact
+    required: true
+    evidence: The exception record includes owner, expiry, risk, and compensating controls.
+    evidence_refs:
+      - exception-record
+  - id: exception-approved
+    title: Granted exceptions are approved
+    type: policy
+    required: false
+    evidence: Any granted exception captures an explicit operator approval.
+    evidence_refs:
+      - approval-record
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - decision.recorded
+    - approval.requested
+    - approval.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - exceptions.granted
+    - duration.seconds

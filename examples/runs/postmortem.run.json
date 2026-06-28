@@ -1,0 +1,146 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "docs.postmortem",
+    "version": "0.1.0",
+    "source": "flows/docs/postmortem/flow.yaml"
+  },
+  "run": {
+    "id": "run-postmortem-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T15:00:00Z",
+    "completed_at": "2026-06-28T15:02:20Z"
+  },
+  "inputs": {
+    "incident": "The validate CI job failed for 40 minutes after a schema change landed on main.",
+    "sources": {
+      "events": ["ci-run-991 logs", "commit abc123", "incident chat thread"]
+    }
+  },
+  "outputs": {
+    "postmortem": "# Postmortem: validate CI red for 40m\n\nTimeline: 14:02 merged [abc123]; 14:05 fail [ci-run-991]; 14:42 revert. Impact: main red 40m. Cause: sample not updated. Unknown: why pre-merge CI passed.",
+    "action_items": {
+      "items": [
+        {"action": "Add a sample-vs-schema check to pre-merge CI", "owner": "RNT56"},
+        {"action": "Investigate why pre-merge CI was green", "owner": "RNT56"}
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "timeline",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-postmortem-0001/timeline.md"
+    },
+    {
+      "id": "cause-analysis",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-postmortem-0001/causes.md"
+    },
+    {
+      "id": "action-items",
+      "kind": "json",
+      "uri": "artifact://runs/run-postmortem-0001/action-items.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.postmortem",
+      "flow_version": "0.1.0",
+      "run_id": "run-postmortem-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T15:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.postmortem",
+      "flow_version": "0.1.0",
+      "run_id": "run-postmortem-0001",
+      "node_id": "assemble",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T15:00:50Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.postmortem",
+      "flow_version": "0.1.0",
+      "run_id": "run-postmortem-0001",
+      "node_id": "analyze",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T15:01:30Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.postmortem",
+      "flow_version": "0.1.0",
+      "run_id": "run-postmortem-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:01:50Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "timeline-cited",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "timeline",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-postmortem-0001/timeline.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.postmortem",
+      "flow_version": "0.1.0",
+      "run_id": "run-postmortem-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:02:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "action-items-owned",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "action-items",
+          "kind": "json",
+          "uri": "artifact://runs/run-postmortem-0001/action-items.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.postmortem",
+      "flow_version": "0.1.0",
+      "run_id": "run-postmortem-0001",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T15:02:20Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.postmortem",
+      "flow_version": "0.1.0",
+      "run_id": "run-postmortem-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T15:02:20Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

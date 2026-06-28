@@ -1,0 +1,140 @@
+spec_version: agentic-flows/v1
+id: engineering.api-contract-change
+version: 0.1.0
+title: API contract change
+summary: Change an API contract while enumerating consumers, updating docs and tests, and proving compatibility.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - api
+  - compatibility
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - api.read
+    - patch.apply
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: verified-patch
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: contract_change
+      type: markdown
+      required: true
+      description: The API contract change and its motivation.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target.
+  outputs:
+    - id: change_patch
+      type: patch
+      required: true
+      description: The contract change plus client, doc, and test updates.
+    - id: compatibility_notes
+      type: markdown
+      required: true
+      description: The compatibility story for the enumerated consumers.
+  artifacts:
+    - consumer-inventory
+    - change-diff
+    - test-log
+    - compatibility-notes
+nodes:
+  - id: intake
+    type: intake
+    title: Intake contract change
+    description: Capture the proposed API contract change and the repo target.
+    produces:
+      - change-scope
+  - id: enumerate
+    type: agent_task
+    title: Enumerate consumers
+    description: Enumerate the consumers of the contract and the surfaces they depend on.
+    agent: api-analyst
+    requires:
+      - change-scope
+    produces:
+      - consumer-inventory
+  - id: apply
+    type: agent_task
+    title: Apply change and updates
+    description: Apply the contract change and update clients, docs, and tests.
+    agent: coding-worker
+    requires:
+      - consumer-inventory
+    produces:
+      - change-diff
+  - id: test
+    type: tool
+    title: Run checks
+    description: Run the tests and any contract or schema generation checks.
+    tool: command-runner
+    requires:
+      - change-diff
+    produces:
+      - test-log
+  - id: verify
+    type: verifier
+    title: Verify compatibility
+    description: Confirm the compatibility story holds for every enumerated consumer.
+    requires:
+      - change-diff
+      - test-log
+    produces:
+      - compatibility-notes
+  - id: final
+    type: finalizer
+    title: Close out change
+    description: Return the change patch and the compatibility notes.
+    requires:
+      - consumer-inventory
+      - compatibility-notes
+    produces:
+      - change_patch
+      - compatibility_notes
+edges:
+  - from: intake
+    to: enumerate
+  - from: enumerate
+    to: apply
+  - from: apply
+    to: test
+  - from: test
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: consumers-enumerated
+    title: Consumers are enumerated
+    type: artifact
+    required: true
+    evidence: The consumer inventory lists every dependent of the contract.
+    evidence_refs:
+      - consumer-inventory
+  - id: compatibility-story
+    title: Compatibility story exists
+    type: review
+    required: true
+    evidence: The notes explain compatibility for every enumerated consumer.
+    evidence_refs:
+      - compatibility-notes
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - consumers.count
+    - duration.seconds

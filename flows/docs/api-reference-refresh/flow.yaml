@@ -1,0 +1,136 @@
+spec_version: agentic-flows/v1
+id: docs.api-reference-refresh
+version: 0.1.0
+title: API reference refresh
+summary: Update API docs from current schemas and types, reconciling generated and hand-written docs and validating examples.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - docs
+  - api
+  - reference
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - standalone
+  required_capabilities:
+    - schema.read
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: api_source
+      type: uri
+      required: true
+      description: The schemas or types the reference is generated from.
+    - id: docs_root
+      type: uri
+      required: true
+      description: The documentation root to update.
+  outputs:
+    - id: docs_patch
+      type: patch
+      required: true
+      description: The updated API reference docs.
+    - id: reconciliation
+      type: markdown
+      required: true
+      description: How generated and hand-written docs were reconciled.
+  artifacts:
+    - generated-docs
+    - example-log
+    - reconciliation-notes
+nodes:
+  - id: intake
+    type: intake
+    title: Intake refresh scope
+    description: Capture the API source and the documentation root.
+    produces:
+      - refresh-scope
+  - id: generate
+    type: tool
+    title: Generate reference
+    description: Generate the API reference from the current schemas and types.
+    tool: doc-generator
+    requires:
+      - refresh-scope
+    produces:
+      - generated-docs
+  - id: examples
+    type: tool
+    title: Validate examples
+    description: Compile or validate the documentation examples.
+    tool: command-runner
+    requires:
+      - generated-docs
+    produces:
+      - example-log
+  - id: reconcile
+    type: agent_task
+    title: Reconcile docs
+    description: Reconcile generated output with hand-written prose, keeping both consistent.
+    agent: docs-writer
+    requires:
+      - generated-docs
+      - example-log
+    produces:
+      - reconciliation-notes
+  - id: verify
+    type: verifier
+    title: Verify reconciliation
+    description: Confirm generated and hand-written docs agree and examples validate.
+    requires:
+      - reconciliation-notes
+    produces:
+      - refresh-check
+  - id: final
+    type: finalizer
+    title: Close out refresh
+    description: Return the docs patch and the reconciliation summary.
+    requires:
+      - reconciliation-notes
+      - refresh-check
+    produces:
+      - docs_patch
+      - reconciliation
+edges:
+  - from: intake
+    to: generate
+  - from: generate
+    to: examples
+  - from: examples
+    to: reconcile
+  - from: reconcile
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: docs-reconciled
+    title: Generated and hand-written docs reconciled
+    type: review
+    required: true
+    evidence: The reconciliation notes show generated output agrees with hand-written prose.
+    evidence_refs:
+      - reconciliation-notes
+  - id: examples-validate
+    title: Examples compile or validate
+    type: command
+    required: true
+    command: make test || npm test || pytest -q
+    evidence: The documentation examples compile or validate.
+    evidence_refs:
+      - example-log
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - examples.checked
+    - duration.seconds

@@ -1,0 +1,117 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "research.source-backed-brief",
+    "version": "0.1.0",
+    "source": "flows/research/source-backed-brief/flow.yaml"
+  },
+  "run": {
+    "id": "run-thinclaw-source-backed-brief-0001",
+    "core": "thinclaw",
+    "status": "completed",
+    "started_at": "2026-06-28T11:20:00Z",
+    "completed_at": "2026-06-28T11:22:30Z"
+  },
+  "inputs": {
+    "question": "Is JSON Schema draft 2020-12 widely supported by Python validators?",
+    "scope": "Prefer primary docs from the last 24 months. Bound quotes to one sentence."
+  },
+  "outputs": {
+    "brief": "Yes, with caveats. jsonschema supports draft 2020-12 [s1]; newer-keyword coverage varies [s2]. Confidence: medium.",
+    "citations": {
+      "sources": [
+        {"id": "s1", "title": "jsonschema documentation", "retrieved": "2026-05-10"},
+        {"id": "s2", "title": "json-schema.org implementations page", "retrieved": "2026-05-10"}
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "citation-map",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-source-backed-brief-0001/citations.json"
+    },
+    {
+      "id": "brief-draft",
+      "kind": "markdown",
+      "uri": "artifact://runs/run-thinclaw-source-backed-brief-0001/brief-draft.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.source-backed-brief",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-source-backed-brief-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T11:20:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.source-backed-brief",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-source-backed-brief-0001",
+      "node_id": "synthesize",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T11:21:20Z",
+      "core": "thinclaw",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.source-backed-brief",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-source-backed-brief-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T11:22:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "claims-cited",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "citation-map",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-source-backed-brief-0001/citations.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.source-backed-brief",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-source-backed-brief-0001",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T11:22:10Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "uncertainty-explicit",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "brief-draft",
+          "kind": "markdown",
+          "uri": "artifact://runs/run-thinclaw-source-backed-brief-0001/brief-draft.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.source-backed-brief",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-source-backed-brief-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T11:22:30Z",
+      "core": "thinclaw",
+      "severity": "info"
+    }
+  ]
+}

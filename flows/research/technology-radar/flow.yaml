@@ -1,0 +1,121 @@
+spec_version: agentic-flows/v1
+id: research.technology-radar
+version: 0.1.0
+title: Technology radar
+summary: Place technologies into adopt, watch, or reject with a reason, evidence date, owner, and next review date.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - research
+  - radar
+  - technology
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - standalone
+  required_capabilities:
+    - source.retrieve
+    - evidence.capture
+  adapter_hints:
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: technologies
+      type: markdown
+      required: true
+      description: The technologies to assess for the radar.
+    - id: current_radar
+      type: json
+      required: true
+      description: The existing radar to update.
+  outputs:
+    - id: radar
+      type: json
+      required: true
+      description: The updated radar with placements and metadata.
+    - id: radar_notes
+      type: markdown
+      required: true
+      description: A readable summary of the changes.
+  artifacts:
+    - assessment
+    - radar-entries
+nodes:
+  - id: intake
+    type: intake
+    title: Intake technologies
+    description: Capture the technologies and the current radar.
+    produces:
+      - radar-scope
+  - id: assess
+    type: agent_task
+    title: Assess technologies
+    description: Assess each technology with dated evidence.
+    agent: researcher
+    requires:
+      - radar-scope
+    produces:
+      - assessment
+  - id: place
+    type: agent_task
+    title: Place on radar
+    description: Place each item into adopt, watch, or reject with reason, owner, and next review date.
+    agent: researcher
+    requires:
+      - assessment
+    produces:
+      - radar-entries
+  - id: verify
+    type: verifier
+    title: Verify entries
+    description: Confirm each entry has a reason, evidence date, owner, and next review date.
+    requires:
+      - radar-entries
+    produces:
+      - radar-check
+  - id: final
+    type: finalizer
+    title: Close out radar
+    description: Return the updated radar and the change notes.
+    requires:
+      - radar-entries
+      - radar-check
+    produces:
+      - radar
+      - radar_notes
+edges:
+  - from: intake
+    to: assess
+  - from: assess
+    to: place
+  - from: place
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: entries-have-reason-and-date
+    title: Entries have reason and evidence date
+    type: artifact
+    required: true
+    evidence: Each radar entry records a reason and a dated piece of evidence.
+    evidence_refs:
+      - radar-entries
+  - id: review-dates-set
+    title: Owner and next review date set
+    type: review
+    required: true
+    evidence: Each entry names an owner and a next review date.
+    evidence_refs:
+      - radar-entries
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - entries.count
+    - duration.seconds

@@ -1,0 +1,111 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "ops.capability-negotiation",
+    "version": "0.1.0",
+    "source": "flows/ops/capability-negotiation/flow.yaml"
+  },
+  "run": {
+    "id": "run-crustcore-capability-negotiation-0001",
+    "core": "crustcore",
+    "status": "completed",
+    "started_at": "2026-06-27T16:10:00Z",
+    "completed_at": "2026-06-27T16:11:30Z"
+  },
+  "inputs": {
+    "flow_requirements": {
+      "flow_id": "coding.feature-implementation",
+      "required_capabilities": ["repo.checkout", "patch.apply", "command.run", "evidence.capture", "human.review"],
+      "supported_cores": ["thinclaw", "nilcore", "crustcore", "standalone"]
+    },
+    "runtime_profile": {
+      "core": "crustcore",
+      "capabilities": ["repo.checkout", "patch.apply", "command.run", "evidence.capture", "human.review"],
+      "approval_policy": "verifier-owned"
+    }
+  },
+  "outputs": {
+    "negotiation_report": "All required capabilities are supported by the verifier runtime. Proceed status: proceed.",
+    "capability_decision": {
+      "verdict": "proceed",
+      "unsupported": [],
+      "supported": ["repo.checkout", "patch.apply", "command.run", "evidence.capture", "human.review"]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "capability-matrix",
+      "kind": "json",
+      "uri": "artifact://runs/run-crustcore-capability-negotiation-0001/capability-matrix.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-capability-negotiation-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T16:10:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-capability-negotiation-0001",
+      "node_id": "compare",
+      "event": "node.completed",
+      "timestamp": "2026-06-27T16:10:45Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-capability-negotiation-0001",
+      "node_id": "decide",
+      "event": "decision.recorded",
+      "timestamp": "2026-06-27T16:11:00Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "verdict": "proceed"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-capability-negotiation-0001",
+      "node_id": "compare",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T16:11:05Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "capabilities-fail-closed",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "capability-matrix",
+          "kind": "json",
+          "uri": "artifact://runs/run-crustcore-capability-negotiation-0001/capability-matrix.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.capability-negotiation",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-capability-negotiation-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T16:11:30Z",
+      "core": "crustcore",
+      "severity": "info"
+    }
+  ]
+}

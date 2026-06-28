@@ -1,0 +1,98 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "personal.memory-curation",
+    "version": "0.1.0",
+    "source": "flows/personal/memory-curation/flow.yaml"
+  },
+  "run": {
+    "id": "run-memory-curation-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:15:00Z"
+  },
+  "inputs": {
+    "candidate_memories": [
+      {
+        "item": "prefers dark mode",
+        "sensitivity": "low"
+      },
+      {
+        "item": "home address",
+        "sensitivity": "high"
+      }
+    ],
+    "policy": "Sensitive items require approval."
+  },
+  "outputs": {
+    "curation_decision": {
+      "decisions": [
+        {
+          "item": "prefers dark mode",
+          "action": "keep",
+          "scope": "global",
+          "retention": "long"
+        },
+        {
+          "item": "home address",
+          "action": "keep",
+          "scope": "private",
+          "approved": true
+        }
+      ]
+    },
+    "memory_record": "Kept dark-mode (global); saved home address (private) after approval."
+  },
+  "artifacts": [
+    {
+      "id": "curation-decision",
+      "kind": "json",
+      "uri": "artifact://runs/run-memory-curation-0001/curation-decision.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "personal.memory-curation",
+      "flow_version": "0.1.0",
+      "run_id": "run-memory-curation-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "personal.memory-curation",
+      "flow_version": "0.1.0",
+      "run_id": "run-memory-curation-0001",
+      "node_id": "decide",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "scope-and-retention-present",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "curation-decision",
+          "kind": "json",
+          "uri": "artifact://runs/run-memory-curation-0001/curation-decision.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "personal.memory-curation",
+      "flow_version": "0.1.0",
+      "run_id": "run-memory-curation-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}
