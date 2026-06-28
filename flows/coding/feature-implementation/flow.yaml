@@ -59,49 +59,81 @@ nodes:
     type: intake
     title: Intake scope
     description: Capture the user request, repo target, constraints, and acceptance criteria.
+    instructions: Capture the request, the repo target, the constraints, and the acceptance criteria, and freeze the scope
+      before any work begins.
+    inputs_schema:
+      - id: task
+        type: markdown
+        required: true
+        description: The feature request and acceptance criteria.
+      - id: repo
+        type: uri
+        required: true
+        description: The repository or checkout to change.
     produces:
       - scoped-task
   - id: plan
     type: plan
     title: Build implementation plan
     description: Identify touched modules, verification strategy, and likely integration risks.
+    instructions: Identify the smallest set of modules to touch, the tests or checks that will prove the change, and the integration
+      risks to watch. Name the files you expect to change.
     requires:
       - scoped-task
     produces:
-      - implementation-plan
+      - plan
   - id: implement
     type: agent_task
     title: Implement scoped change
     description: Apply the smallest coherent code and documentation changes needed for the feature.
+    instructions: Apply the smallest coherent change that satisfies the frozen scope. Touch only modules named in the plan,
+      preserve unrelated user changes, and update docs when behavior changes. This step needs a coding agent supplied by the
+      consumer.
     agent: coding-worker
     requires:
-      - implementation-plan
+      - plan
     produces:
       - patch
+      - diff
     policy:
       preserve_user_changes: true
   - id: test
     type: tool
     title: Run relevant checks
     description: Run focused tests, linters, or build commands selected during planning.
+    instructions: Run the checks selected during planning and capture stdout, stderr, and the exit code as evidence.
+    command: ${param.test_command}
+    parameters:
+      - id: test_command
+        type: command
+        required: false
+        default: make test || npm test || cargo test || go test ./...
+        description: The command that runs the project checks.
     tool: command-runner
     requires:
       - patch
     produces:
       - test-log
+    on_failure:
+      action: abort
   - id: verify
     type: verifier
     title: Verify acceptance gates
     description: Compare results against acceptance criteria and collect evidence for completion.
+    instructions: Compare the change and the test results against each acceptance criterion. Write review notes that map each
+      criterion to the evidence that satisfies it.
     requires:
       - patch
       - test-log
     produces:
+      - review-notes
       - verification-result
   - id: approval
     type: approval
     title: Human review decision
     description: Request operator approval when behavior, public API, or deployment risk changed.
+    instructions: Ask the operator to approve when the change alters public API, behavior, or deployment risk. Record the
+      decision and rationale.
     requires:
       - verification-result
     policy:
@@ -113,6 +145,8 @@ nodes:
     type: finalizer
     title: Close out implementation
     description: Return the patch summary, validation evidence, and any follow-up work.
+    instructions: Return the patch, a closeout that lists changed files and the validation evidence, and any residual risk
+      or follow-up work.
     requires:
       - verification-result
     produces:

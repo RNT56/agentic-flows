@@ -1,0 +1,9 @@
+{
+  "inputs": {
+    "repo": ".",
+    "focus": "add a new flowctl subcommand"
+  },
+  "params": {
+    "test_command": "pytest -q"
+  }
+}

@@ -1,0 +1,9 @@
+$ printf '# Orientation map\n\nDerived from the repo scan and the test probe.\n\n- Entrypoints, tests, build, and ownership are summarized from tracked files.\n- Risks are flagged from the probe result.\n'
+(exit 0)
+
+# Orientation map
+
+Derived from the repo scan and the test probe.
+
+- Entrypoints, tests, build, and ownership are summarized from tracked files.
+- Risks are flagged from the probe result.

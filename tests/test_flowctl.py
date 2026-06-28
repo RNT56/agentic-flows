@@ -13,6 +13,7 @@ from flowctl.cli import (
     build_report_summary,
     collect_release_package_files,
     dump_yaml,
+    execution_order,
     find_adapter_smoke_files,
     find_event_stream_files,
     find_flow_files,
@@ -23,6 +24,9 @@ from flowctl.cli import (
     load_json,
     load_yaml,
     normalize_flow_document,
+    parse_kv_list,
+    run_flow,
+    substitute_command,
     validate_adapter_smoke_document,
     validate_event_document,
     validate_event_stream_document,
@@ -421,3 +425,175 @@ def test_report_summary_counts_stability_and_cores() -> None:
     assert summary["with_issues"] == 1
     assert summary["by_stability"] == {"experimental": 1, "preview": 1}
     assert summary["by_optional_consumer"] == {"nilcore": 1, "standalone": 2}
+
+
+def test_parse_kv_list_parses_pairs_and_rejects_bare_tokens() -> None:
+    assert parse_kv_list(["a=1", "b=two=three"]) == {"a": "1", "b": "two=three"}
+    try:
+        parse_kv_list(["nope"])
+    except ValueError as exc:
+        assert "key=value" in str(exc)
+    else:  # pragma: no cover - guard against silent acceptance
+        raise AssertionError("expected ValueError for bare token")
+
+
+def test_substitute_command_fills_params_and_inputs_and_keeps_unknown() -> None:
+    rendered = substitute_command(
+        "run ${param.cmd} on ${input.repo} keep ${param.missing}",
+        {"cmd": "pytest -q"},
+        {"repo": "."},
+    )
+    assert rendered == "run pytest -q on . keep ${param.missing}"
+
+
+def test_execution_order_respects_produces_requires_dependencies() -> None:
+    document = {
+        "nodes": [
+            {"id": "final", "type": "finalizer", "requires": ["log"], "produces": ["result"]},
+            {"id": "probe", "type": "tool", "produces": ["log"]},
+            {"id": "intake", "type": "intake", "produces": ["req"]},
+        ]
+    }
+    order = [node["id"] for node in execution_order(document)]
+    assert order.index("probe") < order.index("final")
+
+
+def _minimal_runnable_flow() -> dict:
+    return {
+        "spec_version": "agentic-flows/v1",
+        "id": "test.runner-smoke",
+        "version": "0.1.0",
+        "title": "Runner smoke",
+        "summary": "Minimal runnable flow exercised by the reference runner test.",
+        "stability": "experimental",
+        "owners": ["RNT56"],
+        "tags": ["test"],
+        "entrypoint": "intake",
+        "runtime": {"supported_cores": ["standalone"], "required_capabilities": ["command.run"]},
+        "contracts": {
+            "inputs": [{"id": "repo", "type": "uri", "required": True}],
+            "outputs": [{"id": "result", "type": "markdown", "required": True}],
+            "artifacts": ["probe-log"],
+        },
+        "nodes": [
+            {"id": "intake", "type": "intake", "title": "Intake", "description": "Capture the inputs.", "produces": ["req"]},
+            {
+                "id": "probe",
+                "type": "tool",
+                "title": "Probe command",
+                "description": "Run a harmless command and capture output.",
+                "command": "printf 'hello from ${param.token}'",
+                "parameters": [{"id": "token", "type": "text", "required": False, "default": "runner"}],
+                "produces": ["probe-log"],
+                "on_failure": {"action": "abort"},
+            },
+            {
+                "id": "final",
+                "type": "finalizer",
+                "title": "Close out",
+                "description": "Return the result for the run.",
+                "requires": ["probe-log"],
+                "produces": ["result"],
+            },
+        ],
+        "edges": [
+            {"from": "intake", "to": "probe"},
+            {"from": "probe", "to": "final"},
+        ],
+        "quality_gates": [
+            {
+                "id": "probe-passed",
+                "title": "Probe command passed",
+                "type": "command",
+                "required": True,
+                "command": "printf 'hello'",
+                "evidence_refs": ["probe-log"],
+            }
+        ],
+        "observability": {"events": ["flow.started", "node.completed", "gate.completed", "flow.completed"]},
+    }
+
+
+def test_run_flow_executes_command_and_emits_valid_bundle(tmp_path: Path) -> None:
+    document = _minimal_runnable_flow()
+    flow_schema = load_json(DEFAULT_SCHEMA)
+    assert validate_flow_document(document, flow_schema) == []
+
+    flow_file = tmp_path / "flow.yaml"
+    flow_file.write_text(dump_yaml(document), encoding="utf-8")
+
+    out_dir = tmp_path / "out"
+    bundle, status, needs_handler = run_flow(
+        document,
+        flow_source="../flow.yaml",
+        inputs={"repo": "."},
+        params={},
+        workdir=tmp_path,
+        out_dir=out_dir,
+    )
+
+    assert status == "completed"
+    assert needs_handler == []
+    assert bundle["run"]["status"] == "completed"
+    assert "result" in bundle["outputs"]
+    gate_ids = [e["payload"]["gate_id"] for e in bundle["events"] if e["event"] == "gate.completed"]
+    assert "probe-passed" in gate_ids
+    assert any(e["event"] == "flow.completed" for e in bundle["events"])
+
+    log_artifact = next(a for a in bundle["artifacts"] if a["id"] == "probe-log")
+    log_text = (out_dir / log_artifact["uri"]).read_text(encoding="utf-8")
+    assert "hello from runner" in log_text
+
+    run_schema = load_json(Path("schemas/run.schema.json"))
+    event_schema = load_json(Path("schemas/event.schema.json"))
+    errors = validate_run_document(
+        bundle, run_schema, event_schema, flow_schema, run_path=out_dir / "run.json"
+    )
+    assert errors == []
+
+
+def test_run_flow_failed_command_marks_run_failed(tmp_path: Path) -> None:
+    document = _minimal_runnable_flow()
+    document["nodes"][1]["command"] = "false"
+
+    bundle, status, _ = run_flow(
+        document,
+        flow_source="flows/test/runner-smoke/flow.yaml",
+        inputs={"repo": "."},
+        params={},
+        workdir=tmp_path,
+        out_dir=tmp_path / "out",
+    )
+
+    assert status == "failed"
+    assert bundle["run"]["status"] == "failed"
+    assert not any(e["event"] == "flow.completed" for e in bundle["events"])
+
+
+def test_run_flow_agent_task_without_command_needs_handler(tmp_path: Path) -> None:
+    document = _minimal_runnable_flow()
+    document["nodes"].insert(
+        2,
+        {
+            "id": "author",
+            "type": "agent_task",
+            "title": "Author the result",
+            "description": "Needs a consumer-supplied agent to produce the result.",
+            "agent": "worker",
+            "requires": ["probe-log"],
+            "produces": ["draft"],
+        },
+    )
+
+    bundle, status, needs_handler = run_flow(
+        document,
+        flow_source="flows/test/runner-smoke/flow.yaml",
+        inputs={"repo": "."},
+        params={},
+        workdir=tmp_path,
+        out_dir=tmp_path / "out",
+    )
+
+    assert "author" in needs_handler
+    assert status == "incomplete"
+    assert bundle["run"]["status"] == "failed"

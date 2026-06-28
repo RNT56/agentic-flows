@@ -3,10 +3,11 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 import zipfile
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 from urllib.parse import unquote
@@ -88,13 +89,22 @@ NODE_KEY_ORDER = [
     "type",
     "title",
     "description",
+    "instructions",
+    "command",
+    "parameters",
+    "inputs_schema",
+    "outputs_schema",
     "agent",
     "tool",
     "timeout_seconds",
     "requires",
     "produces",
+    "on_failure",
     "policy",
 ]
+PARAMETER_KEY_ORDER = ["id", "type", "required", "default", "description"]
+NODE_FIELD_KEY_ORDER = ["id", "type", "required", "description"]
+ON_FAILURE_KEY_ORDER = ["action", "max_attempts", "fallback_node"]
 EDGE_KEY_ORDER = ["from", "to", "condition"]
 QUALITY_GATE_KEY_ORDER = ["id", "title", "type", "required", "command", "evidence", "evidence_refs"]
 OBSERVABILITY_KEY_ORDER = ["events", "metrics"]
@@ -300,6 +310,7 @@ def normalize_flow_document(document: dict[str, Any]) -> dict[str, Any]:
             "runtime": RUNTIME_KEY_ORDER,
             "contracts": CONTRACTS_KEY_ORDER,
             "observability": OBSERVABILITY_KEY_ORDER,
+            "on_failure": ON_FAILURE_KEY_ORDER,
         },
         list_child_orders={
             "inputs": CONTRACT_FIELD_KEY_ORDER,
@@ -307,6 +318,9 @@ def normalize_flow_document(document: dict[str, Any]) -> dict[str, Any]:
             "nodes": NODE_KEY_ORDER,
             "edges": EDGE_KEY_ORDER,
             "quality_gates": QUALITY_GATE_KEY_ORDER,
+            "parameters": PARAMETER_KEY_ORDER,
+            "inputs_schema": NODE_FIELD_KEY_ORDER,
+            "outputs_schema": NODE_FIELD_KEY_ORDER,
         },
     )
 
@@ -2211,6 +2225,248 @@ def escape_dot(value: str) -> str:
     return value.replace("\\", "\\\\").replace('"', '\\"')
 
 
+# --- Reference runner: execute a flow with local handlers and emit real evidence ---
+
+SUBSTITUTION_PATTERN = re.compile(r"\$\{(param|input)\.([a-z0-9_-]+)\}")
+ARTIFACT_KIND_BY_EXT = {"command-output": "log", "command-error": "log", "json": "json", "markdown": "md"}
+
+
+def parse_kv_list(items: Iterable[str]) -> dict[str, str]:
+    values: dict[str, str] = {}
+    for item in items or []:
+        if "=" not in item:
+            raise ValueError(f"expected key=value, got {item!r}")
+        key, value = item.split("=", 1)
+        values[key] = value
+    return values
+
+
+def substitute_command(template: str, params: dict[str, Any], inputs: dict[str, Any]) -> str:
+    def repl(match: re.Match[str]) -> str:
+        scope, name = match.group(1), match.group(2)
+        source = params if scope == "param" else inputs
+        return str(source[name]) if name in source else match.group(0)
+
+    return SUBSTITUTION_PATTERN.sub(repl, template)
+
+
+def execution_order(document: dict[str, Any]) -> list[dict[str, Any]]:
+    nodes = list(document.get("nodes", []))
+    produced_by = {p: n["id"] for n in nodes for p in n.get("produces", [])}
+    deps = {
+        n["id"]: {produced_by[r] for r in n.get("requires", []) if r in produced_by and produced_by[r] != n["id"]}
+        for n in nodes
+    }
+    order: list[dict[str, Any]] = []
+    resolved: set[str] = set()
+    pending = nodes[:]
+    while pending:
+        nxt = next((n for n in pending if deps[n["id"]] <= resolved), pending[0])
+        order.append(nxt)
+        resolved.add(nxt["id"])
+        pending.remove(nxt)
+    return order
+
+
+def run_flow(
+    document: dict[str, Any],
+    flow_source: str,
+    inputs: dict[str, Any],
+    params: dict[str, Any],
+    workdir: Path,
+    out_dir: Path,
+) -> tuple[dict[str, Any], str, list[str]]:
+    flow_id = document["id"]
+    flow_version = document["version"]
+    core = "standalone"
+    run_id = "run-" + re.sub(r"[^a-z0-9]+", "-", flow_id) + "-local"
+    artifacts_dir = out_dir / "artifacts"
+    artifacts_dir.mkdir(parents=True, exist_ok=True)
+
+    declared_artifacts = set(document.get("contracts", {}).get("artifacts", []))
+    output_ids = {f["id"] for f in document.get("contracts", {}).get("outputs", []) if isinstance(f, dict)}
+    param_values = dict(params)
+    for node in document["nodes"]:
+        for param in node.get("parameters", []):
+            if param["id"] not in param_values and "default" in param:
+                param_values[param["id"]] = param["default"]
+
+    events: list[dict[str, Any]] = []
+    artifacts: dict[str, dict[str, Any]] = {}
+    artifact_ok: dict[str, bool] = {}
+    produced_by_node: dict[str, str] = {}
+    outputs: dict[str, Any] = {}
+    needs_handler: list[str] = []
+    status = "completed"
+
+    def now() -> str:
+        return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    def emit(event: str, node: str | None = None, payload: Any = None, evidence: Any = None, severity: str = "info") -> None:
+        record = {
+            "event_version": "agentic-flows.events/v1",
+            "flow_id": flow_id,
+            "flow_version": flow_version,
+            "run_id": run_id,
+            **({"node_id": node} if node else {}),
+            "event": event,
+            "timestamp": now(),
+            "core": core,
+            "severity": severity,
+        }
+        if payload is not None:
+            record["payload"] = payload
+        if evidence is not None:
+            record["evidence"] = evidence
+        events.append(record)
+
+    def write_file(name: str, content: str, kind: str) -> str:
+        ext = ARTIFACT_KIND_BY_EXT.get(kind, "txt")
+        filename = re.sub(r"[^a-z0-9._-]+", "-", name) + "." + ext
+        (artifacts_dir / filename).write_text(content, encoding="utf-8")
+        return f"artifacts/{filename}"
+
+    def record_artifact(name: str, content: str, kind: str, node_id: str, ok: bool) -> None:
+        uri = write_file(name, content, kind)
+        artifacts[name] = {"id": name, "kind": kind, "uri": uri}
+        artifact_ok[name] = ok
+        produced_by_node[name] = node_id
+
+    def record_output(name: str, content: str, kind: str) -> None:
+        outputs[name] = write_file("output-" + name, content, kind)
+
+    def emit_produces(node: dict[str, Any], content: str, kind: str, ok: bool) -> None:
+        names = node.get("produces", []) or [f"{node['id']}-output"]
+        for name in names:
+            if name in output_ids:
+                record_output(name, content, "markdown")
+            else:
+                record_artifact(name, content, kind, node["id"], ok)
+
+    emit("flow.started")
+    start_at = now()
+
+    for node in execution_order(document):
+        node_id = node["id"]
+        node_type = node["type"]
+        command = node.get("command")
+        if command:
+            rendered = substitute_command(command, param_values, inputs)
+            on_failure = node.get("on_failure") or {}
+            attempts = on_failure.get("max_attempts", 1) if on_failure.get("action") == "retry" else 1
+            returncode = 1
+            output = ""
+            for _ in range(max(1, attempts)):
+                try:
+                    proc = subprocess.run(
+                        rendered, shell=True, cwd=str(workdir), capture_output=True, text=True,
+                        timeout=node.get("timeout_seconds", 600),
+                    )
+                    returncode = proc.returncode
+                    output = (proc.stdout or "") + (proc.stderr or "")
+                except Exception as exc:  # noqa: BLE001 - runner reports command failures
+                    returncode, output = 1, str(exc)
+                if returncode == 0:
+                    break
+            ok = returncode == 0
+            log = f"$ {rendered}\n(exit {returncode})\n\n{output}"
+            emit_produces(node, log, "command-output" if ok else "command-error", ok)
+            emit("node.completed", node=node_id, severity="info" if ok else "error", payload={"exit_code": returncode})
+            if not ok and on_failure.get("action") not in ("skip", "escalate"):
+                status = "failed"
+        elif node_type == "intake":
+            emit_produces(node, json.dumps({"inputs": inputs, "params": param_values}, indent=2), "json", True)
+            emit("node.completed", node=node_id)
+        elif node_type in ("plan", "decision", "verifier", "finalizer"):
+            body = f"# {node['title']}\n\n{node.get('instructions', node['description'])}\n"
+            emit_produces(node, body, "markdown", True)
+            emit("node.completed", node=node_id)
+        else:  # agent_task / approval / handoff without a local command
+            needs_handler.append(node_id)
+            emit("node.completed", node=node_id, severity="warning", payload={"status": "needs-handler"})
+            status = "incomplete" if status == "completed" else status
+
+    required_gates = [g for g in document.get("quality_gates", []) if g.get("required")]
+    for gate in required_gates:
+        refs = gate.get("evidence_refs", [])
+        if refs and all(r in artifacts and artifact_ok.get(r) for r in refs):
+            evidence = [artifacts[r] for r in refs]
+            emit("gate.completed", node=produced_by_node.get(refs[0]),
+                 payload={"gate_id": gate["id"], "status": "passed"}, evidence=evidence)
+        elif status == "completed":
+            status = "incomplete"
+
+    required_outputs = [f["id"] for f in document.get("contracts", {}).get("outputs", []) if f.get("required")]
+    if any(o not in outputs for o in required_outputs) and status == "completed":
+        status = "incomplete"
+
+    bundle_status = "completed" if status == "completed" else "failed"
+    if bundle_status == "completed":
+        emit("flow.completed")
+
+    bundle = {
+        "run_version": "agentic-flows.run/v1",
+        "flow": {"id": flow_id, "version": flow_version, "source": flow_source},
+        "run": {
+            "id": run_id, "core": core, "status": bundle_status,
+            "started_at": start_at, "completed_at": now(),
+        },
+        "inputs": inputs,
+        "outputs": outputs,
+        "artifacts": list(artifacts.values()),
+        "events": events,
+    }
+    return bundle, status, needs_handler
+
+
+def cmd_run(args: argparse.Namespace) -> int:
+    flow_schema = load_json(args.schema)
+    if not args.flow.exists():
+        print(f"FAIL {args.flow}: flow file does not exist", file=sys.stderr)
+        return 1
+    document = load_yaml(args.flow)
+    errors = validate_flow_document(document, flow_schema)
+    if errors:
+        print(f"FAIL {args.flow}", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    try:
+        inputs = parse_kv_list(args.input)
+        params = parse_kv_list(args.param)
+    except ValueError as exc:
+        print(f"FAIL: {exc}", file=sys.stderr)
+        return 1
+
+    workdir = Path(args.workdir).resolve() if args.workdir else Path.cwd()
+    flow_path = args.flow.resolve()
+    source = str(flow_path.relative_to(REPO_ROOT)) if flow_path.is_relative_to(REPO_ROOT) else str(flow_path)
+    out_dir = (Path(args.out) if args.out else REPO_ROOT / ".agentic-runs" / re.sub(r"[^a-z0-9]+", "-", document["id"])).resolve()
+
+    bundle, status, needs_handler = run_flow(document, source, inputs, params, workdir, out_dir)
+    bundle_path = out_dir / f"{bundle['run']['id']}.run.json"
+    bundle_path.write_text(json.dumps(bundle, indent=2) + "\n", encoding="utf-8")
+
+    run_schema = load_json(args.run_schema)
+    event_schema = load_json(args.event_schema)
+    validation_errors = validate_run_document(bundle, run_schema, event_schema, flow_schema, run_path=bundle_path)
+
+    print(f"Run {bundle['run']['id']} ({bundle['run']['status']})")
+    print(f"Flow: {document['id']}@{document['version']}  Out: {display_path(bundle_path)}")
+    passed = [e["payload"]["gate_id"] for e in bundle["events"] if e["event"] == "gate.completed"]
+    print(f"Gates passed: {', '.join(passed) if passed else 'none'}")
+    print(f"Outputs: {', '.join(sorted(bundle['outputs'])) if bundle['outputs'] else 'none'}")
+    if needs_handler:
+        print(f"Needs consumer handler: {', '.join(needs_handler)}")
+    if validation_errors:
+        print("Produced run bundle failed validation:", file=sys.stderr)
+        for error in validation_errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+    return 0 if bundle["run"]["status"] == "completed" else 2
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="flowctl", description="Validate and inspect agentic flow definitions.")
     parser.add_argument("--schema", type=Path, default=DEFAULT_SCHEMA, help="Path to the flow JSON Schema.")
@@ -2220,6 +2476,16 @@ def build_parser() -> argparse.ArgumentParser:
     validate.add_argument("paths", nargs="*", type=Path, help="Flow files or directories. Defaults to flows/ and templates/.")
     validate.add_argument("-v", "--verbose", action="store_true", help="Print each passing file.")
     validate.set_defaults(func=cmd_validate)
+
+    run = subparsers.add_parser("run", help="Execute a runnable flow with local handlers and emit a real run bundle.")
+    run.add_argument("flow", type=Path, help="Path to flow.yaml.")
+    run.add_argument("--input", action="append", default=[], metavar="id=value", help="Flow input value.")
+    run.add_argument("--param", action="append", default=[], metavar="id=value", help="Parameter override.")
+    run.add_argument("--workdir", type=Path, help="Working directory for command nodes. Defaults to the current directory.")
+    run.add_argument("--out", type=Path, help="Output directory for the run bundle and artifacts. Defaults to .agentic-runs/<flow>.")
+    run.add_argument("--run-schema", type=Path, default=DEFAULT_RUN_SCHEMA, help="Path to the run bundle JSON Schema.")
+    run.add_argument("--event-schema", type=Path, default=DEFAULT_EVENT_SCHEMA, help="Path to the event JSON Schema.")
+    run.set_defaults(func=cmd_run)
 
     validate_adapter = subparsers.add_parser("validate-adapter-smoke", help="Validate adapter smoke manifests.")
     validate_adapter.add_argument("paths", nargs="*", type=Path, help="Adapter smoke files or directories. Defaults to examples/adapters/.")

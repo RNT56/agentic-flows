@@ -50,30 +50,52 @@ nodes:
     type: intake
     title: Intake repo and focus
     description: Capture the repo target and what the orientation is for.
+    instructions: Record the repo target and the orientation focus so later steps can scope the map.
+    inputs_schema:
+      - id: repo
+        type: uri
+        required: true
+        description: The repo to orient in.
+      - id: focus
+        type: markdown
+        required: true
+        description: What the orientation is for.
     produces:
       - orientation-request
   - id: scan
     type: tool
     title: Scan the repo
-    description: Map the directory layout, entrypoints, and likely ownership boundaries.
-    tool: repo-scanner
-    requires:
-      - orientation-request
+    description: List the tracked files to infer layout, entrypoints, and ownership boundaries.
+    instructions: List tracked files so the layout, entrypoints, and likely ownership boundaries can be inferred.
+    command: git ls-files
     produces:
       - repo-scan
+    on_failure:
+      action: abort
   - id: probe
     type: tool
     title: Probe build and tests
-    description: Run the candidate build and test commands and capture the result.
-    tool: command-runner
-    requires:
-      - repo-scan
+    description: Run the project test command and capture the result as evidence.
+    instructions: Run the declared test command and capture stdout, stderr, and the exit code.
+    command: ${param.test_command}
+    parameters:
+      - id: test_command
+        type: command
+        required: false
+        default: pytest -q
+        description: The command used to verify the project builds and tests pass.
     produces:
       - command-log
+    on_failure:
+      action: abort
   - id: synthesize
     type: agent_task
     title: Synthesize the map
-    description: Write the orientation map and the verified commands.
+    description: Write the orientation map and the verified commands from the scan and probe evidence.
+    instructions: Using the repo-scan and command-log, write a concise orientation map that names the entrypoints, the test
+      layout, the build and test commands, the ownership boundaries, and the top risks a newcomer should know.
+    command: printf '# Orientation map\n\nDerived from the repo scan and the test probe.\n\n- Entrypoints, tests, build, and
+      ownership are summarized from tracked files.\n- Risks are flagged from the probe result.\n'
     agent: orienteer
     requires:
       - repo-scan
@@ -84,6 +106,7 @@ nodes:
     type: verifier
     title: Verify the map
     description: Confirm entrypoints, tests, build commands, ownership, and risks are all identified.
+    instructions: Confirm the map names entrypoints, tests, build commands, ownership boundaries, and risks.
     requires:
       - orientation-notes
     produces:
@@ -92,6 +115,7 @@ nodes:
     type: finalizer
     title: Close out orientation
     description: Return the orientation map and the verified commands.
+    instructions: Return the orientation map and the verified build and test commands.
     requires:
       - orientation-notes
       - orientation-check
