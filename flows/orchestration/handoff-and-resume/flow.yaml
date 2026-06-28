@@ -52,12 +52,26 @@ nodes:
     type: intake
     title: Intake session state
     description: Capture the current work state and the next owner.
+    instructions: Record the current work state to be compacted and identify the next owner who will resume it. Done when
+      the session context and the next owner are both captured.
+    inputs_schema:
+      - id: session_state
+        type: json
+        required: true
+        description: The current work state to compact for handoff.
+      - id: next_owner
+        type: text
+        required: true
+        description: The agent or future run that will resume the work.
     produces:
       - session-context
   - id: compact
     type: agent_task
     title: Compact state
     description: Reduce the session into a snapshot of state, decisions, and blockers.
+    instructions: Reduce the session into a compact snapshot that preserves the current state, the decisions made and why,
+      and the open blockers, dropping noise the next owner does not need. This step needs a compactor agent supplied by the
+      consumer.
     agent: compactor
     requires:
       - session-context
@@ -67,6 +81,9 @@ nodes:
     type: handoff
     title: Assemble handoff packet
     description: Build the handoff packet and an ordered resume checklist for the next owner.
+    instructions: Build the handoff packet from the snapshot including state, decisions, blockers, and validation status,
+      and write an ordered resume checklist of the next commands the new owner should run. Done when both the packet and an
+      ordered checklist exist.
     requires:
       - state-snapshot
     produces:
@@ -76,6 +93,8 @@ nodes:
     type: verifier
     title: Verify handoff completeness
     description: Confirm state, decisions, blockers, validation status, and next commands are present.
+    instructions: Confirm the packet preserves state, decisions, blockers, and validation status, and that the resume checklist
+      lists ordered, runnable next commands.
     requires:
       - handoff-packet
       - resume-checklist
@@ -85,6 +104,8 @@ nodes:
     type: finalizer
     title: Close out handoff
     description: Return the handoff packet and the resume checklist.
+    instructions: Return the handoff packet and the ordered resume checklist so the next owner can resume cleanly without
+      re-deriving context.
     requires:
       - handoff-packet
       - handoff-check

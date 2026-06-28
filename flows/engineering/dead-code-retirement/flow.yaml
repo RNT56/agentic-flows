@@ -52,21 +52,45 @@ nodes:
     type: intake
     title: Intake retirement target
     description: Capture the suspected dead code and the repo target.
+    instructions: Record the suspected dead code and the repo target so its references and public API exposure can be searched
+      before any removal.
+    inputs_schema:
+      - id: target
+        type: markdown
+        required: true
+        description: The suspected dead code to evaluate.
+      - id: repo
+        type: uri
+        required: true
+        description: Repository or local checkout target.
     produces:
       - retirement-scope
   - id: search
     type: tool
     title: Search references
     description: Search the codebase for references and public API exposure of the target.
+    instructions: Search the tracked codebase for every reference to the target and any public API exposure, and capture the
+      matches so the unused claim can be proven.
+    command: git grep -n -- ${param.symbol}
+    parameters:
+      - id: symbol
+        type: text
+        required: false
+        default: TODO-set-target-symbol
+        description: The symbol or identifier to search for across the codebase.
     tool: code-search
     requires:
       - retirement-scope
     produces:
       - reference-search
+    on_failure:
+      action: abort
   - id: decide
     type: decision
     title: Unused or still referenced
     description: Decide whether the target is provably unused or must be kept.
+    instructions: Decide from the reference search whether the target is provably unused, or record a justification for keeping
+      it when references or public API exposure remain.
     requires:
       - reference-search
     produces:
@@ -75,6 +99,8 @@ nodes:
     type: agent_task
     title: Remove the code
     description: Remove the confirmed-unused code in the smallest coherent change.
+    instructions: Remove the confirmed-unused code in the smallest coherent change, touching only what the reference search
+      proved dead. This step needs a coding agent supplied by the consumer.
     agent: coding-worker
     requires:
       - retirement-decision
@@ -84,15 +110,28 @@ nodes:
     type: tool
     title: Run checks
     description: Run the project tests to confirm behavior is unchanged after removal.
+    instructions: Run the project tests after the removal and capture stdout, stderr, and the exit code to confirm behavior
+      is unchanged.
+    command: ${param.test_command}
+    parameters:
+      - id: test_command
+        type: command
+        required: false
+        default: make test || npm test || cargo test || go test ./...
+        description: The command that runs the project tests after the removal.
     tool: command-runner
     requires:
       - removal-diff
     produces:
       - test-log
+    on_failure:
+      action: abort
   - id: verify
     type: verifier
     title: Verify impact
     description: Confirm references were searched, public API impact assessed, and tests pass.
+    instructions: Confirm the reference search covered usages and public API exposure, the impact was assessed, and the tests
+      pass, then write the impact report.
     requires:
       - removal-diff
       - test-log
@@ -102,6 +141,8 @@ nodes:
     type: finalizer
     title: Close out retirement
     description: Return the removal patch and an impact report.
+    instructions: Return the removal patch, or a no-op with a justification when the target is still referenced, together
+      with the impact report covering references, public API impact, and the test outcome.
     requires:
       - retirement-decision
       - impact-check

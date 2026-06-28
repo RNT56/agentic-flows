@@ -53,12 +53,25 @@ nodes:
     type: intake
     title: Intake scope
     description: Capture the knowledge base root and the maintenance scope.
+    instructions: Record the knowledge base root and the maintenance scope, including any do-not-touch boundaries, so the
+      staleness scan and update plan stay inside the agreed surface.
+    inputs_schema:
+      - id: knowledge_root
+        type: uri
+        required: true
+        description: The knowledge base root to maintain.
+      - id: scope
+        type: markdown
+        required: true
+        description: What to maintain and any do-not-touch boundaries.
     produces:
       - kb-scope
   - id: scan
     type: tool
     title: Scan for staleness
     description: Detect stale docs, decisions, and examples.
+    instructions: Scan the docs, decisions, and examples under the knowledge root and list every item that is out of date,
+      with the signal that makes it stale, while respecting the do-not-touch boundaries.
     tool: docs-scanner
     requires:
       - kb-scope
@@ -68,6 +81,8 @@ nodes:
     type: plan
     title: Plan updates
     description: Plan sourced updates and mark deletions as conservative.
+    instructions: For each stale item plan a concrete update with a citable source, and mark any deletion as conservative
+      so nothing is removed without justification. Name the files you expect to change.
     requires:
       - staleness-scan
     produces:
@@ -76,6 +91,8 @@ nodes:
     type: agent_task
     title: Apply updates
     description: Apply the planned updates with their sources.
+    instructions: Apply only the updates in the plan, recording the source cited for each change and leaving out-of-scope
+      items untouched, then log what was changed and what was left alone. This step needs a docs agent supplied by the consumer.
     agent: docs-writer
     requires:
       - update-plan
@@ -85,6 +102,8 @@ nodes:
     type: verifier
     title: Verify maintenance
     description: Confirm stale items were detected, updates cite sources, and deletions are conservative.
+    instructions: Confirm the scan detected the stale items, every applied update cites a source, and deletions stayed conservative,
+      recording any change that lacks a source as a failure.
     requires:
       - update-plan
       - maintenance-log
@@ -94,6 +113,8 @@ nodes:
     type: finalizer
     title: Close out maintenance
     description: Return the maintenance report and the applied updates.
+    instructions: Return the maintenance report describing what was stale, what was updated, and what was left alone, alongside
+      the applied updates with their sources.
     requires:
       - maintenance-log
       - maintenance-check

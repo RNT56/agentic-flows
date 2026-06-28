@@ -52,21 +52,45 @@ nodes:
     type: intake
     title: Intake refactor target
     description: Capture target modules, explicit behavior invariants, and forbidden changes.
+    instructions: Record the refactor target, the public behavior invariants that must hold, and the changes that are out
+      of bounds, then freeze this scope so the refactor cannot drift into behavior change.
+    inputs_schema:
+      - id: task
+        type: markdown
+        required: true
+        description: The refactor target, constraints, and non-goals.
+      - id: repo
+        type: uri
+        required: true
+        description: The repository or checkout to refactor.
     produces:
       - refactor-scope
   - id: baseline
     type: tool
     title: Capture baseline checks
     description: Run available checks before the refactor when practical.
+    instructions: Run the project checks against the unchanged code and capture stdout, stderr, and the exit code as the pre-refactor
+      baseline to compare against later.
+    command: ${param.test_command}
+    parameters:
+      - id: test_command
+        type: command
+        required: false
+        default: make test || npm test || cargo test || go test ./...
+        description: The command that runs the project checks for the baseline.
     tool: command-runner
     requires:
       - refactor-scope
     produces:
       - baseline-log
+    on_failure:
+      action: abort
   - id: plan
     type: plan
     title: Plan internal rewrite
     description: Identify the smallest internal changes that preserve public behavior.
+    instructions: Identify the smallest set of internal changes that reach the refactor target while leaving every declared
+      invariant intact, and name the modules and the checks that will demonstrate equivalence.
     requires:
       - refactor-scope
       - baseline-log
@@ -76,6 +100,8 @@ nodes:
     type: agent_task
     title: Apply refactor
     description: Modify internals without broadening scope or changing user-visible behavior.
+    instructions: Apply only the internal changes named in the plan, hold every user-visible behavior constant, and avoid
+      widening scope. This step needs a coding agent supplied by the consumer.
     agent: coding-worker
     requires:
       - refactor-plan
@@ -85,15 +111,21 @@ nodes:
     type: verifier
     title: Verify behavior preservation
     description: Run checks and compare expected public behavior with the baseline.
+    instructions: Re-run the project checks on the refactored code, capture the result as the post-refactor log, and compare
+      it against the baseline to prove no declared invariant changed.
     requires:
       - patch
     produces:
       - post-refactor-log
       - equivalence-report
+    on_failure:
+      action: abort
   - id: final
     type: finalizer
     title: Close out refactor
     description: Return the diff, checks, and remaining behavioral risk.
+    instructions: Return the refactor diff, the equivalence report comparing baseline to post-refactor checks, and any residual
+      behavioral risk a reviewer should weigh.
     requires:
       - equivalence-report
     produces:

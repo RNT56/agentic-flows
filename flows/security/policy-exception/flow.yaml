@@ -54,12 +54,26 @@ nodes:
     type: intake
     title: Intake exception request
     description: Capture the requested bypass and the policy it would affect.
+    instructions: Record exactly what bypass of policy, sandbox, or approval is being requested and the specific policy it
+      would affect. Done when the requested exception and the governing policy are both captured.
+    inputs_schema:
+      - id: exception_request
+        type: markdown
+        required: true
+        description: The requested bypass of policy, sandbox, or approval.
+      - id: policy
+        type: markdown
+        required: true
+        description: The policy the request would bypass.
     produces:
       - exception-context
   - id: assess
     type: agent_task
     title: Assess risk and controls
     description: Assess the risk and define compensating controls for the requested bypass.
+    instructions: Assess the concrete risk the bypass introduces and define the compensating controls that would contain it.
+      This step needs a security analyst supplied by the consumer; done when the risk is characterized and compensating controls
+      are proposed.
     agent: security-analyst
     requires:
       - exception-context
@@ -69,6 +83,8 @@ nodes:
     type: decision
     title: Scope the exception
     description: Decide grant or deny and set owner, expiry, and compensating controls.
+    instructions: Decide grant or deny and, if granting, set the named owner, an explicit expiry, the residual risk, and the
+      compensating controls. Done when the decision plus owner, expiry, risk, and controls are recorded.
     requires:
       - risk-assessment
     produces:
@@ -77,6 +93,8 @@ nodes:
     type: approval
     title: Approve the exception
     description: Require an explicit operator approval before any exception is granted.
+    instructions: Ask the operator to explicitly approve before any policy or sandbox bypass is granted, and record the decision
+      and rationale. Done when an approval record exists for the granted exception.
     requires:
       - exception-record
     produces:
@@ -89,6 +107,8 @@ nodes:
     type: finalizer
     title: Close out exception
     description: Return the exception decision and the audit record.
+    instructions: Return the exception decision with owner, expiry, risk, and controls plus the full exception record for
+      audit. Done when both outputs are produced.
     requires:
       - exception-record
     produces:

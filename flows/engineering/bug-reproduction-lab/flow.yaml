@@ -52,21 +52,46 @@ nodes:
     type: intake
     title: Intake bug report
     description: Capture the bug report, the repo target, and the observed and expected behavior.
+    instructions: Record the bug report, the repo target, and the observed versus expected behavior so a reproduction can
+      be attempted against a known baseline.
+    inputs_schema:
+      - id: bug_report
+        type: markdown
+        required: true
+        description: The bug report with observed and expected behavior.
+      - id: repo
+        type: uri
+        required: true
+        description: Repository or local checkout target.
     produces:
       - bug-context
   - id: attempt
     type: tool
     title: Attempt reproduction
     description: Try to reproduce the bug locally and capture the command and output.
+    instructions: Run the candidate reproduction command and capture the exact command, stdout, stderr, and exit code so the
+      reproduction is recorded as evidence.
+    command: ${param.repro_command}
+    parameters:
+      - id: repro_command
+        type: command
+        required: false
+        default: make test || npm test || cargo test || go test ./...
+        description: The command used to attempt to reproduce the reported bug.
     tool: command-runner
     requires:
       - bug-context
     produces:
       - repro-command
+    on_failure:
+      action: retry
+      max_attempts: 2
   - id: decide
     type: decision
     title: Reproducible or not
     description: Decide whether the bug reproduced and record the reproduction or an impossibility note.
+    instructions: Decide from the captured output whether the bug reproduced, and record either the minimal reproduction steps
+      or an explicit explanation of why it cannot be reproduced.
     requires:
       - repro-command
     produces:
@@ -75,6 +100,8 @@ nodes:
     type: agent_task
     title: Author failing test
     description: Write the smallest test that captures the bug and fails before any fix.
+    instructions: Write the smallest test that captures the reproduced bug and fails before any fix is applied. This step
+      needs a test-authoring agent supplied by the consumer.
     agent: test-author
     requires:
       - repro-command
@@ -84,6 +111,7 @@ nodes:
     type: verifier
     title: Confirm test fails
     description: Run the authored test and confirm it fails before any fix is applied.
+    instructions: Run the authored test against the unfixed code and confirm it fails, capturing the failing run as evidence.
     requires:
       - failing-test
     produces:
@@ -92,6 +120,8 @@ nodes:
     type: finalizer
     title: Close out reproduction
     description: Return the reproduction or impossibility note and the failing test.
+    instructions: Return the minimal reproduction steps or the impossibility note, along with the failing test or an explicit
+      none when the bug was not reproducible.
     requires:
       - repro-notes
       - failing-test

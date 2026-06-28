@@ -55,6 +55,17 @@ nodes:
     type: intake
     title: Intake upgrade scope
     description: Capture the dependency, the target version, and the current version.
+    instructions: Record the dependency and target version, capture the current installed version as the before half of the
+      record, and note the repo target.
+    inputs_schema:
+      - id: dependency
+        type: text
+        required: true
+        description: The dependency and the target version to upgrade to.
+      - id: repo
+        type: uri
+        required: true
+        description: Repository or local checkout target.
     produces:
       - upgrade-scope
       - version-record
@@ -62,6 +73,8 @@ nodes:
     type: agent_task
     title: Apply the upgrade
     description: Bump the dependency and adapt code for any breaking changes.
+    instructions: Bump the dependency to the target version and adapt the code for any breaking changes in the smallest coherent
+      patch. This step needs a coding agent supplied by the consumer.
     agent: coding-worker
     requires:
       - upgrade-scope
@@ -71,15 +84,28 @@ nodes:
     type: tool
     title: Run checks
     description: Run the project tests and build against the upgraded dependency.
+    instructions: Run the project tests and build against the upgraded dependency and capture stdout, stderr, and the exit
+      code as evidence.
+    command: ${param.test_command}
+    parameters:
+      - id: test_command
+        type: command
+        required: false
+        default: make test || npm test || cargo test || go test ./...
+        description: The command that runs the project tests and build against the upgraded dependency.
     tool: command-runner
     requires:
       - upgrade-diff
     produces:
       - test-log
+    on_failure:
+      action: abort
   - id: verify
     type: verifier
     title: Verify compatibility
     description: Confirm tests pass and capture a compatibility or security rationale.
+    instructions: Confirm the tests pass against the upgraded dependency and write a compatibility or security rationale explaining
+      why the upgrade is safe or necessary.
     requires:
       - upgrade-diff
       - test-log
@@ -89,6 +115,8 @@ nodes:
     type: finalizer
     title: Close out upgrade
     description: Return the upgrade patch and release notes with before/after versions.
+    instructions: Return the upgrade patch with any code adaptations and release notes that record the before and after versions
+      plus the compatibility or security rationale.
     requires:
       - version-record
       - compatibility-notes

@@ -55,21 +55,47 @@ nodes:
     type: intake
     title: Intake audit scope
     description: Capture the dependency manifest and the license and advisory policy.
+    instructions: Record the dependency manifest or lockfile location and the license and advisory policy to audit against.
+      Done when the manifest reference and the policy are both captured.
+    inputs_schema:
+      - id: manifest
+        type: uri
+        required: true
+        description: Dependency manifest or lockfile to audit.
+      - id: policy
+        type: markdown
+        required: true
+        description: License and advisory policy to audit against.
     produces:
       - audit-scope
   - id: inventory
     type: tool
     title: Build dependency inventory
     description: Resolve the manifest into a concrete dependency inventory with versions.
+    instructions: Resolve the manifest into a concrete list of dependencies with their pinned versions and capture the command
+      output as the inventory evidence. Done when every dependency and its version is enumerated.
+    command: ${param.inventory_command}
+    parameters:
+      - id: inventory_command
+        type: command
+        required: false
+        default: npm ls --all --json || pip freeze || cargo tree
+        description: The command that resolves the manifest into a dependency inventory with versions.
     tool: dependency-scanner
     requires:
       - audit-scope
     produces:
       - dependency-inventory
+    on_failure:
+      action: retry
+      max_attempts: 2
   - id: assess
     type: agent_task
     title: Assess advisories and licenses
     description: Look up advisories and check licenses for each dependency, ranking findings by severity.
+    instructions: For each inventoried dependency look up known advisories and check its license against policy, then rank
+      the findings by severity. This step needs a security auditor supplied by the consumer; done when every dependency is
+      checked and findings are ranked with their sources.
     agent: security-auditor
     requires:
       - dependency-inventory
@@ -80,15 +106,21 @@ nodes:
     type: verifier
     title: Verify findings and sources
     description: Confirm every advisory cites a source and every license conflict names the dependency.
+    instructions: Confirm every advisory finding cites a captured source and every license conflict names the offending dependency
+      and license, then draft the remediation plan. Done when all findings are sourced and the remediation plan is written.
     requires:
       - advisory-report
       - license-report
     produces:
       - remediation-plan
+    on_failure:
+      action: abort
   - id: final
     type: finalizer
     title: Close out audit
     description: Return ranked findings and a remediation plan.
+    instructions: Return the ranked advisory and license findings with their sources and the remediation plan or draft PR
+      description. Done when both outputs are produced.
     requires:
       - remediation-plan
       - advisory-report

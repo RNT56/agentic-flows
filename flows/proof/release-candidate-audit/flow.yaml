@@ -52,21 +52,46 @@ nodes:
     type: intake
     title: Intake candidate
     description: Capture the release candidate and the repo target.
+    instructions: Record the release candidate tag or commit and the repo target, so the release checks and the artifact audit
+      run against the exact commit being released.
+    inputs_schema:
+      - id: candidate
+        type: text
+        required: true
+        description: The release candidate tag or commit.
+      - id: repo
+        type: uri
+        required: true
+        description: Repository or local checkout target.
     produces:
       - audit-scope
   - id: checks
     type: tool
     title: Run release checks
     description: Run tests and the release checks against the candidate.
+    instructions: Run the release checks and tests against the candidate commit and capture stdout, stderr, and the exit code
+      as the evidence the audit verdict relies on.
+    command: ${param.release_check_command}
+    parameters:
+      - id: release_check_command
+        type: command
+        required: false
+        default: flowctl release-check || make release-check || make test || npm test || pytest -q
+        description: The command that runs the release checks and tests for the candidate.
     tool: command-runner
     requires:
       - audit-scope
     produces:
       - check-log
+    on_failure:
+      action: abort
   - id: audit
     type: agent_task
     title: Audit artifacts
     description: Confirm the tag points at the audited commit, the changelog section exists, and docs match.
+    instructions: Confirm the tag points at the audited commit, the changelog has a section for this release, and the docs
+      match the shipped behavior, recording each finding with the artifact it came from. This step needs a release-audit agent
+      supplied by the consumer.
     agent: release-auditor
     requires:
       - check-log
@@ -76,15 +101,21 @@ nodes:
     type: verifier
     title: Verify reproducibility
     description: Confirm release checks pass, the changelog section exists, and artifacts are reproducible.
+    instructions: Confirm the release checks passed, the changelog section exists, and the artifacts are reproducible from
+      the audited commit, then record a pass or fail verdict with the criteria checked.
     requires:
       - check-log
       - audit-findings
     produces:
       - audit-verdict
+    on_failure:
+      action: abort
   - id: final
     type: finalizer
     title: Close out audit
     description: Return the audit verdict and the report.
+    instructions: Return the pass or fail audit verdict with the checked criteria and the audit report covering tests, changelog,
+      tags, and docs.
     requires:
       - audit-verdict
       - audit-findings

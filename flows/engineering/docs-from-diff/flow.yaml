@@ -50,12 +50,25 @@ nodes:
     type: intake
     title: Intake the diff
     description: Capture the code change and the documentation root.
+    instructions: Record the code change to assess and the documentation root to update so the diff can be examined for documentation
+      impact.
+    inputs_schema:
+      - id: diff
+        type: patch
+        required: true
+        description: The code change to assess for documentation impact.
+      - id: docs_root
+        type: uri
+        required: true
+        description: The documentation root to update.
     produces:
       - diff-context
   - id: analyze
     type: agent_task
     title: Analyze docs impact
     description: Determine whether the change touches documented behavior, examples, or the changelog.
+    instructions: Examine the diff and determine whether it touches documented behavior, examples, or the changelog, naming
+      the specific docs affected. This step needs a docs analyst supplied by the consumer.
     agent: docs-analyst
     requires:
       - diff-context
@@ -65,6 +78,8 @@ nodes:
     type: decision
     title: Docs needed or not
     description: Decide explicitly whether documentation updates are required.
+    instructions: Decide explicitly whether documentation updates are required, recording which docs are affected or an explicit
+      non-impact with justification.
     requires:
       - impact-analysis
     produces:
@@ -73,6 +88,8 @@ nodes:
     type: agent_task
     title: Update docs
     description: Apply the documentation, example, or changelog updates.
+    instructions: Apply the documentation, example, or changelog updates the decision calls for, keeping them consistent with
+      the code change. This step needs a docs-writing agent supplied by the consumer.
     agent: docs-writer
     requires:
       - docs-decision
@@ -82,6 +99,8 @@ nodes:
     type: verifier
     title: Verify docs decision
     description: Confirm the docs-impact decision is explicit and updates were made or non-impact justified.
+    instructions: Confirm the docs-impact decision is explicit and that the affected docs were updated or the non-impact was
+      justified.
     requires:
       - docs-decision
     produces:
@@ -90,6 +109,8 @@ nodes:
     type: finalizer
     title: Close out docs impact
     description: Return the docs decision and the documentation patch.
+    instructions: Return the docs decision stating whether docs are impacted and which are affected, along with the documentation
+      patch or an explicit none with justification.
     requires:
       - docs-decision
       - docs-check

@@ -49,12 +49,25 @@ nodes:
     type: intake
     title: Intake agent work
     description: Capture the agent output, its claims, and the evidence it cited.
+    instructions: Record the agent's output, enumerate the discrete claims it made, and capture the evidence references it
+      cited for each. Done when every claim is paired with the evidence the agent offered for it.
+    inputs_schema:
+      - id: agent_work
+        type: markdown
+        required: true
+        description: The agent's output and the claims it made.
+      - id: evidence_refs
+        type: json
+        required: true
+        description: The evidence the agent cited for its claims.
     produces:
       - review-input
   - id: check
     type: agent_task
     title: Check claims against evidence
     description: Test each claim against its cited evidence and flag unsafe edits and missed validation.
+    instructions: Test each claim against its cited evidence, marking claims the evidence does not support as hallucinated,
+      and flag unsafe edits and validation the agent skipped. This step needs a reviewer agent supplied by the consumer.
     agent: quality-reviewer
     requires:
       - review-input
@@ -64,6 +77,8 @@ nodes:
     type: verifier
     title: Assess findings
     description: Confirm each finding cites evidence, drop false positives, and state residual risk.
+    instructions: Confirm every retained finding cites the evidence it rests on, drop findings that turn out to be false positives,
+      and state the residual risk that remains after review.
     requires:
       - claim-check
     produces:
@@ -72,6 +87,8 @@ nodes:
     type: finalizer
     title: Close out review
     description: Return the review report and the cited findings.
+    instructions: Return the review report summarizing confirmed issues and explicit residual risk, plus the structured findings
+      listing hallucinated claims, missed validation, and unsafe edits with citations.
     requires:
       - claim-check
       - review-findings

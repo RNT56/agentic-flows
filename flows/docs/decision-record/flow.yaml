@@ -48,12 +48,25 @@ nodes:
     type: intake
     title: Intake decision context
     description: Capture the decision, the owner, and the options under consideration.
+    instructions: Record the decision to be made, the accountable owner, and the options under consideration, so the analysis
+      can weigh each option and the record can name the owner and date.
+    inputs_schema:
+      - id: decision_context
+        type: markdown
+        required: true
+        description: The decision to capture and the options under consideration.
+      - id: owner
+        type: text
+        required: true
+        description: The accountable decision owner.
     produces:
       - decision-context
   - id: analyze
     type: agent_task
     title: Analyze options
     description: Lay out the candidate options with trade-offs and the rejected alternatives.
+    instructions: Lay out each candidate option with its trade-offs and document the rejected alternatives with the reason
+      each was rejected. This step needs an analyst agent supplied by the consumer.
     agent: analyst
     requires:
       - decision-context
@@ -63,6 +76,8 @@ nodes:
     type: agent_task
     title: Write the decision record
     description: Write the decision, chosen option, consequences, owner, and date.
+    instructions: Write the record stating the decision, the chosen option, the consequences, and the accountable owner and
+      date, drawing the rejected alternatives from the options analysis. This step needs a writer agent supplied by the consumer.
     agent: writer
     requires:
       - options-analysis
@@ -72,6 +87,8 @@ nodes:
     type: verifier
     title: Verify completeness
     description: Confirm the owner and date are present and rejected alternatives are documented.
+    instructions: Confirm the record names an owner and a decision date and that the rejected alternatives and their reasons
+      are documented before close out.
     requires:
       - decision-record
     produces:
@@ -80,6 +97,7 @@ nodes:
     type: finalizer
     title: Close out decision
     description: Return the decision record and its metadata.
+    instructions: Return the completed decision record and its metadata - the owner, date, and status of the decision.
     requires:
       - decision-record
       - decision-check

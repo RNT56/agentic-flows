@@ -52,12 +52,26 @@ nodes:
     type: intake
     title: Intake sources
     description: Capture the available sources and what must be reconstructed.
+    instructions: Record the run_sources references and the incident being reconstructed so later steps know exactly which
+      logs, events, approvals, and artifacts are in scope. Done when the sources and the reconstruction goal are captured.
+    inputs_schema:
+      - id: run_sources
+        type: json
+        required: true
+        description: Logs, events, approvals, and artifact references to reconstruct from.
+      - id: incident
+        type: markdown
+        required: true
+        description: What is being reconstructed and why.
     produces:
       - audit-scope
   - id: collect
     type: tool
     title: Index sources
     description: Index the logs, events, approvals, and artifacts into a single ordered set.
+    instructions: Pull every referenced log, event, approval, and artifact into one chronologically ordered index, noting
+      each entry's origin and timestamp. Capture the indexed set as evidence; done when all sources are indexed with their
+      provenance preserved.
     tool: evidence-indexer
     requires:
       - audit-scope
@@ -67,6 +81,9 @@ nodes:
     type: agent_task
     title: Reconstruct timeline
     description: Build the timeline strictly from sources, never inferring claims as facts.
+    instructions: Build the timeline strictly from the indexed sources, citing the source for every entry and never stating
+      an inference as a fact. This step needs a forensic analyst supplied by the consumer; done when each event is placed
+      in order with its citation.
     agent: forensic-analyst
     requires:
       - source-index
@@ -76,14 +93,20 @@ nodes:
     type: verifier
     title: Verify and mark gaps
     description: Confirm each entry is source-backed and mark the gaps where evidence is missing.
+    instructions: Check that every timeline entry cites a real source and record an explicit gap wherever evidence is missing
+      or ambiguous. Done when each entry is confirmed source-backed and the gap list enumerates the missing evidence.
     requires:
       - reconstructed-timeline
     produces:
       - gap-list
+    on_failure:
+      action: abort
   - id: final
     type: finalizer
     title: Close out reconstruction
     description: Return the audit trail and the explicit gaps.
+    instructions: Return the source-backed audit trail and the explicit gap list so the consumer knows both what happened
+      and where evidence is missing. Done when both outputs are produced.
     requires:
       - reconstructed-timeline
       - gap-list

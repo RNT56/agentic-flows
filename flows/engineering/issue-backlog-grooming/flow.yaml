@@ -51,12 +51,26 @@ nodes:
     type: intake
     title: Intake issues
     description: Capture the issues and the prioritization rubric.
+    instructions: Record the set of issues to triage and the prioritization rubric so each disposition can be justified against
+      the agreed criteria.
+    inputs_schema:
+      - id: issues
+        type: markdown
+        required: true
+        description: The issues to triage.
+      - id: priorities
+        type: markdown
+        required: true
+        description: The prioritization rubric used to assign priority.
     produces:
       - triage-scope
   - id: triage
     type: agent_task
     title: Triage issues
     description: Assign priority, owner, reproduction status, and next action to each issue.
+    instructions: For every issue, assign a priority that follows the rubric, an owner, a reproduction status, and a concrete
+      next action, recording the reasoning so the disposition is auditable. This step needs a triage agent supplied by the
+      consumer.
     agent: triage-assistant
     requires:
       - triage-scope
@@ -66,6 +80,8 @@ nodes:
     type: agent_task
     title: Map duplicates and blockers
     description: Identify duplicates and blocked items with cited source evidence.
+    instructions: Identify duplicate issues and blocked items, and for each link the source issue it duplicates or the issue
+      that blocks it so the relationship is evidenced. This step needs a triage agent supplied by the consumer.
     agent: triage-assistant
     requires:
       - triage-table
@@ -75,6 +91,8 @@ nodes:
     type: verifier
     title: Verify dispositions
     description: Confirm each issue has a disposition and duplicates and blockers cite evidence.
+    instructions: Confirm every issue in the triage table has a priority, owner, reproduction status, and next action, and
+      that each duplicate or blocker in the map cites its source issue.
     requires:
       - triage-table
       - duplicate-map
@@ -84,6 +102,8 @@ nodes:
     type: finalizer
     title: Close out grooming
     description: Return the per-issue dispositions and a summary.
+    instructions: Return the per-issue dispositions as structured data and a readable summary that highlights the highest-priority
+      items and any blockers.
     requires:
       - triage-table
       - triage-check

@@ -48,12 +48,25 @@ nodes:
     type: intake
     title: Intake technologies
     description: Capture the technologies and the current radar.
+    instructions: Record the technologies to assess and load the current radar so new placements can be compared against existing
+      ones and movements between rings are tracked.
+    inputs_schema:
+      - id: technologies
+        type: markdown
+        required: true
+        description: The technologies to assess for the radar.
+      - id: current_radar
+        type: json
+        required: true
+        description: The existing radar to update.
     produces:
       - radar-scope
   - id: assess
     type: agent_task
     title: Assess technologies
     description: Assess each technology with dated evidence.
+    instructions: Assess each technology against its maturity, adoption, and fit, attaching dated evidence for every judgement
+      so the basis can be re-checked at the next review. This step needs a research agent supplied by the consumer.
     agent: researcher
     requires:
       - radar-scope
@@ -63,6 +76,9 @@ nodes:
     type: agent_task
     title: Place on radar
     description: Place each item into adopt, watch, or reject with reason, owner, and next review date.
+    instructions: Place each technology into adopt, watch, or reject and record the reason, the owner, and the next review
+      date, noting any movement from its placement in the current radar. This step needs a research agent supplied by the
+      consumer.
     agent: researcher
     requires:
       - assessment
@@ -72,6 +88,8 @@ nodes:
     type: verifier
     title: Verify entries
     description: Confirm each entry has a reason, evidence date, owner, and next review date.
+    instructions: Confirm every radar entry carries a placement, a reason, a dated piece of evidence, an owner, and a next
+      review date, and flag any entry missing one of these.
     requires:
       - radar-entries
     produces:
@@ -80,6 +98,8 @@ nodes:
     type: finalizer
     title: Close out radar
     description: Return the updated radar and the change notes.
+    instructions: Return the updated radar with each entry's placement and metadata and a readable note summarizing what moved,
+      what was added, and why.
     requires:
       - radar-entries
       - radar-check

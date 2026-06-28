@@ -55,12 +55,25 @@ nodes:
     type: intake
     title: Intake connector
     description: Capture the connector and the readiness policy.
+    instructions: Record the connector under productionization and the production-readiness policy it must satisfy, so the
+      permission review, failure tests, and observability check can be scoped against named criteria.
+    inputs_schema:
+      - id: connector
+        type: markdown
+        required: true
+        description: The experimental connector to productionize.
+      - id: readiness_policy
+        type: markdown
+        required: true
+        description: The production-readiness policy to evaluate against.
     produces:
       - productionization-scope
   - id: permissions
     type: agent_task
     title: Review permissions
     description: Review the connector permissions for least privilege.
+    instructions: Inspect every scope and credential the connector requests and decide per scope whether it is least-privilege,
+      recording the justification or the reduction needed. This step needs a security agent supplied by the consumer.
     agent: security-analyst
     requires:
       - productionization-scope
@@ -70,15 +83,28 @@ nodes:
     type: tool
     title: Test failure modes
     description: Test the connector failure modes and retries.
+    instructions: Run the connector failure-mode and retry tests and capture stdout, stderr, and the exit code as evidence
+      that timeouts, errors, and retries behave as the readiness policy expects.
+    command: ${param.failure_test_command}
+    parameters:
+      - id: failure_test_command
+        type: command
+        required: false
+        default: make test || npm test || pytest -q
+        description: The command that exercises the connector failure modes and retries.
     tool: command-runner
     requires:
       - permission-review
     produces:
       - failure-tests
+    on_failure:
+      action: abort
   - id: observe
     type: agent_task
     title: Check observability and docs
     description: Confirm observability and documentation are complete.
+    instructions: Confirm the connector emits the metrics, logs, and traces the policy requires and that its operational docs
+      cover setup, limits, and failure handling, noting any gap. This step needs a reliability agent supplied by the consumer.
     agent: reliability-analyst
     requires:
       - failure-tests
@@ -88,15 +114,21 @@ nodes:
     type: verifier
     title: Verify readiness
     description: Confirm permissions are reviewed, failure modes tested, and observability and docs complete.
+    instructions: Confirm the permission review reached a least-privilege decision per scope, the failure tests passed, and
+      observability and docs are complete, then record a readiness verdict with the gaps that remain.
     requires:
       - failure-tests
       - observability-check
     produces:
       - readiness-verdict
+    on_failure:
+      action: abort
   - id: final
     type: finalizer
     title: Close out productionization
     description: Return the readiness report and the remaining checklist.
+    instructions: Return the readiness report covering permissions, failures, observability, and docs, plus the checklist
+      of items remaining before the connector can be enabled in production.
     requires:
       - permission-review
       - readiness-verdict

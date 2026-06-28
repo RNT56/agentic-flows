@@ -55,12 +55,25 @@ nodes:
     type: intake
     title: Intake runtime logs
     description: Capture the runtime-native logs and the source flow they belong to.
+    instructions: Record the runtime-native logs and the source flow they belong to so log entries can be mapped onto the
+      flow's nodes and events.
+    inputs_schema:
+      - id: runtime_logs
+        type: json
+        required: true
+        description: Runtime-native execution logs to convert into portable evidence.
+      - id: source_flow
+        type: uri
+        required: true
+        description: The source flow definition the logs belong to.
     produces:
       - normalized-logs
   - id: convert
     type: tool
     title: Convert logs to evidence
     description: Map runtime log entries onto event-stream events and a run bundle.
+    instructions: Map each runtime log entry onto an agentic-flows event-stream event and assemble a run bundle, preserving
+      node ids, timestamps, and gate evidence references from the source flow.
     tool: evidence-bridge
     requires:
       - normalized-logs
@@ -71,6 +84,8 @@ nodes:
     type: verifier
     title: Validate produced evidence
     description: Validate the event stream against source flow metadata and map gate evidence to source refs.
+    instructions: Validate the produced event stream against the source flow id, version, nodes, and events, and confirm each
+      required gate evidence in the run bundle maps back to a source flow evidence ref.
     requires:
       - event-stream
       - run-bundle
@@ -80,6 +95,7 @@ nodes:
     type: finalizer
     title: Close out bridge
     description: Return the validated run bundle and a conversion report.
+    instructions: Return the validated run bundle and a bridge report summarizing the conversion and the validation result.
     requires:
       - run-bundle
       - validation-result

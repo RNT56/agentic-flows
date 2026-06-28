@@ -48,12 +48,25 @@ nodes:
     type: intake
     title: Intake review request
     description: Capture candidate output, decision criteria, and known risk boundaries.
+    instructions: Record the candidate output, the decision criteria, and the known risk boundaries so the pre-assessment
+      and the operator have the full context to judge.
+    inputs_schema:
+      - id: candidate_output
+        type: markdown
+        required: true
+        description: Agent output that requires human review.
+      - id: decision_context
+        type: markdown
+        required: true
+        description: Criteria and risk context for review.
     produces:
       - review-request
   - id: assess
     type: verifier
     title: Pre-assess output
     description: Check the candidate output against the criteria before asking a human.
+    instructions: Check the candidate output against each decision criterion and flag the risks or gaps the operator should
+      weigh, so the human review starts from a concrete assessment.
     requires:
       - review-request
     produces:
@@ -62,6 +75,8 @@ nodes:
     type: approval
     title: Operator decision
     description: Record an explicit human decision and rationale.
+    instructions: Ask the operator to choose approve, reject, or needs_changes and record the decision with its rationale
+      and a timestamp.
     requires:
       - assessment
     produces:
@@ -75,6 +90,8 @@ nodes:
     type: agent_task
     title: Revise when requested
     description: Apply requested edits when the operator chooses needs_changes.
+    instructions: Apply the edits the operator requested in the needs_changes decision and return revised output for re-assessment.
+      This step needs a revision agent supplied by the consumer.
     agent: revision-worker
     requires:
       - decision-record
@@ -84,6 +101,7 @@ nodes:
     type: finalizer
     title: Close out decision
     description: Return the decision record and any approved final output.
+    instructions: Return the recorded decision with its rationale and, when approved or revised, the final output.
     requires:
       - decision-record
     produces:

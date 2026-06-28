@@ -54,12 +54,25 @@ nodes:
     type: intake
     title: Intake schema change
     description: Capture the proposed schema change and the repo target.
+    instructions: Record the proposed schema change, its motivation, and the repo target so the migration can be planned against
+      the real schema in the checkout.
+    inputs_schema:
+      - id: schema_change
+        type: markdown
+        required: true
+        description: The proposed schema change and its motivation.
+      - id: repo
+        type: uri
+        required: true
+        description: Repository or local checkout target.
     produces:
       - change-scope
   - id: plan
     type: plan
     title: Plan migration
     description: Define the migration path, the affected consumers, and the new failure modes to cover.
+    instructions: Define the forward and backward migration path, list the consumers affected by the change, and enumerate
+      the new valid and invalid cases that fixtures must cover.
     requires:
       - change-scope
     produces:
@@ -68,6 +81,8 @@ nodes:
     type: agent_task
     title: Apply schema change
     description: Apply the schema change and add fixtures for the new valid and invalid cases.
+    instructions: Apply the schema change and add fixtures for each new valid and invalid case named in the migration plan,
+      keeping the diff minimal. This step needs a coding agent supplied by the consumer.
     agent: coding-worker
     requires:
       - migration-plan
@@ -77,15 +92,28 @@ nodes:
     type: tool
     title: Run validators
     description: Run the schema validators against the new valid and invalid fixtures.
+    instructions: Run the schema validators over the new valid and invalid fixtures and capture stdout, stderr, and the exit
+      code so the negative cases are shown to fail as intended.
+    command: ${param.validate_command}
+    parameters:
+      - id: validate_command
+        type: command
+        required: false
+        default: flowctl validate || pytest -q
+        description: The command that runs the schema validators over the fixtures.
     tool: command-runner
     requires:
       - schema-diff
     produces:
       - fixture-log
+    on_failure:
+      action: abort
   - id: verify
     type: verifier
     title: Verify migration and fixtures
     description: Confirm a migration path exists and invalid fixtures cover the new failures.
+    instructions: Confirm the migration plan documents a usable path and the fixture log shows the new invalid fixtures failing
+      for the expected reasons.
     requires:
       - schema-diff
       - fixture-log
@@ -95,6 +123,7 @@ nodes:
     type: finalizer
     title: Close out evolution
     description: Return the migration notes and the schema patch.
+    instructions: Return the migration notes with compatibility impact and the schema patch including the new fixtures.
     requires:
       - migration-plan
       - compat-check

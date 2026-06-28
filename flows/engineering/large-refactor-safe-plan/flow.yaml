@@ -53,21 +53,45 @@ nodes:
     type: intake
     title: Intake refactor goal
     description: Capture the refactor objective, constraints, and repo target.
+    instructions: Record the refactor objective, the constraints it must hold, and the repo target so the slices can be planned
+      against a known baseline.
+    inputs_schema:
+      - id: refactor_goal
+        type: markdown
+        required: true
+        description: The refactor objective and the constraints it must hold.
+      - id: repo
+        type: uri
+        required: true
+        description: The repository or checkout to refactor.
     produces:
       - refactor-scope
   - id: baseline
     type: tool
     title: Lock baseline
     description: Run the existing tests to capture a behavior baseline before any change.
+    instructions: Run the existing test suite and capture stdout, stderr, and the exit code so the pre-refactor behavior is
+      recorded as a baseline that every slice must preserve.
+    command: ${param.test_command}
+    parameters:
+      - id: test_command
+        type: command
+        required: false
+        default: make test || npm test || pytest -q
+        description: The command that runs the existing tests to capture the behavior baseline.
     tool: command-runner
     requires:
       - refactor-scope
     produces:
       - baseline-log
+    on_failure:
+      action: abort
   - id: contracts
     type: agent_task
     title: Test shared contracts
     description: Add or confirm tests for shared contracts before behavior changes.
+    instructions: Add or confirm tests that lock the shared contracts the refactor must preserve, before any behavior changes,
+      so each slice can be checked against them. This step needs a coding agent supplied by the consumer.
     agent: coding-worker
     requires:
       - baseline-log
@@ -77,6 +101,8 @@ nodes:
     type: plan
     title: Plan reversible slices
     description: Split the refactor into reversible slices, each with acceptance criteria and a rollback point.
+    instructions: Split the refactor into independently reversible slices, giving each slice explicit acceptance criteria
+      and a named rollback point, so the work can stop or revert safely at any slice boundary.
     requires:
       - contract-tests
     produces:
@@ -85,6 +111,8 @@ nodes:
     type: verifier
     title: Verify the plan
     description: Confirm every slice has acceptance criteria and shared contracts are tested first.
+    instructions: Confirm every slice in the plan declares acceptance criteria and a rollback point, and that the shared-contract
+      tests are in place before any slice changes behavior.
     requires:
       - slice-plan
       - contract-tests
@@ -94,6 +122,8 @@ nodes:
     type: finalizer
     title: Close out plan
     description: Return the slice plan and the baseline evidence.
+    instructions: Return the reversible slice plan and the baseline evidence, including the baseline test result and the locked
+      shared-contract tests.
     requires:
       - slice-plan
       - plan-check

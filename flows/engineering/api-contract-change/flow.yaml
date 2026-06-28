@@ -55,12 +55,25 @@ nodes:
     type: intake
     title: Intake contract change
     description: Capture the proposed API contract change and the repo target.
+    instructions: Capture the proposed API contract change, its motivation, and the repo target so consumers can be enumerated
+      and compatibility reasoned about.
+    inputs_schema:
+      - id: contract_change
+        type: markdown
+        required: true
+        description: The API contract change and its motivation.
+      - id: repo
+        type: uri
+        required: true
+        description: Repository or local checkout target.
     produces:
       - change-scope
   - id: enumerate
     type: agent_task
     title: Enumerate consumers
     description: Enumerate the consumers of the contract and the surfaces they depend on.
+    instructions: List every consumer of the contract and the specific surfaces each depends on, so no dependent is missed
+      by the compatibility story. This step needs an API analyst supplied by the consumer.
     agent: api-analyst
     requires:
       - change-scope
@@ -70,6 +83,8 @@ nodes:
     type: agent_task
     title: Apply change and updates
     description: Apply the contract change and update clients, docs, and tests.
+    instructions: Apply the contract change and update the affected clients, documentation, and tests in one coherent patch
+      covering every consumer named in the inventory. This step needs a coding agent supplied by the consumer.
     agent: coding-worker
     requires:
       - consumer-inventory
@@ -79,15 +94,28 @@ nodes:
     type: tool
     title: Run checks
     description: Run the tests and any contract or schema generation checks.
+    instructions: Run the project tests plus any contract or schema generation checks, and capture stdout, stderr, and the
+      exit code as evidence.
+    command: ${param.test_command}
+    parameters:
+      - id: test_command
+        type: command
+        required: false
+        default: make test || npm test || cargo test || go test ./...
+        description: The command that runs the project tests and contract or schema checks.
     tool: command-runner
     requires:
       - change-diff
     produces:
       - test-log
+    on_failure:
+      action: abort
   - id: verify
     type: verifier
     title: Verify compatibility
     description: Confirm the compatibility story holds for every enumerated consumer.
+    instructions: Confirm the compatibility story holds for every consumer in the inventory and is backed by the test results,
+      and write the compatibility notes that map each consumer to its evidence.
     requires:
       - change-diff
       - test-log
@@ -97,6 +125,8 @@ nodes:
     type: finalizer
     title: Close out change
     description: Return the change patch and the compatibility notes.
+    instructions: Return the change patch covering the contract, clients, docs, and tests, together with the compatibility
+      notes for every enumerated consumer.
     requires:
       - consumer-inventory
       - compatibility-notes

@@ -50,12 +50,25 @@ nodes:
     type: intake
     title: Intake refresh scope
     description: Capture the API source and the documentation root.
+    instructions: Record the API source the reference is generated from and the documentation root to update, so generation
+      and reconciliation target the right files.
+    inputs_schema:
+      - id: api_source
+        type: uri
+        required: true
+        description: The schemas or types the reference is generated from.
+      - id: docs_root
+        type: uri
+        required: true
+        description: The documentation root to update.
     produces:
       - refresh-scope
   - id: generate
     type: tool
     title: Generate reference
     description: Generate the API reference from the current schemas and types.
+    instructions: Run the project documentation generator against the current schemas and types and capture the generated
+      reference output as evidence for reconciliation.
     tool: doc-generator
     requires:
       - refresh-scope
@@ -65,15 +78,28 @@ nodes:
     type: tool
     title: Validate examples
     description: Compile or validate the documentation examples.
+    instructions: Compile or run the documentation examples and capture stdout, stderr, and the exit code so broken examples
+      are caught before reconciliation.
+    command: ${param.example_command}
+    parameters:
+      - id: example_command
+        type: command
+        required: false
+        default: make test || npm test || pytest -q
+        description: The command that compiles or validates the documentation examples.
     tool: command-runner
     requires:
       - generated-docs
     produces:
       - example-log
+    on_failure:
+      action: abort
   - id: reconcile
     type: agent_task
     title: Reconcile docs
     description: Reconcile generated output with hand-written prose, keeping both consistent.
+    instructions: Merge the generated reference with the hand-written prose so the two agree, note every divergence and how
+      it was resolved, and keep validated examples intact. This step needs a docs writer supplied by the consumer.
     agent: docs-writer
     requires:
       - generated-docs
@@ -84,6 +110,8 @@ nodes:
     type: verifier
     title: Verify reconciliation
     description: Confirm generated and hand-written docs agree and examples validate.
+    instructions: Confirm the reconciliation notes show generated output agrees with the hand-written prose and that the example
+      log shows every example compiled or validated.
     requires:
       - reconciliation-notes
     produces:
@@ -92,6 +120,8 @@ nodes:
     type: finalizer
     title: Close out refresh
     description: Return the docs patch and the reconciliation summary.
+    instructions: Return the documentation patch and the reconciliation summary describing how generated and hand-written
+      docs were brought into agreement.
     requires:
       - reconciliation-notes
       - refresh-check

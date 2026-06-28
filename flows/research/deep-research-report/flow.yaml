@@ -48,12 +48,26 @@ nodes:
     type: intake
     title: Intake question
     description: Clarify the decision, audience, source constraints, and freshness requirements.
+    instructions: Record the research question, the audience, the decision it informs, and any time, source, or citation constraints,
+      then state the freshness window so later gathering stays in scope.
+    inputs_schema:
+      - id: question
+        type: markdown
+        required: true
+        description: Research question, audience, and decision context.
+      - id: constraints
+        type: markdown
+        required: false
+        description: Time, source, or citation constraints.
     produces:
       - research-brief
   - id: gather
     type: agent_task
     title: Gather sources
     description: Collect primary and high-quality secondary sources with retrieval metadata.
+    instructions: Collect primary and high-quality secondary sources that bear on the question, and for each record the title,
+      URL or locator, author or publisher, and retrieval date into the source log. Done when the brief's sub-questions are
+      each backed by at least one credible source. This step needs a research agent supplied by the consumer.
     agent: research-worker
     requires:
       - research-brief
@@ -63,6 +77,8 @@ nodes:
     type: verifier
     title: Compare evidence
     description: Reconcile conflicting claims and identify confidence, gaps, and source quality issues.
+    instructions: Reconcile the gathered sources against each other, flag where they disagree, and rate confidence per claim
+      while naming the remaining gaps and any weak or low-quality sources. Capture the reasoning in the synthesis notes.
     requires:
       - source-log
     produces:
@@ -71,6 +87,9 @@ nodes:
     type: agent_task
     title: Draft report
     description: Produce an answer-first report with citations, caveats, and decision implications.
+    instructions: Write an answer-first report that leads with the conclusion, cites every load-bearing claim back to the
+      source log, states caveats and unresolved disagreements, and spells out what the finding means for the decision. This
+      step needs a writing agent supplied by the consumer.
     agent: report-writer
     requires:
       - synthesis-notes
@@ -80,12 +99,16 @@ nodes:
     type: approval
     title: Human factuality review
     description: Request human review when the report supports a high-impact decision.
+    instructions: When the report informs a high-impact or irreversible decision, ask a human to check the headline claims
+      against their cited sources, then record the reviewer, the decision, and any corrections.
     requires:
       - report-draft
   - id: final
     type: finalizer
     title: Close out research
     description: Return the final report and structured bibliography.
+    instructions: Return the answer-first report and a structured bibliography listing every cited source with its id, locator,
+      and retrieval date.
     requires:
       - report-draft
     produces:

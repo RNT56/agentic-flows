@@ -51,12 +51,26 @@ nodes:
     type: intake
     title: Intake knowledge
     description: Capture the domain knowledge and the trigger conditions.
+    instructions: Record the repeated domain knowledge to capture and the trigger that says when the skill should apply, so
+      the author can scope the skill to exactly that situation.
+    inputs_schema:
+      - id: domain_knowledge
+        type: markdown
+        required: true
+        description: The repeated domain knowledge to capture.
+      - id: trigger
+        type: markdown
+        required: true
+        description: When the skill should apply.
     produces:
       - skill-scope
   - id: author
     type: agent_task
     title: Author the skill
     description: Write the skill with triggers, instructions, and any required assets.
+    instructions: Write the skill so it names its trigger conditions, gives step-by-step instructions an agent can follow,
+      and lists any assets it needs. Keep it scoped to the captured domain knowledge and avoid duplicating knowledge already
+      covered elsewhere.
     agent: skill-author
     requires:
       - skill-scope
@@ -66,6 +80,8 @@ nodes:
     type: agent_task
     title: Add validation examples
     description: Add examples that demonstrate the skill applying correctly.
+    instructions: Add concrete examples that show the trigger firing and the skill producing the right behavior, including
+      at least one boundary or near-miss case. Each example should be runnable evidence that the skill applies correctly.
     agent: skill-author
     requires:
       - skill-draft
@@ -75,6 +91,8 @@ nodes:
     type: verifier
     title: Verify the skill
     description: Confirm triggers, instructions, assets, and validation examples are present.
+    instructions: Confirm the skill declares trigger conditions, actionable instructions, and required assets, and that the
+      validation examples actually demonstrate it applying. Flag any missing element rather than passing it.
     requires:
       - skill-draft
       - validation-examples
@@ -84,6 +102,7 @@ nodes:
     type: finalizer
     title: Close out skill
     description: Return the skill and its validation examples.
+    instructions: Return the finished skill and its validation examples, ready for reuse.
     requires:
       - skill-draft
       - validation-examples
