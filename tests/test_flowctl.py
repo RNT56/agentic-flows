@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import json
+import re
 
 from flowctl.cli import (
     DEFAULT_ADAPTER_SMOKE_SCHEMA,
@@ -666,6 +667,62 @@ def test_plan_flow_reports_consumption_surface_and_honors_handlers() -> None:
     bound = plan_flow(document, {"author": "printf hi"})
     assert bound["needs_handlers"] == []
     assert {s["id"]: s["disposition"] for s in bound["steps"]}["author"] == "handler"
+
+
+def test_simulate_completes_flow_without_running_commands(tmp_path: Path) -> None:
+    document = _minimal_runnable_flow()
+    # A command that would fail if actually executed - simulate must not run it.
+    document["nodes"][1]["command"] = "exit 7"
+    document["nodes"].insert(
+        2,
+        {
+            "id": "author",
+            "type": "agent_task",
+            "title": "Author the result",
+            "description": "An agent step a consumer would supply; simulated here.",
+            "agent": "worker",
+            "requires": ["probe-log"],
+            "produces": ["draft"],
+        },
+    )
+
+    bundle, status, needs_handler = run_flow(
+        document,
+        flow_source="flows/test/runner-smoke/flow.yaml",
+        inputs={"repo": "."},
+        params={},
+        workdir=tmp_path,
+        out_dir=tmp_path / "out",
+        simulate=True,
+    )
+
+    assert status == "completed"
+    assert needs_handler == []
+    probe_event = next(
+        e for e in bundle["events"] if e["event"] == "node.completed" and e.get("node_id") == "probe"
+    )
+    assert probe_event["payload"].get("simulated") is True
+
+
+def test_every_flow_is_structurally_completable(tmp_path: Path) -> None:
+    # With every working/agent step assumed to succeed, each catalog flow must
+    # reach status completed: required gates satisfiable, required outputs produced.
+    failures: list[str] = []
+    for flow_path in find_flow_files([Path("flows")]):
+        document = load_yaml(flow_path)
+        out_dir = tmp_path / re.sub(r"[^a-z0-9]+", "-", document["id"])
+        _, status, _ = run_flow(
+            document,
+            flow_source=str(flow_path),
+            inputs={},
+            params={},
+            workdir=tmp_path,
+            out_dir=out_dir,
+            simulate=True,
+        )
+        if status != "completed":
+            failures.append(f"{flow_path}: {status}")
+    assert not failures, "\n".join(failures)
 
 
 def test_every_flow_has_a_well_defined_consumption_surface() -> None:
