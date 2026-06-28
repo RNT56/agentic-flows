@@ -1,0 +1,23 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "security.audit-trail-reconstruction",
+    "version": "0.1.0",
+    "source": "flows/security/audit-trail-reconstruction/flow.yaml"
+  },
+  "inputs": {
+    "run_sources": {
+      "events": ["run-991 event stream"],
+      "approvals": ["approval-77"],
+      "artifacts": ["diff.patch", "test.log"]
+    },
+    "incident": "Reconstruct who approved and what ran for change abc123."
+  },
+  "expected_outputs": {
+    "audit_trail": "14:02 patch applied [diff.patch]; 14:05 tests passed [test.log]; 14:10 operator approved [approval-77]. Source-backed throughout.",
+    "gaps": {
+      "gaps": ["No event recorded between 14:05 and 14:10; reviewer identity not in the approval record."]
+    }
+  },
+  "notes": "Reconstructs a source-backed timeline and explicitly marks the evidence gaps."
+}

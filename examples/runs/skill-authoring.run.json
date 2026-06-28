@@ -1,0 +1,108 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "orchestration.skill-authoring",
+    "version": "0.1.0",
+    "source": "flows/orchestration/skill-authoring/flow.yaml"
+  },
+  "run": {
+    "id": "run-skill-authoring-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "domain_knowledge": "How to author a flow end-to-end and pass flowctl.",
+    "trigger": "When adding a reusable flow."
+  },
+  "outputs": {
+    "skill": "# Authoring a flow\nTrigger, instructions, and assets for adding a reusable flow that passes flowctl.",
+    "validation_examples": {
+      "examples": [
+        {
+          "given": "a new flow.yaml",
+          "then": "flowctl validate passes"
+        }
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "skill-draft",
+      "kind": "json",
+      "uri": "artifact://runs/run-skill-authoring-0001/skill-draft.json"
+    },
+    {
+      "id": "validation-examples",
+      "kind": "json",
+      "uri": "artifact://runs/run-skill-authoring-0001/validation-examples.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.skill-authoring",
+      "flow_version": "0.1.0",
+      "run_id": "run-skill-authoring-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.skill-authoring",
+      "flow_version": "0.1.0",
+      "run_id": "run-skill-authoring-0001",
+      "node_id": "author",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "skill-elements-present",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "skill-draft",
+          "kind": "json",
+          "uri": "artifact://runs/run-skill-authoring-0001/skill-draft.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.skill-authoring",
+      "flow_version": "0.1.0",
+      "run_id": "run-skill-authoring-0001",
+      "node_id": "examples",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "validation-examples-present",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "validation-examples",
+          "kind": "json",
+          "uri": "artifact://runs/run-skill-authoring-0001/validation-examples.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.skill-authoring",
+      "flow_version": "0.1.0",
+      "run_id": "run-skill-authoring-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

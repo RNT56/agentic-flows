@@ -1,0 +1,111 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "product.feedback-to-roadmap",
+    "version": "0.1.0",
+    "source": "flows/product/feedback-to-roadmap/flow.yaml"
+  },
+  "run": {
+    "id": "run-feedback-to-roadmap-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "feedback": "f1 cryptic errors; f2 want JSON; f3 docs hard to find; f4 dup of f1.",
+    "goals": "Improve first-run success."
+  },
+  "outputs": {
+    "roadmap": "1. Clearer errors (f1,f4). 2. JSON output (f2). 3. Docs discoverability (f3).",
+    "themes": {
+      "themes": [
+        {
+          "theme": "validation clarity",
+          "sources": [
+            "f1",
+            "f4"
+          ]
+        }
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "theme-map",
+      "kind": "json",
+      "uri": "artifact://runs/run-feedback-to-roadmap-0001/theme-map.json"
+    },
+    {
+      "id": "opportunity-list",
+      "kind": "json",
+      "uri": "artifact://runs/run-feedback-to-roadmap-0001/opportunity-list.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "product.feedback-to-roadmap",
+      "flow_version": "0.1.0",
+      "run_id": "run-feedback-to-roadmap-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "product.feedback-to-roadmap",
+      "flow_version": "0.1.0",
+      "run_id": "run-feedback-to-roadmap-0001",
+      "node_id": "cluster",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "feedback-sources-cited",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "theme-map",
+          "kind": "json",
+          "uri": "artifact://runs/run-feedback-to-roadmap-0001/theme-map.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "product.feedback-to-roadmap",
+      "flow_version": "0.1.0",
+      "run_id": "run-feedback-to-roadmap-0001",
+      "node_id": "prioritize",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "priorities-have-rationale",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "opportunity-list",
+          "kind": "json",
+          "uri": "artifact://runs/run-feedback-to-roadmap-0001/opportunity-list.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "product.feedback-to-roadmap",
+      "flow_version": "0.1.0",
+      "run_id": "run-feedback-to-roadmap-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

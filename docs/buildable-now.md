@@ -50,12 +50,9 @@ loop (`issue-to-verified-pr`, `ci-failure-diagnosis`, `pr-review-and-risk-notes`
 `evidence-bundle-export`); security (`supply-chain-audit`, `threat-modeling`, `connector-grant-review`);
 orchestration (`parallel-work-claiming`, `handoff-and-resume`, `agent-quality-review`); research
 (`source-backed-brief`, `codebase-orientation`); and documentation (`decision-record`, `postmortem`).
-Forty-one reusable flows now ship end-to-end (35 of the 46 build-now-e2e backlog candidates). The remaining
-candidates are `engineering`-adjacent and knowledge work: `security.audit-trail-reconstruction`,
-`product.feedback-to-roadmap`, `docs.api-reference-refresh`, `research.paper-to-implementation-plan`,
-`research.market-and-user-value`, `orchestration.skill-authoring`, `program.research-to-roadmap`,
-`program.knowledge-base-maintenance`, and the three honestly-local `personal.*` flows
-(`commitment-ledger`, `memory-curation`, `routine-authoring`).
+Forty-seven reusable flows now ship end-to-end (41 of the 46 build-now-e2e backlog candidates). Only five
+candidates remain: `program.research-to-roadmap`, `program.knowledge-base-maintenance`, and the three
+honestly-local `personal.*` flows (`commitment-ledger`, `memory-curation`, `routine-authoring`).
 
 ## Honesty corrections to the official build order
 

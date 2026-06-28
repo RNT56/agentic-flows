@@ -1,0 +1,27 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "nilcore",
+  "flow": {
+    "id": "docs.api-reference-refresh",
+    "version": "0.1.0",
+    "source": "flows/docs/api-reference-refresh/flow.yaml"
+  },
+  "capability_support": [
+    "schema.read",
+    "command.run",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "finalizer": "closeout step",
+    "intake": "intake step",
+    "tool": "tool runner",
+    "verifier": "verifier step"
+  },
+  "run_bundle": "runs/nilcore-api-reference-refresh.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible NilCore api-reference-refresh adapter."
+}

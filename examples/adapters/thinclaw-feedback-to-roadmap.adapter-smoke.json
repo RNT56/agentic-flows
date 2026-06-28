@@ -1,0 +1,25 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "thinclaw",
+  "flow": {
+    "id": "product.feedback-to-roadmap",
+    "version": "0.1.0",
+    "source": "flows/product/feedback-to-roadmap/flow.yaml"
+  },
+  "capability_support": [
+    "feedback.read",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "finalizer": "closeout step",
+    "intake": "intake step",
+    "verifier": "verifier step"
+  },
+  "run_bundle": "runs/thinclaw-feedback-to-roadmap.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible ThinClaw feedback-to-roadmap adapter."
+}

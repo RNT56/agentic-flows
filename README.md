@@ -10,7 +10,7 @@ Versioned workflow contracts for agentic systems that must plan, act, verify, ap
 | --- | --- |
 | Latest release | `v0.1.1` |
 | Flow spec | `agentic-flows/v1` |
-| Catalog size | 41 reusable workflows, 3 starter templates |
+| Catalog size | 47 reusable workflows, 3 starter templates |
 | Tooling | Python CLI, JSON Schema, YAML flow definitions |
 | Evidence model | Events, streams, run bundles, adapter smoke manifests |
 | CI gate | Schema validation, normalization, samples, runs, links, changelog, package build, tests |
@@ -57,7 +57,7 @@ flowchart LR
 
 - A versioned YAML workflow format backed by JSON Schema.
 - `flowctl`, a repo-local CLI for validation, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
-- Forty-one reusable workflow definitions across coding, engineering, research, security, collaboration, operations, proof, orchestration, documentation, and human review.
+- Forty-seven reusable workflow definitions across coding, engineering, research, security, product, collaboration, operations, proof, orchestration, documentation, and human review.
 - Three copyable starter templates for project-specific workflows.
 - Event and run-bundle schemas for evidence-backed execution.
 - Adapter smoke manifest schemas and examples for independent optional consumers.
@@ -111,6 +111,12 @@ flowchart LR
 | [`orchestration.tool-creation`](flows/orchestration/tool-creation/README.md) | Experimental | Create a new tool with a schema, sandbox/permission profile, and failure-covering tests. | NilCore, CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
 | [`security.policy-exception`](flows/security/policy-exception/README.md) | Experimental | Handle a policy or sandbox bypass with owner, expiry, risk, controls, and approval. | ThinClaw, CrustCore, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
 | [`docs.operating-handbook`](flows/docs/operating-handbook/README.md) | Experimental | Create or refresh an operating handbook with a linked index and runnable commands. | NilCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
+| [`security.audit-trail-reconstruction`](flows/security/audit-trail-reconstruction/README.md) | Experimental | Reconstruct a source-backed run timeline from logs, events, and approvals, marking gaps. | ThinClaw, CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
+| [`product.feedback-to-roadmap`](flows/product/feedback-to-roadmap/README.md) | Experimental | Turn user feedback into cited themes, opportunities, and prioritized tasks. | ThinClaw, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
+| [`docs.api-reference-refresh`](flows/docs/api-reference-refresh/README.md) | Experimental | Update API docs from current schemas and reconcile generated with hand-written prose. | NilCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
+| [`research.paper-to-implementation-plan`](flows/research/paper-to-implementation-plan/README.md) | Experimental | Translate a paper into implementable slices and validation tasks. | NilCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
+| [`research.market-and-user-value`](flows/research/market-and-user-value/README.md) | Experimental | Evaluate a product idea's user value and differentiation with a next experiment. | ThinClaw, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
+| [`orchestration.skill-authoring`](flows/orchestration/skill-authoring/README.md) | Experimental | Turn repeated domain knowledge into a reusable skill with triggers and examples. | ThinClaw, NilCore, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
 
 ## Starter templates
 

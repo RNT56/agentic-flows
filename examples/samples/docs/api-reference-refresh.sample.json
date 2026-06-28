@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "docs.api-reference-refresh",
+    "version": "0.1.0",
+    "source": "flows/docs/api-reference-refresh/flow.yaml"
+  },
+  "inputs": {
+    "api_source": "file://schemas",
+    "docs_root": "file://docs"
+  },
+  "expected_outputs": {
+    "docs_patch": "diff --git a/docs/flow-spec.md b/docs/flow-spec.md\n@@ regenerate field tables from schemas; add severity field @@",
+    "reconciliation": "Generated field tables from schemas/*.json and merged with hand-written guidance. One drift fixed: severity enum was missing from the prose. All examples validate."
+  },
+  "notes": "Regenerates API reference docs from schemas and reconciles them with hand-written prose."
+}

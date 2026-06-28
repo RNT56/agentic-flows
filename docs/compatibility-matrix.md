@@ -18,6 +18,7 @@ Current status:
 | `coding.refactor-and-verify` | target | target | target | target |
 | `coding.security-audit` | target | target | target | target |
 | `collaboration.multi-agent-supervisor` | target | contract-smoke | not-targeted | run-smoke |
+| `docs.api-reference-refresh` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `docs.decision-record` | contract-smoke | not-targeted | not-targeted | run-smoke |
 | `docs.migration-guide` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `docs.operating-handbook` | not-targeted | contract-smoke | not-targeted | run-smoke |
@@ -42,15 +43,20 @@ Current status:
 | `orchestration.agent-quality-review` | not-targeted | not-targeted | contract-smoke | run-smoke |
 | `orchestration.handoff-and-resume` | target | contract-smoke | not-targeted | run-smoke |
 | `orchestration.parallel-work-claiming` | contract-smoke | target | not-targeted | run-smoke |
+| `orchestration.skill-authoring` | contract-smoke | target | not-targeted | run-smoke |
 | `orchestration.swarm-execution` | not-targeted | contract-smoke | target | run-smoke |
 | `orchestration.tool-creation` | not-targeted | target | contract-smoke | run-smoke |
 | `proof.evidence-bundle-export` | not-targeted | not-targeted | contract-smoke | run-smoke |
 | `proof.patch-risk-classification` | not-targeted | target | contract-smoke | run-smoke |
 | `proof.verified-patch-acceptance` | not-targeted | not-targeted | contract-smoke | run-smoke |
+| `product.feedback-to-roadmap` | contract-smoke | not-targeted | not-targeted | run-smoke |
 | `research.codebase-orientation` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `research.deep-research-report` | target | target | not-targeted | target |
 | `research.library-evaluation` | contract-smoke | target | not-targeted | run-smoke |
+| `research.market-and-user-value` | contract-smoke | not-targeted | not-targeted | run-smoke |
+| `research.paper-to-implementation-plan` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `research.source-backed-brief` | contract-smoke | target | not-targeted | run-smoke |
+| `security.audit-trail-reconstruction` | target | not-targeted | contract-smoke | run-smoke |
 | `security.connector-grant-review` | contract-smoke | not-targeted | target | run-smoke |
 | `security.policy-exception` | contract-smoke | not-targeted | target | run-smoke |
 | `security.supply-chain-audit` | not-targeted | contract-smoke | target | run-smoke |
@@ -107,4 +113,10 @@ Current status:
 - `orchestration.tool-creation` has a standalone valid run bundle at `examples/runs/tool-creation.run.json`.
 - `security.policy-exception` has a standalone valid run bundle at `examples/runs/policy-exception.run.json`.
 - `docs.operating-handbook` has a standalone valid run bundle at `examples/runs/operating-handbook.run.json`.
+- `security.audit-trail-reconstruction` has a standalone valid run bundle at `examples/runs/audit-trail-reconstruction.run.json`.
+- `product.feedback-to-roadmap` has a standalone valid run bundle at `examples/runs/feedback-to-roadmap.run.json`.
+- `docs.api-reference-refresh` has a standalone valid run bundle at `examples/runs/api-reference-refresh.run.json`.
+- `research.paper-to-implementation-plan` has a standalone valid run bundle at `examples/runs/paper-to-implementation-plan.run.json`.
+- `research.market-and-user-value` has a standalone valid run bundle at `examples/runs/market-and-user-value.run.json`.
+- `orchestration.skill-authoring` has a standalone valid run bundle at `examples/runs/skill-authoring.run.json`.
 - Repo-local adapter smoke manifests live under `examples/adapters/`.

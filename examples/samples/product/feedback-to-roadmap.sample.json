@@ -1,0 +1,23 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "product.feedback-to-roadmap",
+    "version": "0.1.0",
+    "source": "flows/product/feedback-to-roadmap/flow.yaml"
+  },
+  "inputs": {
+    "feedback": "f1: validation errors are cryptic. f2: want JSON output. f3: docs hard to find. f4: validation errors unclear (dup of f1).",
+    "goals": "Improve first-run success and adoption."
+  },
+  "expected_outputs": {
+    "roadmap": "1. Clearer validation errors (themes f1,f4) - high, blocks first-run success. 2. JSON output (f3 minority but cheap). 3. Docs discoverability (f3).",
+    "themes": {
+      "themes": [
+        {"theme": "validation clarity", "sources": ["f1", "f4"]},
+        {"theme": "machine-readable output", "sources": ["f2"]},
+        {"theme": "docs discoverability", "sources": ["f3"]}
+      ]
+    }
+  },
+  "notes": "Synthesizes cited themes and a prioritized roadmap without erasing minority signals."
+}

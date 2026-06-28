@@ -1,0 +1,20 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "research.market-and-user-value",
+    "version": "0.1.0",
+    "source": "flows/research/market-and-user-value/flow.yaml"
+  },
+  "inputs": {
+    "idea": "A shared claim board so parallel agents avoid editing the same files.",
+    "context": "Teams running many agents in one repo hit merge collisions."
+  },
+  "expected_outputs": {
+    "value_assessment": "Target user: teams running parallel agents. Pain: path collisions and lost work. Alternatives: ad-hoc locking, manual coordination. Novelty: contract-level claim board. Risks: adoption friction if claims feel heavy.",
+    "next_experiment": {
+      "experiment": "Run two agents on one repo with and without the claim board; measure collision rate.",
+      "success": "collisions drop to near zero with low overhead"
+    }
+  },
+  "notes": "Evaluates user value and differentiation and proposes a cheap validating experiment."
+}

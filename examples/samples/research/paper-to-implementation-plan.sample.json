@@ -1,0 +1,21 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "research.paper-to-implementation-plan",
+    "version": "0.1.0",
+    "source": "flows/research/paper-to-implementation-plan/flow.yaml"
+  },
+  "inputs": {
+    "paper": "A paper proposing a cache eviction policy that claims a 15% hit-rate gain over LRU on web traces.",
+    "goal": "Decide whether to implement the policy in our cache layer."
+  },
+  "expected_outputs": {
+    "implementation_plan": "Slice 1: implement the policy behind a flag. Slice 2: replay our traces. Slice 3: compare hit-rate vs LRU. Assumption (not in paper): our traces resemble theirs.",
+    "validation_tasks": {
+      "tasks": [
+        {"experiment": "replay 7d of prod traces", "metric": "hit-rate delta vs LRU", "acceptance": ">= 5% gain, no latency regression"}
+      ]
+    }
+  },
+  "notes": "Translates a paper into slices and validation tasks, separating its claims from reader assumptions."
+}

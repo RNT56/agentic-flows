@@ -1,0 +1,123 @@
+spec_version: agentic-flows/v1
+id: product.feedback-to-roadmap
+version: 0.1.0
+title: Feedback to roadmap
+summary: Turn collected user feedback into cited themes, opportunities, and prioritized tasks with rationale.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - product
+  - feedback
+  - roadmap
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - standalone
+  required_capabilities:
+    - feedback.read
+    - evidence.capture
+  adapter_hints:
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: feedback
+      type: markdown
+      required: true
+      description: The collected feedback items to synthesize.
+    - id: goals
+      type: markdown
+      required: true
+      description: The product goals to prioritize against.
+  outputs:
+    - id: roadmap
+      type: markdown
+      required: true
+      description: Prioritized opportunities with rationale.
+    - id: themes
+      type: json
+      required: true
+      description: The feedback themes with cited source ids.
+  artifacts:
+    - theme-map
+    - opportunity-list
+    - roadmap-draft
+nodes:
+  - id: intake
+    type: intake
+    title: Intake feedback
+    description: Capture the feedback items and the product goals.
+    produces:
+      - feedback-context
+  - id: cluster
+    type: agent_task
+    title: Cluster into themes
+    description: Cluster feedback into themes, citing source ids and preserving minority signals.
+    agent: product-analyst
+    requires:
+      - feedback-context
+    produces:
+      - theme-map
+  - id: prioritize
+    type: agent_task
+    title: Prioritize opportunities
+    description: Turn themes into opportunities and prioritize them with explicit rationale.
+    agent: product-analyst
+    requires:
+      - theme-map
+    produces:
+      - opportunity-list
+  - id: verify
+    type: verifier
+    title: Verify synthesis
+    description: Confirm sources are cited, minority signals are kept, and priorities have rationale.
+    requires:
+      - theme-map
+      - opportunity-list
+    produces:
+      - roadmap-draft
+  - id: final
+    type: finalizer
+    title: Close out roadmap
+    description: Return the prioritized roadmap and the cited themes.
+    requires:
+      - opportunity-list
+      - roadmap-draft
+    produces:
+      - roadmap
+      - themes
+edges:
+  - from: intake
+    to: cluster
+  - from: cluster
+    to: prioritize
+  - from: prioritize
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: feedback-sources-cited
+    title: Themes cite feedback sources
+    type: review
+    required: true
+    evidence: Each theme cites its source items and minority signals are preserved.
+    evidence_refs:
+      - theme-map
+  - id: priorities-have-rationale
+    title: Priorities have rationale
+    type: review
+    required: true
+    evidence: Each prioritized opportunity has an explicit rationale.
+    evidence_refs:
+      - opportunity-list
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - themes.count
+    - duration.seconds
