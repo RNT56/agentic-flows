@@ -10,7 +10,7 @@ Versioned workflow contracts for agentic systems that must plan, act, verify, ap
 | --- | --- |
 | Latest release | `v0.1.1` |
 | Flow spec | `agentic-flows/v1` |
-| Catalog size | 35 reusable workflows, 3 starter templates |
+| Catalog size | 41 reusable workflows, 3 starter templates |
 | Tooling | Python CLI, JSON Schema, YAML flow definitions |
 | Evidence model | Events, streams, run bundles, adapter smoke manifests |
 | CI gate | Schema validation, normalization, samples, runs, links, changelog, package build, tests |
@@ -57,7 +57,7 @@ flowchart LR
 
 - A versioned YAML workflow format backed by JSON Schema.
 - `flowctl`, a repo-local CLI for validation, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
-- Thirty-five reusable workflow definitions across coding, engineering, research, security, collaboration, operations, proof, orchestration, documentation, and human review.
+- Forty-one reusable workflow definitions across coding, engineering, research, security, collaboration, operations, proof, orchestration, documentation, and human review.
 - Three copyable starter templates for project-specific workflows.
 - Event and run-bundle schemas for evidence-backed execution.
 - Adapter smoke manifest schemas and examples for independent optional consumers.
@@ -105,6 +105,12 @@ flowchart LR
 | [`orchestration.swarm-execution`](flows/orchestration/swarm-execution/README.md) | Experimental | Run workers against independent slices under a concurrency cap and reconcile outputs. | NilCore, CrustCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
 | [`proof.patch-risk-classification`](flows/proof/patch-risk-classification/README.md) | Experimental | Classify a patch by reversibility, policy risk, and required approval, failing closed on unknowns. | NilCore, CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
 | [`docs.migration-guide`](flows/docs/migration-guide/README.md) | Experimental | Write a migration guide with old/new behavior, ordered steps, and a rollback. | NilCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
+| [`ops.flow-version-upgrade`](flows/ops/flow-version-upgrade/README.md) | Experimental | Migrate a pinned consumer across a flow version with migration steps and a matrix update. | ThinClaw, NilCore, CrustCore, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
+| [`engineering.api-contract-change`](flows/engineering/api-contract-change/README.md) | Experimental | Change an API contract while enumerating consumers and proving compatibility. | NilCore, CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
+| [`engineering.large-refactor-safe-plan`](flows/engineering/large-refactor-safe-plan/README.md) | Experimental | Split a large refactor into reversible slices with contract tests locked first. | NilCore, CrustCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
+| [`orchestration.tool-creation`](flows/orchestration/tool-creation/README.md) | Experimental | Create a new tool with a schema, sandbox/permission profile, and failure-covering tests. | NilCore, CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
+| [`security.policy-exception`](flows/security/policy-exception/README.md) | Experimental | Handle a policy or sandbox bypass with owner, expiry, risk, controls, and approval. | ThinClaw, CrustCore, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
+| [`docs.operating-handbook`](flows/docs/operating-handbook/README.md) | Experimental | Create or refresh an operating handbook with a linked index and runnable commands. | NilCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
 
 ## Starter templates
 

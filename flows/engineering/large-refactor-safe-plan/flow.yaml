@@ -1,0 +1,138 @@
+spec_version: agentic-flows/v1
+id: engineering.large-refactor-safe-plan
+version: 0.1.0
+title: Large refactor safe plan
+summary: Split a large refactor into reversible slices with acceptance criteria and contract tests locked first.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - refactor
+  - planning
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: verified-patch
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: refactor_goal
+      type: markdown
+      required: true
+      description: The refactor objective and the constraints it must hold.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target.
+  outputs:
+    - id: slice_plan
+      type: json
+      required: true
+      description: Reversible slices, each with acceptance criteria and a rollback point.
+    - id: baseline_evidence
+      type: markdown
+      required: true
+      description: The baseline test result and the locked shared-contract tests.
+  artifacts:
+    - baseline-log
+    - contract-tests
+    - slice-plan
+nodes:
+  - id: intake
+    type: intake
+    title: Intake refactor goal
+    description: Capture the refactor objective, constraints, and repo target.
+    produces:
+      - refactor-scope
+  - id: baseline
+    type: tool
+    title: Lock baseline
+    description: Run the existing tests to capture a behavior baseline before any change.
+    tool: command-runner
+    requires:
+      - refactor-scope
+    produces:
+      - baseline-log
+  - id: contracts
+    type: agent_task
+    title: Test shared contracts
+    description: Add or confirm tests for shared contracts before behavior changes.
+    agent: coding-worker
+    requires:
+      - baseline-log
+    produces:
+      - contract-tests
+  - id: plan
+    type: plan
+    title: Plan reversible slices
+    description: Split the refactor into reversible slices, each with acceptance criteria and a rollback point.
+    requires:
+      - contract-tests
+    produces:
+      - slice-plan
+  - id: verify
+    type: verifier
+    title: Verify the plan
+    description: Confirm every slice has acceptance criteria and shared contracts are tested first.
+    requires:
+      - slice-plan
+      - contract-tests
+    produces:
+      - plan-check
+  - id: final
+    type: finalizer
+    title: Close out plan
+    description: Return the slice plan and the baseline evidence.
+    requires:
+      - slice-plan
+      - plan-check
+    produces:
+      - slice_plan
+      - baseline_evidence
+edges:
+  - from: intake
+    to: baseline
+  - from: baseline
+    to: contracts
+  - from: contracts
+    to: plan
+  - from: plan
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: slices-have-criteria
+    title: Each slice has acceptance criteria
+    type: review
+    required: true
+    evidence: Every slice in the plan declares acceptance criteria and a rollback point.
+    evidence_refs:
+      - slice-plan
+  - id: contracts-tested-first
+    title: Shared contracts tested before behavior changes
+    type: command
+    required: true
+    command: make test || npm test || pytest -q
+    evidence: Contract tests pass against the baseline before any slice changes behavior.
+    evidence_refs:
+      - contract-tests
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - slices.count
+    - duration.seconds

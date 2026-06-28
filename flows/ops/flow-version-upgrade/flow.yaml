@@ -1,0 +1,137 @@
+spec_version: agentic-flows/v1
+id: ops.flow-version-upgrade
+version: 0.1.0
+title: Flow version upgrade
+summary: Safely migrate a pinned consumer from one flow version to another with migration steps and a matrix update.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - ops
+  - versioning
+  - migration
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - flow.catalog.read
+    - version.compare
+    - evidence.capture
+  adapter_hints:
+    crustcore:
+      proof_surface: migration-evidence
+    thinclaw:
+      routine_type: operator-supervised
+contracts:
+  inputs:
+    - id: pinned_flow
+      type: text
+      required: true
+      description: The flow id and currently pinned version.
+    - id: target_version
+      type: text
+      required: true
+      description: The version to migrate the consumer to.
+  outputs:
+    - id: migration_plan
+      type: markdown
+      required: true
+      description: The ordered migration steps for the consumer.
+    - id: upgrade_decision
+      type: json
+      required: true
+      description: The upgrade decision with the version delta and matrix update.
+  artifacts:
+    - version-diff
+    - migration-plan
+    - compatibility-update
+nodes:
+  - id: intake
+    type: intake
+    title: Intake upgrade scope
+    description: Capture the pinned flow, its version, and the target version.
+    produces:
+      - upgrade-scope
+  - id: compare
+    type: verifier
+    title: Compare versions
+    description: Diff the two flow versions and confirm a replacement exists for any removed surface.
+    requires:
+      - upgrade-scope
+    produces:
+      - version-diff
+  - id: plan
+    type: plan
+    title: Plan migration
+    description: Produce ordered migration steps for the pinned consumer.
+    requires:
+      - version-diff
+    produces:
+      - migration-plan
+  - id: update
+    type: agent_task
+    title: Update compatibility matrix
+    description: Update the compatibility matrix to reflect the new version state.
+    agent: docs-writer
+    requires:
+      - migration-plan
+    produces:
+      - compatibility-update
+  - id: verify
+    type: verifier
+    title: Verify migration
+    description: Confirm migration steps exist and the compatibility matrix is updated.
+    requires:
+      - migration-plan
+      - compatibility-update
+    produces:
+      - upgrade-check
+  - id: final
+    type: finalizer
+    title: Close out upgrade
+    description: Return the migration plan and the upgrade decision.
+    requires:
+      - migration-plan
+      - upgrade-check
+    produces:
+      - migration_plan
+      - upgrade_decision
+edges:
+  - from: intake
+    to: compare
+  - from: compare
+    to: plan
+  - from: plan
+    to: update
+  - from: update
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: migration-steps-exist
+    title: Migration steps exist
+    type: review
+    required: true
+    evidence: The migration plan lists ordered steps for the pinned consumer.
+    evidence_refs:
+      - migration-plan
+  - id: compatibility-updated
+    title: Compatibility matrix updated
+    type: artifact
+    required: true
+    evidence: The compatibility matrix reflects the new version state.
+    evidence_refs:
+      - compatibility-update
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - version.delta
+    - duration.seconds

@@ -1,0 +1,22 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "docs.operating-handbook",
+    "version": "0.1.0",
+    "source": "flows/docs/operating-handbook/flow.yaml"
+  },
+  "inputs": {
+    "project": "agentic-flows: refresh the operating handbook so the docs index links every process doc.",
+    "docs_root": "file://docs"
+  },
+  "expected_outputs": {
+    "handbook": "# Operating handbook\n\nIndex links: goals, roadmap, tasks, flow-spec, run-bundles, release-process, compatibility-matrix, buildable-now. Quick start: pip install -e . then flowctl validate.",
+    "index_check": {
+      "links_total": 24,
+      "links_resolved": 24,
+      "commands_runnable": true,
+      "stale_removed": 2
+    }
+  },
+  "notes": "Refreshes a handbook with a linked index and runnable commands, removing stale claims."
+}

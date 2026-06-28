@@ -37,12 +37,18 @@ This project follows semantic versioning for releases and keeps flow compatibili
 - Added the `orchestration.swarm-execution` reusable flow with a standalone run bundle and a NilCore contract smoke.
 - Added the `proof.patch-risk-classification` reusable flow (fail-closed risk routing) with a standalone run bundle and a CrustCore contract smoke.
 - Added the `docs.migration-guide` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `ops.flow-version-upgrade` reusable flow with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `engineering.api-contract-change` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `engineering.large-refactor-safe-plan` reusable flow with a standalone run bundle and a NilCore contract smoke.
+- Added the `orchestration.tool-creation` reusable flow with a standalone run bundle and a CrustCore contract smoke.
+- Added the `security.policy-exception` reusable flow (approval-gated bypass) with a standalone run bundle and a ThinClaw contract smoke.
+- Added the `docs.operating-handbook` reusable flow with a standalone run bundle and a NilCore contract smoke.
 - Added `docs/buildable-now.md`, an evidence-backed assessment of which backlog workflows can be built end-to-end now.
 
 ### Changed
 
 - Reworked the README into a full project landing page with vision, catalog status, workflow backlog links, runtime-boundary framing, and validation guidance.
-- Expanded the catalog to thirty-five reusable workflows across the integration spine, engineering, proof, security, orchestration, research, and documentation, and recorded their compatibility states.
+- Expanded the catalog to forty-one reusable workflows across the integration spine, engineering, proof, security, orchestration, research, and documentation, and recorded their compatibility states.
 
 ## 0.1.1 - 2026-06-27
 

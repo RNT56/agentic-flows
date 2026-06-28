@@ -1,0 +1,28 @@
+{
+  "adapter_smoke_version": "agentic-flows.adapter-smoke/v1",
+  "consumer": "crustcore",
+  "flow": {
+    "id": "engineering.api-contract-change",
+    "version": "0.1.0",
+    "source": "flows/engineering/api-contract-change/flow.yaml"
+  },
+  "capability_support": [
+    "api.read",
+    "patch.apply",
+    "command.run",
+    "evidence.capture"
+  ],
+  "node_type_mappings": {
+    "agent_task": "worker task",
+    "finalizer": "closeout step",
+    "intake": "intake step",
+    "tool": "tool runner",
+    "verifier": "verifier step"
+  },
+  "run_bundle": "runs/crustcore-api-contract-change.run.json",
+  "negative_run_bundle": {
+    "source": "../../tests/fixtures/invalid-run-missing-gate.json",
+    "expected_error": "required quality gate"
+  },
+  "notes": "Repo-local contract smoke for a possible CrustCore api-contract-change adapter."
+}

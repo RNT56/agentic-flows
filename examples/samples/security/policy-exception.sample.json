@@ -1,0 +1,23 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "security.policy-exception",
+    "version": "0.1.0",
+    "source": "flows/security/policy-exception/flow.yaml"
+  },
+  "inputs": {
+    "exception_request": "Allow the deploy worker to run without sandbox for one release to debug a native crash.",
+    "policy": "All workers run sandboxed; sandbox bypass requires a time-boxed, approved exception."
+  },
+  "expected_outputs": {
+    "exception_decision": {
+      "decision": "granted",
+      "owner": "RNT56",
+      "expiry": "2026-07-05",
+      "risk": "high",
+      "compensating_controls": ["run on an isolated host", "stream all syscalls to audit"]
+    },
+    "exception_record": "Sandbox bypass granted to the deploy worker until 2026-07-05, owner RNT56, with isolated-host and syscall-audit controls; operator approved."
+  },
+  "notes": "Grants a time-boxed sandbox bypass with owner, expiry, risk, controls, and explicit approval."
+}

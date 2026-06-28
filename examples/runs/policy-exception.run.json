@@ -1,0 +1,83 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "security.policy-exception",
+    "version": "0.1.0",
+    "source": "flows/security/policy-exception/flow.yaml"
+  },
+  "run": {
+    "id": "run-policy-exception-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:15:00Z"
+  },
+  "inputs": {
+    "exception_request": "Run the deploy worker without sandbox for one release to debug a native crash.",
+    "policy": "Sandbox bypass requires a time-boxed, approved exception."
+  },
+  "outputs": {
+    "exception_decision": {
+      "decision": "granted",
+      "owner": "RNT56",
+      "expiry": "2026-07-05",
+      "risk": "high",
+      "compensating_controls": [
+        "isolated host",
+        "syscall audit"
+      ]
+    },
+    "exception_record": "Sandbox bypass granted until 2026-07-05, owner RNT56, operator approved."
+  },
+  "artifacts": [
+    {
+      "id": "exception-record",
+      "kind": "json",
+      "uri": "artifact://runs/run-policy-exception-0001/exception-record.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.policy-exception",
+      "flow_version": "0.1.0",
+      "run_id": "run-policy-exception-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.policy-exception",
+      "flow_version": "0.1.0",
+      "run_id": "run-policy-exception-0001",
+      "node_id": "decide",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "exception-fields-complete",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "exception-record",
+          "kind": "json",
+          "uri": "artifact://runs/run-policy-exception-0001/exception-record.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "security.policy-exception",
+      "flow_version": "0.1.0",
+      "run_id": "run-policy-exception-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

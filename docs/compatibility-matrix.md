@@ -20,7 +20,9 @@ Current status:
 | `collaboration.multi-agent-supervisor` | target | contract-smoke | not-targeted | run-smoke |
 | `docs.decision-record` | contract-smoke | not-targeted | not-targeted | run-smoke |
 | `docs.migration-guide` | not-targeted | contract-smoke | not-targeted | run-smoke |
+| `docs.operating-handbook` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `docs.postmortem` | contract-smoke | not-targeted | not-targeted | run-smoke |
+| `engineering.api-contract-change` | not-targeted | target | contract-smoke | run-smoke |
 | `engineering.bug-reproduction-lab` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `engineering.ci-failure-diagnosis` | not-targeted | contract-smoke | target | run-smoke |
 | `engineering.dead-code-retirement` | not-targeted | contract-smoke | not-targeted | run-smoke |
@@ -28,6 +30,7 @@ Current status:
 | `engineering.docs-from-diff` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `engineering.flaky-test-stabilization` | not-targeted | contract-smoke | not-targeted | run-smoke |
 | `engineering.issue-to-verified-pr` | target | contract-smoke | target | run-smoke |
+| `engineering.large-refactor-safe-plan` | not-targeted | contract-smoke | target | run-smoke |
 | `engineering.pr-review-and-risk-notes` | not-targeted | target | contract-smoke | run-smoke |
 | `engineering.schema-evolution` | not-targeted | contract-smoke | target | run-smoke |
 | `general.human-in-the-loop-review` | contract-smoke | target | target | run-smoke |
@@ -35,10 +38,12 @@ Current status:
 | `ops.flow-intake-and-routing` | contract-smoke | target | not-targeted | run-smoke |
 | `ops.capability-negotiation` | target | target | contract-smoke | run-smoke |
 | `ops.event-and-evidence-bridge` | target | contract-smoke | target | run-smoke |
+| `ops.flow-version-upgrade` | contract-smoke | target | target | run-smoke |
 | `orchestration.agent-quality-review` | not-targeted | not-targeted | contract-smoke | run-smoke |
 | `orchestration.handoff-and-resume` | target | contract-smoke | not-targeted | run-smoke |
 | `orchestration.parallel-work-claiming` | contract-smoke | target | not-targeted | run-smoke |
 | `orchestration.swarm-execution` | not-targeted | contract-smoke | target | run-smoke |
+| `orchestration.tool-creation` | not-targeted | target | contract-smoke | run-smoke |
 | `proof.evidence-bundle-export` | not-targeted | not-targeted | contract-smoke | run-smoke |
 | `proof.patch-risk-classification` | not-targeted | target | contract-smoke | run-smoke |
 | `proof.verified-patch-acceptance` | not-targeted | not-targeted | contract-smoke | run-smoke |
@@ -47,6 +52,7 @@ Current status:
 | `research.library-evaluation` | contract-smoke | target | not-targeted | run-smoke |
 | `research.source-backed-brief` | contract-smoke | target | not-targeted | run-smoke |
 | `security.connector-grant-review` | contract-smoke | not-targeted | target | run-smoke |
+| `security.policy-exception` | contract-smoke | not-targeted | target | run-smoke |
 | `security.supply-chain-audit` | not-targeted | contract-smoke | target | run-smoke |
 | `security.threat-modeling` | target | target | contract-smoke | run-smoke |
 | `template.coding-feature` | not-targeted | not-targeted | not-targeted | target |
@@ -95,4 +101,10 @@ Current status:
 - `orchestration.swarm-execution` has a standalone valid run bundle at `examples/runs/swarm-execution.run.json`.
 - `proof.patch-risk-classification` has a standalone valid run bundle at `examples/runs/patch-risk-classification.run.json`.
 - `docs.migration-guide` has a standalone valid run bundle at `examples/runs/migration-guide.run.json`.
+- `ops.flow-version-upgrade` has a standalone valid run bundle at `examples/runs/flow-version-upgrade.run.json`.
+- `engineering.api-contract-change` has a standalone valid run bundle at `examples/runs/api-contract-change.run.json`.
+- `engineering.large-refactor-safe-plan` has a standalone valid run bundle at `examples/runs/large-refactor-safe-plan.run.json`.
+- `orchestration.tool-creation` has a standalone valid run bundle at `examples/runs/tool-creation.run.json`.
+- `security.policy-exception` has a standalone valid run bundle at `examples/runs/policy-exception.run.json`.
+- `docs.operating-handbook` has a standalone valid run bundle at `examples/runs/operating-handbook.run.json`.
 - Repo-local adapter smoke manifests live under `examples/adapters/`.

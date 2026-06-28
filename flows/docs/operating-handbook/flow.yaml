@@ -1,0 +1,136 @@
+spec_version: agentic-flows/v1
+id: docs.operating-handbook
+version: 0.1.0
+title: Operating handbook
+summary: Create or refresh a project operating handbook with a linked index, runnable commands, and no stale claims.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - docs
+  - handbook
+  - operations
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - standalone
+  required_capabilities:
+    - docs.read
+    - command.run
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: project
+      type: markdown
+      required: true
+      description: The project and what the handbook must cover.
+    - id: docs_root
+      type: uri
+      required: true
+      description: The documentation root to assemble the handbook from.
+  outputs:
+    - id: handbook
+      type: markdown
+      required: true
+      description: The operating handbook with a linked index.
+    - id: index_check
+      type: json
+      required: true
+      description: The result of checking index links and documented commands.
+  artifacts:
+    - docs-inventory
+    - command-log
+    - handbook-draft
+nodes:
+  - id: intake
+    type: intake
+    title: Intake handbook scope
+    description: Capture the project and the documentation root.
+    produces:
+      - handbook-scope
+  - id: inventory
+    type: tool
+    title: Inventory docs
+    description: List the process docs and the index links that should resolve.
+    tool: docs-scanner
+    requires:
+      - handbook-scope
+    produces:
+      - docs-inventory
+  - id: check
+    type: tool
+    title: Run documented commands
+    description: Run the commands the handbook documents to confirm they work.
+    tool: command-runner
+    requires:
+      - docs-inventory
+    produces:
+      - command-log
+  - id: write
+    type: agent_task
+    title: Write the handbook
+    description: Assemble the handbook with a linked index and remove stale claims.
+    agent: docs-writer
+    requires:
+      - docs-inventory
+      - command-log
+    produces:
+      - handbook-draft
+  - id: verify
+    type: verifier
+    title: Verify the handbook
+    description: Confirm index links resolve, commands are runnable, and stale claims are removed.
+    requires:
+      - handbook-draft
+    produces:
+      - handbook-check
+  - id: final
+    type: finalizer
+    title: Close out handbook
+    description: Return the handbook and the index check.
+    requires:
+      - handbook-draft
+      - handbook-check
+    produces:
+      - handbook
+      - index_check
+edges:
+  - from: intake
+    to: inventory
+  - from: inventory
+    to: check
+  - from: check
+    to: write
+  - from: write
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: index-links-resolve
+    title: Index links all process docs
+    type: review
+    required: true
+    evidence: The docs inventory shows the index links every process doc and they resolve.
+    evidence_refs:
+      - docs-inventory
+  - id: commands-runnable
+    title: Documented commands are runnable
+    type: command
+    required: true
+    command: make help || flowctl --help
+    evidence: The documented commands run successfully.
+    evidence_refs:
+      - command-log
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - docs.count
+    - duration.seconds

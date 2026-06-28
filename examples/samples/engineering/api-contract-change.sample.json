@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.api-contract-change",
+    "version": "0.1.0",
+    "source": "flows/engineering/api-contract-change/flow.yaml"
+  },
+  "inputs": {
+    "contract_change": "Change GET /users to return created_at as RFC3339 instead of a Unix epoch.",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "expected_outputs": {
+    "change_patch": "diff --git a/api/users.py b/api/users.py\n@@ serialize created_at as RFC3339 @@\ndiff --git a/clients/js/users.ts ...\n@@ parse RFC3339 @@",
+    "compatibility_notes": "Consumers: web client, mobile client, billing job. Breaking for billing job (parses epoch); added a one-release dual-format shim and a migration note."
+  },
+  "notes": "Changes an API contract, enumerates consumers, and documents the compatibility story."
+}
