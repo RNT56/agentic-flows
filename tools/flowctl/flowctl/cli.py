@@ -2310,6 +2310,7 @@ def run_flow(
     workdir: Path,
     out_dir: Path,
     handlers: dict[str, str] | None = None,
+    simulate: bool = False,
 ) -> tuple[dict[str, Any], str, list[str]]:
     handlers = handlers or {}
     flow_id = document["id"]
@@ -2388,7 +2389,13 @@ def run_flow(
         flow_command = node.get("command")
         handler_command = handlers.get(node_id)
         command = flow_command or handler_command
-        if command:
+        if simulate and node_type not in DATA_NODE_TYPES:
+            # Wiring check: assume every working/agent step succeeds and produces
+            # its declared outputs, without running anything. Verifies that gates
+            # are satisfiable and required outputs are produced.
+            emit_produces(node, f"[simulated] {node_id} produced its declared outputs\n", "command-output", True)
+            emit("node.completed", node=node_id, payload={"simulated": True})
+        elif command:
             rendered = substitute_command(command, param_values, inputs)
             on_failure = node.get("on_failure") or {}
             attempts = on_failure.get("max_attempts", 1) if on_failure.get("action") == "retry" else 1
@@ -2503,7 +2510,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     source = str(flow_path.relative_to(REPO_ROOT)) if flow_path.is_relative_to(REPO_ROOT) else str(flow_path)
     out_dir = (Path(args.out) if args.out else REPO_ROOT / ".agentic-runs" / re.sub(r"[^a-z0-9]+", "-", document["id"])).resolve()
 
-    bundle, status, needs_handler = run_flow(document, source, inputs, params, workdir, out_dir, handlers)
+    bundle, status, needs_handler = run_flow(document, source, inputs, params, workdir, out_dir, handlers, args.simulate)
     bundle_path = out_dir / f"{bundle['run']['id']}.run.json"
     bundle_path.write_text(json.dumps(bundle, indent=2) + "\n", encoding="utf-8")
 
@@ -2544,6 +2551,8 @@ def build_parser() -> argparse.ArgumentParser:
                      help="Bind a node that needs a consumer handler (agent_task/approval/handoff, or a tool without a command) to a command.")
     run.add_argument("--plan", action="store_true",
                      help="Print the execution order and the consumer handler surface without running anything.")
+    run.add_argument("--simulate", action="store_true",
+                     help="Wiring check: assume every working/agent step succeeds and verify gates and required outputs, without running commands.")
     run.add_argument("--workdir", type=Path, help="Working directory for command nodes. Defaults to the current directory.")
     run.add_argument("--out", type=Path, help="Output directory for the run bundle and artifacts. Defaults to .agentic-runs/<flow>.")
     run.add_argument("--run-schema", type=Path, default=DEFAULT_RUN_SCHEMA, help="Path to the run bundle JSON Schema.")
