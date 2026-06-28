@@ -1,0 +1,20 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "research.library-evaluation",
+    "version": "0.1.0",
+    "source": "flows/research/library-evaluation/flow.yaml"
+  },
+  "inputs": {
+    "library": "msgspec for JSON validation",
+    "requirements": "Fast JSON parsing with schema validation; permissive license; actively maintained."
+  },
+  "expected_outputs": {
+    "recommendation": {
+      "decision": "adopt",
+      "rationale": "Faster than the current stack, BSD-licensed, active releases; low integration risk via a thin adapter."
+    },
+    "evaluation": "Docs: complete with typed decoders. Maintenance: monthly releases, low open-issue ratio. License: BSD-3. Integration risk: low - encode/decode is isolated behind one module."
+  },
+  "notes": "Evaluates a library against requirements and recommends adopt or avoid with rationale."
+}

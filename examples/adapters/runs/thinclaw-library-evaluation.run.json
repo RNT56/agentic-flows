@@ -1,0 +1,104 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "research.library-evaluation",
+    "version": "0.1.0",
+    "source": "flows/research/library-evaluation/flow.yaml"
+  },
+  "run": {
+    "id": "run-thinclaw-library-evaluation-0001",
+    "core": "thinclaw",
+    "status": "completed",
+    "started_at": "2026-06-28T10:00:00Z",
+    "completed_at": "2026-06-28T10:20:00Z"
+  },
+  "inputs": {
+    "library": "msgspec for JSON validation",
+    "requirements": "Fast JSON with schema validation; permissive license; maintained."
+  },
+  "outputs": {
+    "recommendation": {
+      "decision": "adopt",
+      "rationale": "Fast, BSD-licensed, active; low integration risk."
+    },
+    "evaluation": "Docs complete; monthly releases; BSD-3; integration risk low."
+  },
+  "artifacts": [
+    {
+      "id": "docs-review",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-library-evaluation-0001/docs-review.json"
+    },
+    {
+      "id": "maintenance-check",
+      "kind": "json",
+      "uri": "artifact://runs/run-thinclaw-library-evaluation-0001/maintenance-check.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.library-evaluation",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-library-evaluation-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T10:00:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.library-evaluation",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-library-evaluation-0001",
+      "node_id": "inspect",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:10:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "primary-docs-inspected",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "docs-review",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-library-evaluation-0001/docs-review.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.library-evaluation",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-library-evaluation-0001",
+      "node_id": "check",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:15:00Z",
+      "core": "thinclaw",
+      "severity": "info",
+      "payload": {
+        "gate_id": "maintenance-and-license-checked",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "maintenance-check",
+          "kind": "json",
+          "uri": "artifact://runs/run-thinclaw-library-evaluation-0001/maintenance-check.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "research.library-evaluation",
+      "flow_version": "0.1.0",
+      "run_id": "run-thinclaw-library-evaluation-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T10:20:00Z",
+      "core": "thinclaw",
+      "severity": "info"
+    }
+  ]
+}

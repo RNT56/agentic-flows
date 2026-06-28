@@ -1,0 +1,20 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.docs-from-diff",
+    "version": "0.1.0",
+    "source": "flows/engineering/docs-from-diff/flow.yaml"
+  },
+  "inputs": {
+    "diff": "diff --git a/cli.py b/cli.py\n@@ rename --out to --output (with deprecated alias) @@",
+    "docs_root": "file://docs"
+  },
+  "expected_outputs": {
+    "docs_decision": {
+      "impacted": true,
+      "docs": ["docs/getting-started.md", "CHANGELOG.md"]
+    },
+    "docs_patch": "diff --git a/docs/getting-started.md b/docs/getting-started.md\n@@ document --output and the deprecated --out alias @@"
+  },
+  "notes": "Detects a user-facing flag change and updates the affected docs and changelog."
+}

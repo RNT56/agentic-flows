@@ -1,0 +1,107 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "docs.migration-guide",
+    "version": "0.1.0",
+    "source": "flows/docs/migration-guide/flow.yaml"
+  },
+  "run": {
+    "id": "run-nilcore-migration-guide-0001",
+    "core": "nilcore",
+    "status": "completed",
+    "started_at": "2026-06-28T10:00:00Z",
+    "completed_at": "2026-06-28T10:20:00Z"
+  },
+  "inputs": {
+    "breaking_change": "flowctl validate now requires a maturity rubric in every production flow README.",
+    "audience": "Maintainers with existing flows lacking a rubric."
+  },
+  "outputs": {
+    "migration_guide": "Old: optional prose. New: README requires a maturity rubric. Steps and rollback included.",
+    "steps": {
+      "steps": [
+        "Add the rubric section",
+        "Run flowctl report",
+        "Rollback: pin the previous flowctl release"
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "behavior-comparison",
+      "kind": "json",
+      "uri": "artifact://runs/run-nilcore-migration-guide-0001/behavior-comparison.json"
+    },
+    {
+      "id": "migration-guide",
+      "kind": "json",
+      "uri": "artifact://runs/run-nilcore-migration-guide-0001/migration-guide.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.migration-guide",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-migration-guide-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T10:00:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.migration-guide",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-migration-guide-0001",
+      "node_id": "compare",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:10:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "behavior-compared",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "behavior-comparison",
+          "kind": "json",
+          "uri": "artifact://runs/run-nilcore-migration-guide-0001/behavior-comparison.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.migration-guide",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-migration-guide-0001",
+      "node_id": "write",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:15:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "rollback-included",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "migration-guide",
+          "kind": "json",
+          "uri": "artifact://runs/run-nilcore-migration-guide-0001/migration-guide.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "docs.migration-guide",
+      "flow_version": "0.1.0",
+      "run_id": "run-nilcore-migration-guide-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T10:20:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    }
+  ]
+}

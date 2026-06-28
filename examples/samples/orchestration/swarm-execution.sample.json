@@ -1,0 +1,27 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "orchestration.swarm-execution",
+    "version": "0.1.0",
+    "source": "flows/orchestration/swarm-execution/flow.yaml"
+  },
+  "inputs": {
+    "slices": [
+      {"id": "lint", "task": "run linters"},
+      {"id": "unit", "task": "run unit tests"},
+      {"id": "types", "task": "run type checks"}
+    ],
+    "concurrency": 2
+  },
+  "expected_outputs": {
+    "consolidated_result": "All three slices completed. lint: clean. unit: 142 passed. types: clean. Reconciled with no conflicts.",
+    "worker_summary": {
+      "workers": [
+        {"id": "lint", "status": "passed"},
+        {"id": "unit", "status": "passed"},
+        {"id": "types", "status": "passed"}
+      ]
+    }
+  },
+  "notes": "Runs independent slices under a concurrency cap and reconciles the outputs."
+}

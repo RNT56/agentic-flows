@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.flaky-test-stabilization",
+    "version": "0.1.0",
+    "source": "flows/engineering/flaky-test-stabilization/flow.yaml"
+  },
+  "inputs": {
+    "test_id": "tests/test_scheduler.py::test_runs_in_order",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "expected_outputs": {
+    "stabilization_patch": "diff --git a/scheduler.py b/scheduler.py\n@@ sort tasks by (priority, id) for a stable order @@",
+    "analysis": "Failed 7/100 runs. Root cause: tasks with equal priority had nondeterministic order from a set. Mitigation rejected: adding a sleep. Fix: deterministic sort key."
+  },
+  "notes": "Captures repeated-run evidence and fixes the root cause rather than masking it with sleeps."
+}

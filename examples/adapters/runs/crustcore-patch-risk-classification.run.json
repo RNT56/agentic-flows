@@ -1,0 +1,83 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "proof.patch-risk-classification",
+    "version": "0.1.0",
+    "source": "flows/proof/patch-risk-classification/flow.yaml"
+  },
+  "run": {
+    "id": "run-crustcore-patch-risk-classification-0001",
+    "core": "crustcore",
+    "status": "completed",
+    "started_at": "2026-06-28T10:00:00Z",
+    "completed_at": "2026-06-28T10:15:00Z"
+  },
+  "inputs": {
+    "patch": "diff --git a/migrations/004_drop_legacy.sql\n@@ DROP TABLE legacy_users @@",
+    "policy": "Schema drops are destructive and require approval."
+  },
+  "outputs": {
+    "risk_classification": {
+      "reversibility": "irreversible",
+      "policy_risk": "high",
+      "required_approval": true,
+      "expected_verification": "backup-restore drill"
+    },
+    "policy_decision": {
+      "decision": "approval-required",
+      "fail_closed": false,
+      "reason": "destructive schema drop"
+    }
+  },
+  "artifacts": [
+    {
+      "id": "policy-decision",
+      "kind": "json",
+      "uri": "artifact://runs/run-crustcore-patch-risk-classification-0001/policy-decision.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.patch-risk-classification",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-patch-risk-classification-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T10:00:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.patch-risk-classification",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-patch-risk-classification-0001",
+      "node_id": "classify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T10:10:00Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "policy-decision-logged",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "policy-decision",
+          "kind": "json",
+          "uri": "artifact://runs/run-crustcore-patch-risk-classification-0001/policy-decision.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.patch-risk-classification",
+      "flow_version": "0.1.0",
+      "run_id": "run-crustcore-patch-risk-classification-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T10:15:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.flaky-test-stabilization",
+    "version": "0.1.0",
+    "source": "flows/engineering/flaky-test-stabilization/flow.yaml"
+  },
+  "run": {
+    "id": "run-flaky-test-stabilization-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "test_id": "tests/test_scheduler.py::test_runs_in_order",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "outputs": {
+    "stabilization_patch": "artifact://stabilization-diff",
+    "analysis": "Failed 7/100; root cause: nondeterministic set order. Fix: deterministic sort key."
+  },
+  "artifacts": [
+    {
+      "id": "repeated-run-log",
+      "kind": "json",
+      "uri": "artifact://runs/run-flaky-test-stabilization-0001/repeated-run-log.json"
+    },
+    {
+      "id": "root-cause-notes",
+      "kind": "json",
+      "uri": "artifact://runs/run-flaky-test-stabilization-0001/root-cause-notes.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.flaky-test-stabilization",
+      "flow_version": "0.1.0",
+      "run_id": "run-flaky-test-stabilization-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.flaky-test-stabilization",
+      "flow_version": "0.1.0",
+      "run_id": "run-flaky-test-stabilization-0001",
+      "node_id": "repeat",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "repeated-run-evidence",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "repeated-run-log",
+          "kind": "json",
+          "uri": "artifact://runs/run-flaky-test-stabilization-0001/repeated-run-log.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.flaky-test-stabilization",
+      "flow_version": "0.1.0",
+      "run_id": "run-flaky-test-stabilization-0001",
+      "node_id": "analyze",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "root-cause-vs-mitigation",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "root-cause-notes",
+          "kind": "json",
+          "uri": "artifact://runs/run-flaky-test-stabilization-0001/root-cause-notes.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.flaky-test-stabilization",
+      "flow_version": "0.1.0",
+      "run_id": "run-flaky-test-stabilization-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

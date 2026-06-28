@@ -1,0 +1,121 @@
+spec_version: agentic-flows/v1
+id: docs.migration-guide
+version: 0.1.0
+title: Migration guide
+summary: Write a migration guide for a breaking change with old/new behavior, ordered steps, and a rollback.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - docs
+  - migration
+  - breaking-change
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - standalone
+  required_capabilities:
+    - docs.read
+    - evidence.capture
+  adapter_hints:
+    nilcore:
+      execution_mode: sandboxed-worker
+contracts:
+  inputs:
+    - id: breaking_change
+      type: markdown
+      required: true
+      description: The breaking change to write a migration guide for.
+    - id: audience
+      type: markdown
+      required: true
+      description: Who is migrating and what they currently depend on.
+  outputs:
+    - id: migration_guide
+      type: markdown
+      required: true
+      description: The migration guide with old/new behavior and a rollback.
+    - id: steps
+      type: json
+      required: true
+      description: The ordered migration steps, including rollback.
+  artifacts:
+    - behavior-comparison
+    - migration-guide
+nodes:
+  - id: intake
+    type: intake
+    title: Intake breaking change
+    description: Capture the breaking change and the audience.
+    produces:
+      - migration-context
+  - id: compare
+    type: agent_task
+    title: Compare old and new
+    description: Compare the old and new behavior and the required changes.
+    agent: docs-writer
+    requires:
+      - migration-context
+    produces:
+      - behavior-comparison
+  - id: write
+    type: agent_task
+    title: Write the guide
+    description: Write ordered migration steps and a rollback path.
+    agent: docs-writer
+    requires:
+      - behavior-comparison
+    produces:
+      - migration-guide
+  - id: verify
+    type: verifier
+    title: Verify completeness
+    description: Confirm old and new behavior are compared, steps are ordered, and a rollback is included.
+    requires:
+      - migration-guide
+    produces:
+      - guide-check
+  - id: final
+    type: finalizer
+    title: Close out guide
+    description: Return the migration guide and the ordered steps.
+    requires:
+      - migration-guide
+      - guide-check
+    produces:
+      - migration_guide
+      - steps
+edges:
+  - from: intake
+    to: compare
+  - from: compare
+    to: write
+  - from: write
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: behavior-compared
+    title: Old and new behavior compared
+    type: review
+    required: true
+    evidence: The comparison shows the old behavior beside the new behavior.
+    evidence_refs:
+      - behavior-comparison
+  - id: rollback-included
+    title: Steps ordered and rollback included
+    type: review
+    required: true
+    evidence: The guide has ordered steps and a rollback path.
+    evidence_refs:
+      - migration-guide
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - steps.count
+    - duration.seconds

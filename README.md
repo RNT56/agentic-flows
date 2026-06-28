@@ -10,7 +10,7 @@ Versioned workflow contracts for agentic systems that must plan, act, verify, ap
 | --- | --- |
 | Latest release | `v0.1.1` |
 | Flow spec | `agentic-flows/v1` |
-| Catalog size | 29 reusable workflows, 3 starter templates |
+| Catalog size | 35 reusable workflows, 3 starter templates |
 | Tooling | Python CLI, JSON Schema, YAML flow definitions |
 | Evidence model | Events, streams, run bundles, adapter smoke manifests |
 | CI gate | Schema validation, normalization, samples, runs, links, changelog, package build, tests |
@@ -57,7 +57,7 @@ flowchart LR
 
 - A versioned YAML workflow format backed by JSON Schema.
 - `flowctl`, a repo-local CLI for validation, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
-- Twenty-nine reusable workflow definitions across coding, engineering, research, security, collaboration, operations, proof, orchestration, documentation, and human review.
+- Thirty-five reusable workflow definitions across coding, engineering, research, security, collaboration, operations, proof, orchestration, documentation, and human review.
 - Three copyable starter templates for project-specific workflows.
 - Event and run-bundle schemas for evidence-backed execution.
 - Adapter smoke manifest schemas and examples for independent optional consumers.
@@ -99,6 +99,12 @@ flowchart LR
 | [`research.codebase-orientation`](flows/research/codebase-orientation/README.md) | Experimental | Map an unfamiliar repo: entrypoints, tests, build, ownership, and risks. | NilCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
 | [`proof.evidence-bundle-export`](flows/proof/evidence-bundle-export/README.md) | Experimental | Export a compact proof bundle for a completed run. | CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
 | [`orchestration.agent-quality-review`](flows/orchestration/agent-quality-review/README.md) | Experimental | Review an agent's work for hallucinated claims, missed validation, and unsafe edits. | CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
+| [`engineering.docs-from-diff`](flows/engineering/docs-from-diff/README.md) | Experimental | Detect when a code change needs docs, examples, or changelog updates and make or justify them. | NilCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
+| [`engineering.flaky-test-stabilization`](flows/engineering/flaky-test-stabilization/README.md) | Experimental | Isolate flaky behavior with repeated runs and apply a minimal root-cause stabilization. | NilCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
+| [`research.library-evaluation`](flows/research/library-evaluation/README.md) | Experimental | Decide whether to adopt a library by checking docs, maintenance, license, and integration risk. | ThinClaw, NilCore, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
+| [`orchestration.swarm-execution`](flows/orchestration/swarm-execution/README.md) | Experimental | Run workers against independent slices under a concurrency cap and reconcile outputs. | NilCore, CrustCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
+| [`proof.patch-risk-classification`](flows/proof/patch-risk-classification/README.md) | Experimental | Classify a patch by reversibility, policy risk, and required approval, failing closed on unknowns. | NilCore, CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
+| [`docs.migration-guide`](flows/docs/migration-guide/README.md) | Experimental | Write a migration guide with old/new behavior, ordered steps, and a rollback. | NilCore, standalone | Standalone run bundle, NilCore contract smoke, sample contract |
 
 ## Starter templates
 

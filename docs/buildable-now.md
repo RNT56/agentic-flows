@@ -50,13 +50,11 @@ loop (`issue-to-verified-pr`, `ci-failure-diagnosis`, `pr-review-and-risk-notes`
 `evidence-bundle-export`); security (`supply-chain-audit`, `threat-modeling`, `connector-grant-review`);
 orchestration (`parallel-work-claiming`, `handoff-and-resume`, `agent-quality-review`); research
 (`source-backed-brief`, `codebase-orientation`); and documentation (`decision-record`, `postmortem`).
-Twenty-nine reusable flows now ship end-to-end (23 of the 46 build-now-e2e backlog candidates). The next strongest
-remaining candidates are `engineering.docs-from-diff`, `engineering.api-contract-change`,
-`engineering.large-refactor-safe-plan`, `engineering.flaky-test-stabilization`, `research.library-evaluation`,
-`research.paper-to-implementation-plan`, `research.market-and-user-value`, `orchestration.swarm-execution`,
-`orchestration.tool-creation`, `orchestration.skill-authoring`, `security.policy-exception`,
-`docs.operating-handbook`, `docs.api-reference-refresh`, `docs.migration-guide`, `proof.patch-risk-classification`,
-and the three honestly-local `personal.*` flows.
+Thirty-five reusable flows now ship end-to-end (29 of the 46 build-now-e2e backlog candidates). The next strongest
+remaining candidates are `engineering.api-contract-change`, `engineering.large-refactor-safe-plan`,
+`research.paper-to-implementation-plan`, `research.market-and-user-value`, `orchestration.tool-creation`,
+`orchestration.skill-authoring`, `security.policy-exception`, `docs.operating-handbook`, `docs.api-reference-refresh`,
+and the three honestly-local `personal.*` flows (`commitment-ledger`, `memory-curation`, `routine-authoring`).
 
 ## Honesty corrections to the official build order
 

@@ -1,0 +1,126 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "orchestration.swarm-execution",
+    "version": "0.1.0",
+    "source": "flows/orchestration/swarm-execution/flow.yaml"
+  },
+  "run": {
+    "id": "run-swarm-execution-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T09:00:00Z",
+    "completed_at": "2026-06-28T09:20:00Z"
+  },
+  "inputs": {
+    "slices": [
+      {
+        "id": "lint"
+      },
+      {
+        "id": "unit"
+      },
+      {
+        "id": "types"
+      }
+    ],
+    "concurrency": 2
+  },
+  "outputs": {
+    "consolidated_result": "All three slices completed and reconciled with no conflicts.",
+    "worker_summary": {
+      "workers": [
+        {
+          "id": "lint",
+          "status": "passed"
+        },
+        {
+          "id": "unit",
+          "status": "passed"
+        },
+        {
+          "id": "types",
+          "status": "passed"
+        }
+      ]
+    }
+  },
+  "artifacts": [
+    {
+      "id": "dispatch-plan",
+      "kind": "json",
+      "uri": "artifact://runs/run-swarm-execution-0001/dispatch-plan.json"
+    },
+    {
+      "id": "integration-proof",
+      "kind": "json",
+      "uri": "artifact://runs/run-swarm-execution-0001/integration-proof.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.swarm-execution",
+      "flow_version": "0.1.0",
+      "run_id": "run-swarm-execution-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T09:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.swarm-execution",
+      "flow_version": "0.1.0",
+      "run_id": "run-swarm-execution-0001",
+      "node_id": "plan",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:10:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "concurrency-cap-set",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "dispatch-plan",
+          "kind": "json",
+          "uri": "artifact://runs/run-swarm-execution-0001/dispatch-plan.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.swarm-execution",
+      "flow_version": "0.1.0",
+      "run_id": "run-swarm-execution-0001",
+      "node_id": "reconcile",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T09:15:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "integration-verified",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "integration-proof",
+          "kind": "json",
+          "uri": "artifact://runs/run-swarm-execution-0001/integration-proof.json"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "orchestration.swarm-execution",
+      "flow_version": "0.1.0",
+      "run_id": "run-swarm-execution-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T09:20:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}
