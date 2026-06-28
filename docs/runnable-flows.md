@@ -45,6 +45,19 @@ Execution model:
 
 A flow is **runnable** when `flowctl run` can take it to `status: completed` with local handlers alone (i.e., its working nodes are `tool`/`command` or data steps). A flow is a **contract** when it needs a consumer to supply an `agent_task`/`approval` handler; it is still fully consumable — the runtime provides the handler, the flow provides everything else.
 
+## Runnable flows today
+
+These flows reach `status: completed` under `flowctl run` with no consumer handler, and ship a real produced run bundle under `examples/runs/real/`:
+
+| Flow | What runs | Real evidence |
+| --- | --- | --- |
+| [`research.codebase-orientation`](../flows/research/codebase-orientation/README.md) | `git ls-files` + the project test command | real repo scan and `pytest` output |
+| [`ops.adapter-certification`](../flows/ops/adapter-certification/README.md) | `flowctl validate-adapter-smoke` | real adapter-smoke validation output |
+| [`proof.verified-patch-acceptance`](../flows/proof/verified-patch-acceptance/README.md) | the verifier-owned check command (`python -m pytest -q`) | real test output backing the verdict |
+| [`ops.capability-negotiation`](../flows/ops/capability-negotiation/README.md) | no commands - a fail-closed capability comparison | assembled decision record |
+
+Every other catalog flow is a consumable contract: it carries full instructions, typed I/O, parameters, and concrete commands on its tool steps, but its creative core is an `agent_task` that a consuming runtime supplies the agent for. The reference runner reports those nodes as `needs-handler` rather than faking them.
+
 ## Authoring checklist
 
 A flow is ready to call consumable when:

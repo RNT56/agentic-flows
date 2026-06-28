@@ -1,0 +1,9 @@
+{
+  "inputs": {
+    "patch": "HEAD",
+    "acceptance_criteria": "All tracked tests pass and the run bundle validates."
+  },
+  "params": {
+    "test_command": "python -m pytest -q"
+  }
+}
