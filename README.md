@@ -58,7 +58,7 @@ flowchart LR
 - A versioned YAML workflow format backed by JSON Schema, with a **substance layer**: per-node instructions, structured inputs/outputs, parameters, concrete commands, and failure handling (see [docs/runnable-flows.md](docs/runnable-flows.md)).
 - `flowctl`, a repo-local CLI for validation, **execution (`flowctl run`)**, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
 - A **reference runner** that executes runnable flows locally and emits real run bundles with real artifacts — not placeholder evidence.
-- Sixty-four reusable workflow definitions across coding, engineering, research, security, product, program, personal, collaboration, operations, proof, orchestration, documentation, and human review, being upgraded from contracts to runnable, consumable flows.
+- Sixty-four reusable workflow definitions across coding, engineering, research, security, product, program, personal, collaboration, operations, proof, orchestration, documentation, and human review. Every flow carries the substance layer — per-node instructions, intake input schemas, parameters, and concrete commands with failure handling on the steps that map to real commands — so each is a consumable contract, and the command-driven ones run directly under `flowctl run`.
 - Three copyable starter templates for project-specific workflows.
 - Event and run-bundle schemas for evidence-backed execution.
 - Adapter smoke manifest schemas and examples for independent optional consumers.
