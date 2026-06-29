@@ -1,0 +1,104 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.backend-service",
+    "version": "0.1.0",
+    "source": "flows/engineering/backend-service/flow.yaml"
+  },
+  "run": {
+    "id": "run-backend-standalone1",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T14:03:00Z",
+    "completed_at": "2026-06-27T14:07:00Z"
+  },
+  "inputs": {
+    "target_spec": "REST API for a task tracker.",
+    "stack": "node",
+    "repo": "https://github.com/RNT56/example-webapp"
+  },
+  "outputs": {
+    "service_patch": "artifact://runs/run-backend-0001/service.patch",
+    "api_contract": "artifact://runs/run-backend-0001/api.md"
+  },
+  "artifacts": [
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-backend-0001/test-log"
+    },
+    {
+      "id": "api-contract-doc",
+      "kind": "api-contract-doc",
+      "uri": "artifact://runs/run-backend-0001/api-contract-doc"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.backend-service",
+      "flow_version": "0.1.0",
+      "run_id": "run-backend-standalone1",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T14:03:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.backend-service",
+      "flow_version": "0.1.0",
+      "run_id": "run-backend-standalone1",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T14:00:30Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "test",
+      "payload": {
+        "gate_id": "build-and-tests-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-backend-0001/test-log",
+          "evidence_class": "sandbox-run"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.backend-service",
+      "flow_version": "0.1.0",
+      "run_id": "run-backend-standalone1",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T14:01:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "verify",
+      "payload": {
+        "gate_id": "api-contract-documented",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "api-contract-doc",
+          "kind": "api-contract-doc",
+          "uri": "artifact://runs/run-backend-0001/api-contract-doc",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.backend-service",
+      "flow_version": "0.1.0",
+      "run_id": "run-backend-standalone1",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T14:07:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

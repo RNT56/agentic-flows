@@ -1,25 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/RNT56/agentic-flows/schemas/event.schema.json",
+  "$id": "https://github.com/RNT56/agentic-flows/schemas/event.schema.v1_1.json",
   "title": "Agentic Flow Event",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "event_version",
-    "flow_id",
-    "flow_version",
-    "run_id",
-    "event",
-    "timestamp",
-    "core",
-    "severity"
-  ],
+  "required": ["event_version", "flow_id", "flow_version", "run_id", "event", "timestamp", "core", "severity"],
   "properties": {
     "event_version": {
-      "enum": [
-        "agentic-flows.events/v1",
-        "agentic-flows.events/v1.1"
-      ]
+      "enum": ["agentic-flows.events/v1", "agentic-flows.events/v1.1"]
     },
     "flow_id": {
       "type": "string",
@@ -46,20 +34,10 @@
       "format": "date-time"
     },
     "core": {
-      "enum": [
-        "thinclaw",
-        "nilcore",
-        "crustcore",
-        "standalone"
-      ]
+      "enum": ["thinclaw", "nilcore", "crustcore", "standalone"]
     },
     "severity": {
-      "enum": [
-        "debug",
-        "info",
-        "warning",
-        "error"
-      ]
+      "enum": ["debug", "info", "warning", "error"]
     },
     "payload": {
       "type": "object",
@@ -87,10 +65,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "kind",
-          "uri"
-        ],
+        "required": ["kind", "uri"],
         "properties": {
           "id": {
             "type": "string",
@@ -108,13 +83,7 @@
             "pattern": "^[a-f0-9]{64}$"
           },
           "evidence_class": {
-            "enum": [
-              "deterministic",
-              "fixture",
-              "sandbox-run",
-              "judgment",
-              "external-production"
-            ]
+            "enum": ["deterministic", "fixture", "sandbox-run", "judgment", "external-production"]
           }
         }
       }

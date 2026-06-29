@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/RNT56/agentic-flows/schemas/flow.schema.json",
+  "$id": "https://github.com/RNT56/agentic-flows/schemas/flow.schema.v1_1.json",
   "title": "Agentic Flow",
   "type": "object",
   "additionalProperties": false,

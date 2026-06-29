@@ -1,0 +1,18 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.frontend-build",
+    "version": "0.1.0",
+    "source": "flows/engineering/frontend-build/flow.yaml"
+  },
+  "inputs": {
+    "design_spec": "An approved spec with IA, component inventory, and acceptance criteria for a task-tracker UI.",
+    "stack": "react",
+    "repo": "https://github.com/RNT56/example-webapp"
+  },
+  "expected_outputs": {
+    "frontend_patch": "A diff implementing the components and pages from the spec.",
+    "build_report": "A summary of build, component-test, and accessibility evidence."
+  },
+  "notes": "Sample for engineering.frontend-build."
+}

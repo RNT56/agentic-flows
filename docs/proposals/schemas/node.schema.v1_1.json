@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/RNT56/agentic-flows/schemas/node.schema.json",
-  "title": "Agentic Flow Node",
+  "$id": "https://github.com/RNT56/agentic-flows/docs/proposals/schemas/node.schema.v1_1.json",
+  "title": "Agentic Flow Node (v1.1 proposal)",
   "type": "object",
   "additionalProperties": false,
   "required": [

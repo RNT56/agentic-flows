@@ -1,0 +1,133 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.frontend-build",
+    "version": "0.1.0",
+    "source": "flows/engineering/frontend-build/flow.yaml"
+  },
+  "run": {
+    "id": "run-frontend-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T14:03:00Z",
+    "completed_at": "2026-06-27T14:08:00Z"
+  },
+  "inputs": {
+    "design_spec": "Approved spec for the task-tracker UI.",
+    "stack": "react",
+    "repo": "https://github.com/RNT56/example-webapp"
+  },
+  "outputs": {
+    "frontend_patch": "artifact://runs/run-frontend-0001/ui.patch",
+    "build_report": "artifact://runs/run-frontend-0001/build-report.md"
+  },
+  "artifacts": [
+    {
+      "id": "component-test-log",
+      "kind": "component-test-log",
+      "uri": "artifact://runs/run-frontend-0001/component-test-log"
+    },
+    {
+      "id": "a11y-log",
+      "kind": "a11y-log",
+      "uri": "artifact://runs/run-frontend-0001/a11y-log"
+    },
+    {
+      "id": "ui-verified",
+      "kind": "ui-verified",
+      "uri": "artifact://runs/run-frontend-0001/ui-verified"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.frontend-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-frontend-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T14:03:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.frontend-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-frontend-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T14:00:30Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "test",
+      "payload": {
+        "gate_id": "build-and-component-tests-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "component-test-log",
+          "kind": "component-test-log",
+          "uri": "artifact://runs/run-frontend-0001/component-test-log",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.frontend-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-frontend-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T14:01:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "accessibility",
+      "payload": {
+        "gate_id": "accessibility-checked",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "a11y-log",
+          "kind": "a11y-log",
+          "uri": "artifact://runs/run-frontend-0001/a11y-log",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.frontend-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-frontend-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T14:01:30Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "verify",
+      "payload": {
+        "gate_id": "visual-ux-reviewed",
+        "status": "passed",
+        "reviewer_id": "operator:ui-reviewer"
+      },
+      "evidence": [
+        {
+          "id": "ui-verified",
+          "kind": "ui-verified",
+          "uri": "artifact://runs/run-frontend-0001/ui-verified",
+          "evidence_class": "judgment"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.frontend-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-frontend-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T14:08:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

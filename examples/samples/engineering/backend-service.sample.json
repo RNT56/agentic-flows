@@ -1,0 +1,18 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.backend-service",
+    "version": "0.1.0",
+    "source": "flows/engineering/backend-service/flow.yaml"
+  },
+  "inputs": {
+    "target_spec": "Build a REST API for a task tracker: CRUD tasks, list with filters, and token auth. Acceptance: endpoints documented and tests pass.",
+    "stack": "node",
+    "repo": "https://github.com/RNT56/example-webapp"
+  },
+  "expected_outputs": {
+    "service_patch": "A diff implementing the endpoints, data model, and auth.",
+    "api_contract": "A documented endpoint contract and data model summary."
+  },
+  "notes": "Sample for engineering.backend-service."
+}

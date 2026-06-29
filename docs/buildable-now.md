@@ -4,6 +4,11 @@ This document records which workflows from [todo-workflows.md](../todo-workflows
 
 It is a planning aid, not a contract. It is regenerated when the backlog or the spec changes.
 
+> Partially superseded by `agentic-flows/v1.1` (see [CHANGELOG.md](../CHANGELOG.md)). The three primitives this
+> document lists under "Needs spec extension" — bounded loop / iteration, parallel fan-out cardinality, and
+> sub-flow composition — have since shipped and are enforced by `flowctl`. The flow counts below predate the
+> four v1.1 generative/composition flows. Treat the assessment as a pre-v1.1 snapshot pending regeneration.
+
 ## What "end-to-end now" means
 
 A workflow is buildable end-to-end now only when the full artifact set can be authored here today and pass every `flowctl` validator with honest evidence, mirroring the three reference flows (`coding.feature-implementation`, `collaboration.multi-agent-supervisor`, `general.human-in-the-loop-review`):

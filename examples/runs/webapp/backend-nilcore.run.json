@@ -1,0 +1,135 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.backend-service",
+    "version": "0.1.0",
+    "source": "flows/engineering/backend-service/flow.yaml"
+  },
+  "run": {
+    "id": "run-backend-nilcore-0001",
+    "core": "nilcore",
+    "status": "completed",
+    "started_at": "2026-06-28T15:00:00Z",
+    "completed_at": "2026-06-28T15:02:30Z"
+  },
+  "inputs": {
+    "target_spec": "REST API for a task tracker.",
+    "stack": "go",
+    "repo": "https://github.com/RNT56/example-webapp"
+  },
+  "outputs": {
+    "service_patch": "artifact://runs/run-backend-nilcore-0001/service.patch",
+    "api_contract": "artifact://runs/run-backend-nilcore-0001/api.md"
+  },
+  "artifacts": [
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-backend-nilcore-0001/test.log"
+    },
+    {
+      "id": "api-contract-doc",
+      "kind": "api-contract-doc",
+      "uri": "artifact://runs/run-backend-nilcore-0001/api.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.backend-service",
+      "flow_version": "0.1.0",
+      "run_id": "run-backend-nilcore-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T15:00:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.backend-service",
+      "flow_version": "0.1.0",
+      "run_id": "run-backend-nilcore-0001",
+      "event": "env.provisioned",
+      "timestamp": "2026-06-28T15:00:30Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "test",
+      "payload": {
+        "node_id": "test",
+        "capability": "ephemeral-datastore",
+        "provisioner": "nilcore-sandbox"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.backend-service",
+      "flow_version": "0.1.0",
+      "run_id": "run-backend-nilcore-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:01:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "test",
+      "payload": {
+        "gate_id": "build-and-tests-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-backend-nilcore-0001/test.log",
+          "evidence_class": "sandbox-run"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.backend-service",
+      "flow_version": "0.1.0",
+      "run_id": "run-backend-nilcore-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:01:30Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "verify",
+      "payload": {
+        "gate_id": "api-contract-documented",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "api-contract-doc",
+          "kind": "api-contract-doc",
+          "uri": "artifact://runs/run-backend-nilcore-0001/api.md",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.backend-service",
+      "flow_version": "0.1.0",
+      "run_id": "run-backend-nilcore-0001",
+      "event": "env.torn_down",
+      "timestamp": "2026-06-28T15:02:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "test",
+      "payload": {
+        "node_id": "test",
+        "capability": "ephemeral-datastore"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.backend-service",
+      "flow_version": "0.1.0",
+      "run_id": "run-backend-nilcore-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T15:02:30Z",
+      "core": "nilcore",
+      "severity": "info"
+    }
+  ]
+}

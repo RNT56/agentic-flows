@@ -1,0 +1,74 @@
+spec_version: agentic-flows/v1.1
+id: engineering.invalid-iteration-unbounded
+version: 0.1.0
+title: Invalid unbounded iteration
+summary: A flow whose iteration node omits the mandatory max_iterations bound.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - test
+entrypoint: intake
+runtime:
+  supported_cores:
+    - standalone
+  required_capabilities:
+    - command.run
+contracts:
+  inputs:
+    - id: repo
+      type: uri
+      required: true
+      description: The repository under test.
+  outputs:
+    - id: result
+      type: markdown
+      required: true
+      description: The result summary.
+  artifacts:
+    - test-log
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the repository and scope for the run.
+    produces:
+      - scope
+  - id: work
+    type: agent_task
+    title: Work until tests pass
+    description: Repeat the work until the tests pass, but with no bound declared.
+    agent: worker
+    requires:
+      - scope
+    produces:
+      - test-log
+    iteration:
+      until: "gate:tests-pass"
+      on_exhausted: fail
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the result summary for the run.
+    requires:
+      - test-log
+    produces:
+      - result
+edges:
+  - from: intake
+    to: work
+  - from: work
+    to: final
+quality_gates:
+  - id: tests-pass
+    title: Tests pass
+    type: command
+    required: true
+    command: make test
+    evidence: The test command output.
+    evidence_refs:
+      - test-log
+observability:
+  events:
+    - flow.started
+    - flow.completed

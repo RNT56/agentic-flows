@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/RNT56/agentic-flows/docs/proposals/schemas/capability-registry.schema.json",
+  "title": "Agentic Flow Capability Registry (v1.1 proposal)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registry_version",
+    "capabilities"
+  ],
+  "properties": {
+    "registry_version": {
+      "const": "agentic-flows.capabilities/v1.1"
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "class",
+          "owner"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$"
+          },
+          "class": {
+            "enum": [
+              "deterministic",
+              "fixture",
+              "sandbox-run",
+              "judgment",
+              "external-production"
+            ]
+          },
+          "owner": {
+            "enum": [
+              "thinclaw",
+              "nilcore",
+              "crustcore",
+              "standalone"
+            ],
+            "description": "Advisory: which core would plausibly implement this. Does NOT imply the cores share a runtime."
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
