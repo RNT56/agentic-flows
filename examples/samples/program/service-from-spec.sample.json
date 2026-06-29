@@ -1,0 +1,18 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "program.service-from-spec",
+    "version": "0.1.0",
+    "source": "flows/program/service-from-spec/flow.yaml"
+  },
+  "inputs": {
+    "brief": "A REST API for a task tracker.",
+    "stack": "go",
+    "repo": "https://github.com/RNT56/example-service"
+  },
+  "expected_outputs": {
+    "service_patch": "The assembled backend service changes.",
+    "closeout": "Program closeout with sub-flow evidence."
+  },
+  "notes": "Sample for program.service-from-spec."
+}

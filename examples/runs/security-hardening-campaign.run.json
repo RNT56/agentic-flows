@@ -1,0 +1,222 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "program.security-hardening-campaign",
+    "version": "0.1.0",
+    "source": "flows/program/security-hardening-campaign/flow.yaml"
+  },
+  "run": {
+    "id": "run-security-campaign-0001",
+    "core": "crustcore",
+    "status": "completed",
+    "started_at": "2026-06-29T16:00:00Z",
+    "completed_at": "2026-06-29T16:09:00Z"
+  },
+  "inputs": {},
+  "outputs": {
+    "campaign_report": "artifact://runs/run-security-campaign-0001/campaign_report",
+    "audit_bundle": "artifact://runs/run-security-campaign-0001/audit_bundle"
+  },
+  "artifacts": [
+    {
+      "id": "finding-inventory",
+      "kind": "finding-inventory",
+      "uri": "artifact://runs/run-security-campaign-0001/finding-inventory"
+    },
+    {
+      "id": "per-finding-scan-log",
+      "kind": "per-finding-scan-log",
+      "uri": "artifact://runs/run-security-campaign-0001/per-finding-scan-log"
+    },
+    {
+      "id": "subflows-report",
+      "kind": "subflows-report",
+      "uri": "artifact://runs/run-security-campaign-0001/subflows-report"
+    }
+  ],
+  "sub_runs": [
+    {
+      "node_id": "inventory",
+      "flow": {
+        "id": "security.supply-chain-audit",
+        "version": "0.1.0"
+      },
+      "run": {
+        "id": "run-shc-inventory-0001",
+        "status": "completed"
+      },
+      "uri": "security-hardening-campaign/inventory.run.json"
+    },
+    {
+      "node_id": "export",
+      "flow": {
+        "id": "proof.evidence-bundle-export",
+        "version": "0.1.0"
+      },
+      "run": {
+        "id": "run-shc-export-0001",
+        "status": "completed"
+      },
+      "uri": "security-hardening-campaign/export.run.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.security-hardening-campaign",
+      "flow_version": "0.1.0",
+      "run_id": "run-security-campaign-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-29T16:00:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.security-hardening-campaign",
+      "flow_version": "0.1.0",
+      "run_id": "run-security-campaign-0001",
+      "event": "subflow.started",
+      "timestamp": "2026-06-29T16:00:10Z",
+      "core": "crustcore",
+      "severity": "info",
+      "node_id": "inventory",
+      "payload": {
+        "node_id": "inventory",
+        "child_flow_id": "security.supply-chain-audit",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-shc-inventory-0001"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.security-hardening-campaign",
+      "flow_version": "0.1.0",
+      "run_id": "run-security-campaign-0001",
+      "event": "subflow.completed",
+      "timestamp": "2026-06-29T16:00:20Z",
+      "core": "crustcore",
+      "severity": "info",
+      "node_id": "inventory",
+      "payload": {
+        "node_id": "inventory",
+        "child_flow_id": "security.supply-chain-audit",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-shc-inventory-0001",
+        "child_status": "completed"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.security-hardening-campaign",
+      "flow_version": "0.1.0",
+      "run_id": "run-security-campaign-0001",
+      "event": "subflow.started",
+      "timestamp": "2026-06-29T16:01:10Z",
+      "core": "crustcore",
+      "severity": "info",
+      "node_id": "export",
+      "payload": {
+        "node_id": "export",
+        "child_flow_id": "proof.evidence-bundle-export",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-shc-export-0001"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.security-hardening-campaign",
+      "flow_version": "0.1.0",
+      "run_id": "run-security-campaign-0001",
+      "event": "subflow.completed",
+      "timestamp": "2026-06-29T16:01:20Z",
+      "core": "crustcore",
+      "severity": "info",
+      "node_id": "export",
+      "payload": {
+        "node_id": "export",
+        "child_flow_id": "proof.evidence-bundle-export",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-shc-export-0001",
+        "child_status": "completed"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.security-hardening-campaign",
+      "flow_version": "0.1.0",
+      "run_id": "run-security-campaign-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-29T16:05:00Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "inventory-complete",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "finding-inventory",
+          "kind": "finding-inventory",
+          "uri": "artifact://runs/run-security-campaign-0001/finding-inventory",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.security-hardening-campaign",
+      "flow_version": "0.1.0",
+      "run_id": "run-security-campaign-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-29T16:06:00Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "instance-hardened",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "per-finding-scan-log",
+          "kind": "per-finding-scan-log",
+          "uri": "artifact://runs/run-security-campaign-0001/per-finding-scan-log",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.security-hardening-campaign",
+      "flow_version": "0.1.0",
+      "run_id": "run-security-campaign-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-29T16:07:00Z",
+      "core": "crustcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "campaign-accepted",
+        "status": "passed",
+        "reviewer_id": "operator:reviewer"
+      },
+      "evidence": [
+        {
+          "id": "subflows-report",
+          "kind": "subflows-report",
+          "uri": "artifact://runs/run-security-campaign-0001/subflows-report",
+          "evidence_class": "judgment"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.security-hardening-campaign",
+      "flow_version": "0.1.0",
+      "run_id": "run-security-campaign-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-29T16:09:00Z",
+      "core": "crustcore",
+      "severity": "info"
+    }
+  ]
+}

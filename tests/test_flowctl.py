@@ -691,3 +691,37 @@ def test_cli_tool_uses_bounded_iteration() -> None:
         isinstance(node.get("iteration"), dict) and isinstance(node["iteration"].get("max_iterations"), int)
         for node in doc["nodes"]
     )
+
+
+def test_wave3_programs_validate_and_compose() -> None:
+    schema = load_json(DEFAULT_SCHEMA)
+    catalog, _ = build_flow_catalog([])
+    for path in (
+        "flows/program/service-from-spec/flow.yaml",
+        "flows/program/feature-to-release/flow.yaml",
+        "flows/program/security-hardening-campaign/flow.yaml",
+    ):
+        doc = load_yaml(Path(path))
+        assert validate_flow_document(doc, schema) == [], path
+        assert composition.validate_composition_static(doc, catalog) == [], path
+
+
+def test_wave3_program_runs_validate_recursively() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    for path in (
+        "examples/runs/service-from-spec.run.json",
+        "examples/runs/feature-to-release.run.json",
+        "examples/runs/security-hardening-campaign.run.json",
+    ):
+        assert validate_run_document(load_json(Path(path)), rs, es, fs, run_path=Path(path)) == [], path
+
+
+def test_security_campaign_combines_fanout_iteration_flowref() -> None:
+    doc = load_yaml(Path("flows/program/security-hardening-campaign/flow.yaml"))
+    types = [node.get("type") for node in doc["nodes"]]
+    assert types.count("flow_ref") >= 2
+    harden = next(node for node in doc["nodes"] if node["id"] == "harden")
+    assert isinstance(harden.get("fan_out"), dict)
+    assert isinstance(harden.get("iteration"), dict)

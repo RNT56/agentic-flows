@@ -10,7 +10,7 @@ Versioned workflow contracts for agentic systems that must plan, act, verify, ap
 | --- | --- |
 | Latest release | `v0.1.1` |
 | Flow spec | `agentic-flows/v1` and `agentic-flows/v1.1` (additive: `flow_ref` sub-flow composition) |
-| Catalog size | 75 reusable workflows, 3 starter templates |
+| Catalog size | 78 reusable workflows, 3 starter templates |
 | Tooling | Python CLI, JSON Schema, YAML flow definitions |
 | Evidence model | Events, streams, run bundles, adapter smoke manifests |
 | CI gate | Schema validation, normalization, samples, runs, links, changelog, package build, tests |
@@ -57,7 +57,7 @@ flowchart LR
 
 - A versioned YAML workflow format backed by JSON Schema.
 - `flowctl`, a repo-local CLI for validation, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
-- Seventy-five reusable workflow definitions across coding, engineering, design, infrastructure, research, security, product, program, personal, collaboration, operations, proof, orchestration, documentation, and human review.
+- Seventy-eight reusable workflow definitions across coding, engineering, design, infrastructure, research, security, product, program, personal, collaboration, operations, proof, orchestration, documentation, and human review.
 - Three copyable starter templates for project-specific workflows.
 - Event and run-bundle schemas for evidence-backed execution.
 - Adapter smoke manifest schemas and examples for independent optional consumers.
@@ -145,6 +145,9 @@ flowchart LR
 | [`engineering.cli-tool`](flows/engineering/cli-tool/README.md) | Experimental | Build a scoped CLI tool in a given stack with build, test, and golden-output evidence (parameters + bounded `iteration`). | NilCore, standalone | Standalone run bundle, sample contract |
 | [`engineering.library-package`](flows/engineering/library-package/README.md) | Experimental | Build a library package to publish-ready state with build, test, and reviewed public-API/semver evidence. | NilCore, standalone | Standalone run bundle (deterministic + judgment review), sample contract |
 | [`infra.iac-module`](flows/infra/iac-module/README.md) | Experimental | Author an infrastructure-as-code change with a plan diff, policy gate, and sandbox apply against an ephemeral environment. | NilCore | NilCore run bundle with sandbox-run apply evidence, sample contract |
+| [`program.service-from-spec`](flows/program/service-from-spec/README.md) | Experimental | Compose service design-to-spec, backend build, and integration verification into one Design-Build-Verify program. | NilCore | Run bundle recursively validating three child sub-runs, sample contract |
+| [`program.feature-to-release`](flows/program/feature-to-release/README.md) | Experimental | Compose issue-to-verified-pr and preview deploy into a Build-Ship-Govern program with an independent release acceptance. | NilCore | Run bundle recursively validating two child sub-runs, sample contract |
+| [`program.security-hardening-campaign`](flows/program/security-hardening-campaign/README.md) | Experimental | Inventory findings, fan out a bounded per-finding fix-and-verify loop, and export one audit trail (`fan_out` + `iteration` + `flow_ref`). | CrustCore, standalone | Run bundle recursively validating the audit and export sub-runs, sample contract |
 
 ## Starter templates
 
