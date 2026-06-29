@@ -1,0 +1,214 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "coding.feature-implementation",
+    "version": "0.1.0",
+    "source": "flows/coding/feature-implementation/flow.yaml"
+  },
+  "run": {
+    "id": "run-coding-feature-implementation-local",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T13:08:31Z",
+    "completed_at": "2026-06-28T13:08:49Z"
+  },
+  "inputs": {
+    "task": "Add consumer handler binding to flowctl run",
+    "repo": "."
+  },
+  "outputs": {
+    "patch": "artifacts/output-patch.md",
+    "closeout": "artifacts/output-closeout.md"
+  },
+  "artifacts": [
+    {
+      "id": "scoped-task",
+      "kind": "json",
+      "uri": "artifacts/scoped-task.json"
+    },
+    {
+      "id": "plan",
+      "kind": "markdown",
+      "uri": "artifacts/plan.md"
+    },
+    {
+      "id": "diff",
+      "kind": "command-output",
+      "uri": "artifacts/diff.log"
+    },
+    {
+      "id": "test-log",
+      "kind": "command-output",
+      "uri": "artifacts/test-log.log"
+    },
+    {
+      "id": "review-notes",
+      "kind": "markdown",
+      "uri": "artifacts/review-notes.md"
+    },
+    {
+      "id": "verification-result",
+      "kind": "markdown",
+      "uri": "artifacts/verification-result.md"
+    },
+    {
+      "id": "approval-output",
+      "kind": "command-output",
+      "uri": "artifacts/approval-output.log"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-coding-feature-implementation-local",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T13:08:31Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-coding-feature-implementation-local",
+      "node_id": "intake",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T13:08:31Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-coding-feature-implementation-local",
+      "node_id": "plan",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T13:08:31Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-coding-feature-implementation-local",
+      "node_id": "implement",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T13:08:31Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "exit_code": 0,
+        "handler": "consumer"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-coding-feature-implementation-local",
+      "node_id": "test",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T13:08:49Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "exit_code": 0
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-coding-feature-implementation-local",
+      "node_id": "verify",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T13:08:49Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-coding-feature-implementation-local",
+      "node_id": "approval",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T13:08:49Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "exit_code": 0,
+        "handler": "consumer"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-coding-feature-implementation-local",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T13:08:49Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-coding-feature-implementation-local",
+      "node_id": "test",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T13:08:49Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "project-checks-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "command-output",
+          "uri": "artifacts/test-log.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-coding-feature-implementation-local",
+      "node_id": "verify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T13:08:49Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "acceptance-covered",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "review-notes",
+          "kind": "markdown",
+          "uri": "artifacts/review-notes.md"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "coding.feature-implementation",
+      "flow_version": "0.1.0",
+      "run_id": "run-coding-feature-implementation-local",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T13:08:49Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

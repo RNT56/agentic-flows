@@ -51,12 +51,25 @@ nodes:
     type: intake
     title: Intake project brief
     description: Capture the product promise, constraints, and target repo.
+    instructions: Record the product promise, the constraints, and the target repo so the scaffold can be scoped to what the
+      new repo must actually deliver.
+    inputs_schema:
+      - id: project_brief
+        type: markdown
+        required: true
+        description: The product promise and constraints for the new repo.
+      - id: repo
+        type: uri
+        required: true
+        description: The target repository to initialize.
     produces:
       - bootstrap-scope
   - id: plan
     type: plan
     title: Plan the scaffold
     description: Plan the docs, schemas, CI, license, and first-release path.
+    instructions: Decide the README structure, the license, the CI workflow, the issue templates, and the first-release path,
+      naming each file the scaffold will create.
     requires:
       - bootstrap-scope
     produces:
@@ -65,6 +78,8 @@ nodes:
     type: agent_task
     title: Create the scaffold
     description: Create the initial files - README, license, CI, and issue templates.
+    instructions: Create each file named in the scaffold plan - README, license, CI workflow, and issue templates - and stage
+      them as a diff. This step needs a coding agent supplied by the consumer.
     agent: coding-worker
     requires:
       - scaffold-plan
@@ -74,15 +89,28 @@ nodes:
     type: tool
     title: Run CI locally
     description: Run the initial CI to confirm the toolchain works.
+    instructions: Run the project CI command against the new scaffold and capture stdout, stderr, and the exit code to prove
+      the toolchain runs end to end.
+    command: ${param.ci_command}
+    parameters:
+      - id: ci_command
+        type: command
+        required: false
+        default: make test || npm test || pytest -q
+        description: The command that runs the scaffold's initial CI checks.
     tool: command-runner
     requires:
       - scaffold-diff
     produces:
       - ci-log
+    on_failure:
+      action: abort
   - id: verify
     type: verifier
     title: Verify bootstrap
     description: Confirm CI passes, the README explains the product, and the license is present.
+    instructions: Confirm the CI log shows a passing run, the README explains the product promise, and a license file is present
+      before closing out.
     requires:
       - scaffold-diff
       - ci-log
@@ -92,6 +120,8 @@ nodes:
     type: finalizer
     title: Close out bootstrap
     description: Return the scaffold patch and the first-release plan.
+    instructions: Return the scaffold patch and a first-release plan that documents the path from this scaffold to an initial
+      release.
     requires:
       - scaffold-plan
       - bootstrap-check

@@ -49,12 +49,25 @@ nodes:
     type: intake
     title: Intake incident
     description: Capture the incident summary and the available sources.
+    instructions: Record the incident summary and the supplied event, log, and chat sources so the timeline can be built and
+      cited later.
+    inputs_schema:
+      - id: incident
+        type: markdown
+        required: true
+        description: The incident summary and what is known so far.
+      - id: sources
+        type: json
+        required: true
+        description: Event, log, and chat sources used to build the timeline.
     produces:
       - incident-context
   - id: assemble
     type: agent_task
     title: Assemble timeline
     description: Build a source-cited timeline of what happened and when.
+    instructions: Build a chronological timeline of what happened and when, and cite the source for every entry. This step
+      needs a timeline analyst supplied by the consumer.
     agent: analyst
     requires:
       - incident-context
@@ -64,6 +77,8 @@ nodes:
     type: agent_task
     title: Analyze causes
     description: Identify impact, contributing causes, and owned action items without blame.
+    instructions: From the timeline, state the impact, name the contributing causes without blame, list the open unknowns,
+      and propose action items that each name an owner. This step needs an analyst supplied by the consumer.
     agent: analyst
     requires:
       - timeline
@@ -74,6 +89,8 @@ nodes:
     type: verifier
     title: Verify completeness
     description: Confirm the timeline cites sources, action items have owners, and unknowns are explicit.
+    instructions: Confirm every timeline entry cites a source, every action item names an owner, and the open unknowns are
+      stated explicitly.
     requires:
       - timeline
       - action-items
@@ -83,6 +100,8 @@ nodes:
     type: finalizer
     title: Close out postmortem
     description: Return the postmortem and the owned action items.
+    instructions: Return the blameless postmortem with its sourced timeline, impact, causes, and unknowns, plus the action
+      items each carrying an owner.
     requires:
       - cause-analysis
       - action-items

@@ -45,12 +45,25 @@ nodes:
     type: intake
     title: Intake objective
     description: Capture the objective, success gates, ownership constraints, and unsafe overlaps.
+    instructions: Record the project objective, the success gates that define done, the ownership and concurrency constraints,
+      and any overlaps that lanes must not share, so decomposition can produce safe independent lanes.
+    inputs_schema:
+      - id: objective
+        type: markdown
+        required: true
+        description: The project objective and success criteria.
+      - id: constraints
+        type: markdown
+        required: false
+        description: Ownership, concurrency, or repository constraints.
     produces:
       - objective
   - id: decompose
     type: plan
     title: Decompose lanes
     description: Split the objective into independently executable lanes with clear acceptance gates.
+    instructions: Split the objective into lanes that can run independently without touching the same paths, and give each
+      lane an owner, scope, acceptance gate, and integration boundary.
     requires:
       - objective
     produces:
@@ -59,6 +72,8 @@ nodes:
     type: agent_task
     title: Dispatch workers
     description: Assign non-overlapping lanes to workers and record ownership.
+    instructions: Assign each non-overlapping lane to a worker, record which worker owns which lane, and collect each worker
+      output together with its checks and residual risk. This step needs a supervisor agent supplied by the consumer.
     agent: supervisor
     requires:
       - lane-plan
@@ -68,6 +83,8 @@ nodes:
     type: verifier
     title: Reconcile worker results
     description: Check worker outputs for conflicts, missing gates, and integration risk.
+    instructions: Check the worker outputs for conflicting edits, lanes that skipped their acceptance gate, and integration
+      risk where lanes meet, and write a merge report that lists each conflict and how it was resolved or escalated.
     requires:
       - worker-results
     produces:
@@ -76,12 +93,16 @@ nodes:
     type: approval
     title: Human merge decision
     description: Ask for operator approval when worker outputs conflict or change shared boundaries.
+    instructions: Ask an operator to approve the merge when worker outputs conflict or change shared boundaries, and record
+      the decision and rationale.
     requires:
       - merge-report
   - id: final
     type: finalizer
     title: Close out supervision
     description: Return merged results, lane evidence, blockers, and next steps.
+    instructions: Return the consolidated result with per-lane evidence, the unresolved blockers, and the recommended next
+      steps for each open lane.
     requires:
       - merge-report
     produces:

@@ -51,12 +51,38 @@ nodes:
     type: intake
     title: Intake flaky test
     description: Capture the flaky test id and the repo target.
+    instructions: Record the flaky test id and the repo target so the repeated-run probe can target exactly this test and
+      later steps can scope the fix.
+    inputs_schema:
+      - id: test_id
+        type: text
+        required: true
+        description: The flaky test to stabilize.
+      - id: repo
+        type: uri
+        required: true
+        description: The repository or checkout that holds the flaky test.
     produces:
       - flaky-context
   - id: repeat
     type: tool
     title: Run repeatedly
     description: Run the test many times to capture the flaky behavior and its frequency.
+    instructions: Run the named test repeatedly and capture each run's stdout, stderr, and exit code so the pass/fail frequency
+      of the flake is documented as evidence.
+    command: i=0; fails=0; while [ $i -lt ${param.repeat_count} ]; do i=$((i+1)); ${param.test_command} "${input.test_id}"
+      || fails=$((fails+1)); done; echo "ran $i times, $fails failures"
+    parameters:
+      - id: test_command
+        type: command
+        required: false
+        default: pytest -q
+        description: The command used to run the single flaky test, given the test id as an argument.
+      - id: repeat_count
+        type: number
+        required: false
+        default: 20
+        description: How many times to run the test to surface the flake and estimate its frequency.
     tool: command-runner
     requires:
       - flaky-context
@@ -71,10 +97,16 @@ nodes:
       max_iterations: 5
       on_exhausted: handoff
       until: gate:repeated-run-evidence
+    on_failure:
+      action: retry
+      max_attempts: 2
   - id: analyze
     type: agent_task
     title: Find root cause
     description: Distinguish the root cause from a mitigation, avoiding broad sleeps without justification.
+    instructions: From the repeated-run log, identify why the test flakes (timing, ordering, shared state, external dependency)
+      and write notes that name the root cause and separate it from any mitigation. Do not propose broad sleeps without justification.
+      This step needs a debugging agent supplied by the consumer.
     agent: debugger
     requires:
       - repeated-run-log
@@ -84,6 +116,8 @@ nodes:
     type: agent_task
     title: Apply minimal stabilization
     description: Apply the smallest change that addresses the root cause.
+    instructions: Apply the smallest coherent change that addresses the identified root cause rather than masking the symptom,
+      and preserve unrelated behavior. This step needs a coding agent supplied by the consumer.
     agent: coding-worker
     requires:
       - root-cause-notes
@@ -93,15 +127,21 @@ nodes:
     type: verifier
     title: Verify stabilization
     description: Confirm repeated-run evidence exists and the change targets the root cause.
+    instructions: Confirm the repeated-run log documents the flake frequency and that the stabilization diff targets the documented
+      root cause rather than a broad mitigation.
     requires:
       - stabilization-diff
       - repeated-run-log
     produces:
       - stabilization-check
+    on_failure:
+      action: abort
   - id: final
     type: finalizer
     title: Close out stabilization
     description: Return the stabilization patch and the analysis.
+    instructions: Return the stabilization patch and an analysis that distinguishes the root cause from any mitigation and
+      includes the repeated-run evidence.
     requires:
       - root-cause-notes
       - stabilization-check

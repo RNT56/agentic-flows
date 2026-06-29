@@ -35,6 +35,18 @@ The current spec version is `agentic-flows/v1`, with an additive superset `agent
 - `finalizer`: Closeout and result packaging.
 - `flow_ref`: Run another flow as a sub-step. Available under `spec_version: agentic-flows/v1.1`. See [Sub-flow composition](#sub-flow-composition).
 
+## Node substance fields
+
+Beyond `id`, `type`, `title`, and `description`, a node may carry the substance a consumer or the reference runner needs to actually execute it. All fields are optional and additive.
+
+- `instructions`: The operational guidance for the node - what to do, what to capture, and what "done" looks like. Written so an agent or operator can act on it without external context.
+- `command`: A shell command the node runs. Supports `${param.<id>}` and `${input.<id>}` substitution. A node with a `command` is executable by `flowctl run`; a node without one (typically `agent_task`, `approval`, `handoff`) needs a consumer-supplied handler.
+- `parameters`: Declared, overridable knobs for the node (for example a `test_command`). Each has an `id`, a `type`, an optional `required` flag, an optional `default`, and a `description`. The runner fills unset parameters from their defaults.
+- `inputs_schema` / `outputs_schema`: The typed inputs a node consumes and the typed outputs it returns, using the same field shape as `contracts`.
+- `on_failure`: What to do when the node fails - `action` is one of `retry`, `abort`, `escalate`, or `skip`. `retry` honors `max_attempts`; `fallback_node` names an alternate node.
+
+Keep substance portable. Concrete commands, parameters, and instructions belong in the flow; sandboxing, secrets, the agent model, and approval UX stay with the consumer or in `runtime.adapter_hints`. See [runnable-flows.md](runnable-flows.md) for the execution model.
+
 ## Quality gates
 
 Every flow must include at least one required quality gate.
@@ -213,6 +225,19 @@ It verifies:
 - each `sub_runs` entry references a real `flow_ref` node, and each `flow_ref` node has a `subflow.completed` event
 
 `flowctl replay` validates a run bundle and reconstructs a timeline with run status, outputs, passed gates, evidence refs, and ordered events.
+
+## Running a flow
+
+`flowctl run <flow.yaml>` executes a flow with the built-in local handlers and writes a real run bundle:
+
+- nodes run in dependency order derived from `requires`/`produces`
+- `tool` nodes and any node with a `command` run the command as a subprocess and capture stdout, stderr, and exit code as an artifact
+- `intake`, `plan`, `decision`, `verifier`, and `finalizer` nodes assemble structured records from their inputs and instructions
+- `agent_task`, `approval`, and `handoff` nodes without a `command` are reported as needing a consumer-supplied handler, and the run is marked incomplete
+- a required gate passes only when every artifact in its `evidence_refs` was produced by a successful step
+- the produced bundle is validated against `schemas/run.schema.json` before the command returns
+
+Pass inputs with `--input id=value` and override parameters with `--param id=value`. Use `--workdir` to point command nodes at a target checkout and `--out` to choose the bundle directory (defaults to `.agentic-runs/<flow>`). See [runnable-flows.md](runnable-flows.md) for the full model.
 
 ## Sample validation
 

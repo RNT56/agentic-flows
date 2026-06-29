@@ -54,12 +54,25 @@ nodes:
     type: intake
     title: Intake failures
     description: Capture the failure history and the improvement target.
+    instructions: Record the recorded failure history to learn from and the prompt, tool, skill, or workflow that is the improvement
+      target. Done when the failure history and the target are both captured.
+    inputs_schema:
+      - id: failure_history
+        type: markdown
+        required: true
+        description: The recorded failures to learn from.
+      - id: target
+        type: markdown
+        required: true
+        description: The prompt, tool, skill, or workflow to improve.
     produces:
       - improvement-scope
   - id: detect
     type: agent_task
     title: Detect repeated pattern
     description: Identify the repeated failure pattern with evidence.
+    instructions: Cluster the failure history and identify the pattern that recurs, citing the specific failures as evidence
+      that it is systemic rather than a one-off. This step needs a reliability-analyst agent supplied by the consumer.
     agent: reliability-analyst
     requires:
       - improvement-scope
@@ -69,6 +82,8 @@ nodes:
     type: agent_task
     title: Propose improvement
     description: Propose a targeted improvement for the pattern.
+    instructions: Propose the smallest change to the target that addresses the identified pattern and is reversible, describing
+      how it should be tested against the failures. This step needs a reliability-analyst agent supplied by the consumer.
     agent: reliability-analyst
     requires:
       - pattern-evidence
@@ -78,15 +93,28 @@ nodes:
     type: tool
     title: Test the improvement
     description: Test the improvement against the failure pattern.
+    instructions: Run the project test command with the proposed improvement applied and capture stdout, stderr, and the exit
+      code as evidence that the change addresses the pattern without regressions.
+    command: ${param.test_command}
+    parameters:
+      - id: test_command
+        type: command
+        required: false
+        default: make test || npm test || pytest -q
+        description: The command that exercises the improvement against the failure pattern.
     tool: command-runner
     requires:
       - improvement-draft
     produces:
       - improvement-test
+    on_failure:
+      action: abort
   - id: verify
     type: verifier
     title: Verify and plan rollout
     description: Confirm the improvement is tested and plan a reversible rollout.
+    instructions: Confirm the test evidence shows the improvement addresses the pattern, then plan a rollout that can be reverted
+      cleanly if the change regresses.
     requires:
       - improvement-test
     produces:
@@ -95,6 +123,7 @@ nodes:
     type: finalizer
     title: Close out improvement
     description: Return the improvement and the rollout plan.
+    instructions: Return the proposed improvement with the pattern it addresses and the reversible rollout plan.
     requires:
       - pattern-evidence
       - rollout-plan

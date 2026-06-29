@@ -37,6 +37,37 @@
       "type": "string",
       "minLength": 10
     },
+    "instructions": {
+      "type": "string",
+      "minLength": 1
+    },
+    "command": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parameters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+          "type": { "enum": ["text", "markdown", "json", "patch", "command", "uri", "boolean", "number"] },
+          "required": { "type": "boolean" },
+          "default": {},
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "inputs_schema": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/field" }
+    },
+    "outputs_schema": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/field" }
+    },
     "agent": {
       "type": "string"
     },
@@ -59,6 +90,16 @@
       "uniqueItems": true,
       "items": {
         "type": "string"
+      }
+    },
+    "on_failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action"],
+      "properties": {
+        "action": { "enum": ["retry", "abort", "escalate", "skip"] },
+        "max_attempts": { "type": "integer", "minimum": 1 },
+        "fallback_node": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" }
       }
     },
     "policy": {
@@ -200,5 +241,18 @@
         }
       }
     }
-  ]
+  ],
+  "$defs": {
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "required"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+        "type": { "enum": ["text", "markdown", "json", "patch", "command", "uri", "boolean", "number"] },
+        "required": { "type": "boolean" },
+        "description": { "type": "string" }
+      }
+    }
+  }
 }

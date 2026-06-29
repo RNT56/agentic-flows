@@ -55,12 +55,25 @@ nodes:
     type: intake
     title: Intake incident
     description: Capture the incident signal and the severity rubric.
+    instructions: Record the incident signal, everything currently known, and the severity rubric to triage against. Done
+      when the incident context and the rubric are both captured.
+    inputs_schema:
+      - id: incident
+        type: markdown
+        required: true
+        description: The incident signal and what is known.
+      - id: severity_policy
+        type: markdown
+        required: true
+        description: The severity rubric.
     produces:
       - incident-context
   - id: triage
     type: decision
     title: Declare severity
     description: Triage the incident and declare a severity.
+    instructions: Apply the severity rubric to the known facts and declare a severity, recording the level and the rationale
+      that ties the facts to the rubric. Done when a severity is on record.
     requires:
       - incident-context
     produces:
@@ -69,6 +82,8 @@ nodes:
     type: agent_task
     title: Mitigate
     description: Apply mitigation and capture the evidence.
+    instructions: Apply mitigation scaled to the declared severity and capture evidence of each action and its effect on the
+      incident. This step needs a responder agent or operator supplied by the consumer.
     agent: responder
     requires:
       - severity-decision
@@ -78,6 +93,8 @@ nodes:
     type: tool
     title: Communicate and record
     description: Record the timeline and communicate status.
+    instructions: Record the incident timeline in order and communicate current status to stakeholders through the configured
+      comms channel. Done when the timeline is recorded and a status update has gone out.
     tool: comms-runner
     requires:
       - mitigation-log
@@ -87,6 +104,8 @@ nodes:
     type: verifier
     title: Verify closeout
     description: Confirm severity is declared, mitigation evidence exists, and follow-ups are recorded.
+    instructions: Confirm a severity is declared, mitigation evidence exists, and the timeline and follow-up actions are all
+      recorded before closing the incident.
     requires:
       - mitigation-log
       - timeline
@@ -96,6 +115,8 @@ nodes:
     type: finalizer
     title: Close out incident
     description: Return the incident record and a postmortem seed.
+    instructions: Return the incident record with severity, mitigation, timeline, and follow-ups, plus a postmortem seed that
+      captures what to investigate later.
     requires:
       - severity-decision
       - incident-check

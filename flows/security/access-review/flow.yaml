@@ -49,12 +49,25 @@ nodes:
     type: intake
     title: Intake access
     description: Capture the access inventory and the review policy.
+    instructions: Load the full access inventory across users, connectors, repos, and deployments and record the least-privilege
+      and review policy that each grant will be judged against.
+    inputs_schema:
+      - id: access_inventory
+        type: json
+        required: true
+        description: The current grants across users, connectors, repos, and deployments.
+      - id: policy
+        type: markdown
+        required: true
+        description: The least-privilege and review policy.
     produces:
       - review-scope
   - id: inventory
     type: agent_task
     title: Normalize inventory
     description: Normalize each grant and attach its current owner and reason.
+    instructions: Normalize every grant into a consistent record and attach its current owner and the stated reason it exists,
+      flagging any grant with no identifiable owner or reason. This step needs a security analyst supplied by the consumer.
     agent: security-analyst
     requires:
       - review-scope
@@ -64,6 +77,8 @@ nodes:
     type: agent_task
     title: Review grants
     description: Decide keep, remove, or flag for each grant against the policy.
+    instructions: Decide keep, remove, or flag for each grant by testing it against the least-privilege policy, and record
+      the rationale and any approved exception for each decision. This step needs a security analyst supplied by the consumer.
     agent: security-analyst
     requires:
       - permission-inventory
@@ -73,6 +88,8 @@ nodes:
     type: verifier
     title: Verify review
     description: Confirm every grant has an owner and reason and removals are tracked.
+    instructions: Confirm every grant carries an owner and a reason and that each remove or flag decision is tracked with
+      its rationale, flagging any grant left undecided.
     requires:
       - review-decisions
     produces:
@@ -81,6 +98,8 @@ nodes:
     type: finalizer
     title: Close out review
     description: Return the review decisions and the report.
+    instructions: Return the per-grant keep, remove, or flag decisions with owner and reason and a readable report summarizing
+      the removals, exceptions, and residual risk.
     requires:
       - review-decisions
       - review-check

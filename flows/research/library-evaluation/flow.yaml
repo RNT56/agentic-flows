@@ -53,12 +53,26 @@ nodes:
     type: intake
     title: Intake evaluation scope
     description: Capture the library and the requirements it must meet.
+    instructions: Record the exact library or framework under evaluation and the requirements and constraints it must satisfy,
+      so fit can be judged against concrete needs rather than impressions.
+    inputs_schema:
+      - id: library
+        type: text
+        required: true
+        description: The library or framework under evaluation.
+      - id: requirements
+        type: markdown
+        required: true
+        description: The needs and constraints the library must meet.
     produces:
       - eval-scope
   - id: inspect
     type: agent_task
     title: Inspect primary docs
     description: Read the primary documentation and assess fit against the requirements.
+    instructions: Read the library's own primary documentation, not secondhand summaries, and assess how well it meets each
+      stated requirement, quoting the relevant docs sections in the review. This step needs a research agent supplied by the
+      consumer.
     agent: researcher
     requires:
       - eval-scope
@@ -68,15 +82,30 @@ nodes:
     type: tool
     title: Check maintenance and license
     description: Check release cadence, open issues, and license, and run a smoke import.
+    instructions: Run the metadata command to capture the library's published version, license, and maintenance signals, and
+      record stdout, stderr, and the exit code as the maintenance check.
+    command: ${param.metadata_command}
+    parameters:
+      - id: metadata_command
+        type: command
+        required: false
+        default: pip show ${input.library} || npm view ${input.library} || gem info ${input.library}
+        description: The command that reports the library's version, license, and maintenance metadata across common package
+          registries.
     tool: command-runner
     requires:
       - docs-review
     produces:
       - maintenance-check
+    on_failure:
+      action: retry
+      max_attempts: 2
   - id: assess
     type: verifier
     title: Assess integration risk
     description: Weigh fit, maintenance, license, and integration risk into an evaluation.
+    instructions: Weigh the documentation fit, the maintenance and license signals, and the expected integration effort into
+      a single evaluation, calling out the top integration risks and any license blockers.
     requires:
       - docs-review
       - maintenance-check
@@ -86,6 +115,8 @@ nodes:
     type: decision
     title: Adopt or avoid
     description: Recommend adopting or avoiding the library with a rationale.
+    instructions: Recommend adopt or avoid based on the evaluation, stating the rationale and the conditions or alternatives
+      that would change the decision.
     requires:
       - evaluation-notes
     produces:
@@ -94,6 +125,8 @@ nodes:
     type: finalizer
     title: Close out evaluation
     description: Return the recommendation and the evaluation.
+    instructions: Return the adopt-or-avoid recommendation with its rationale and the full evaluation covering docs fit, maintenance,
+      license, and integration risk.
     requires:
       - evaluation-notes
       - recommendation-record

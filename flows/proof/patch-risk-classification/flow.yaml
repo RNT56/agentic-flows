@@ -55,12 +55,26 @@ nodes:
     type: intake
     title: Intake patch
     description: Capture the patch and the policy to classify against.
+    instructions: Record the patch to classify and the risk and approval policy it is judged against, so reversibility, policy
+      risk, and required approval are all evaluated against named rules.
+    inputs_schema:
+      - id: patch
+        type: patch
+        required: true
+        description: The patch to classify.
+      - id: policy
+        type: markdown
+        required: true
+        description: The risk and approval policy to classify against.
     produces:
       - classification-request
   - id: analyze
     type: agent_task
     title: Analyze risk
     description: Assess reversibility, blast radius, and policy-relevant operations.
+    instructions: Assess the patch for reversibility, blast radius, and any policy-relevant operations such as destructive
+      migrations or production changes, recording an explicit unknown when a risk cannot be determined. This step needs a
+      risk agent supplied by the consumer.
     agent: risk-analyst
     requires:
       - classification-request
@@ -70,6 +84,8 @@ nodes:
     type: decision
     title: Classify and route
     description: Classify the risk; unknown risk fails closed and destructive paths require approval.
+    instructions: Classify reversibility, policy risk, required approval, and expected verification from the analysis, route
+      any unknown risk to fail-closed, and send destructive paths to approval, logging the decision and its rationale.
     requires:
       - risk-analysis
     produces:
@@ -78,6 +94,8 @@ nodes:
     type: approval
     title: Approve destructive or unknown risk
     description: Require an explicit operator approval for destructive or unknown-risk patches.
+    instructions: Ask the operator to explicitly approve when the patch is destructive or its risk is unknown, and record
+      the decision, the approver, and the rationale.
     requires:
       - policy-decision
     produces:
@@ -90,6 +108,8 @@ nodes:
     type: finalizer
     title: Close out classification
     description: Return the risk classification and the logged policy decision.
+    instructions: Return the risk classification covering reversibility, policy risk, required approval, and expected verification,
+      alongside the logged policy decision including any fail-closed outcome.
     requires:
       - policy-decision
     produces:

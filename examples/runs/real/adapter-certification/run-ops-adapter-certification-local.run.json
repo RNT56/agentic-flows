@@ -1,0 +1,136 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "ops.adapter-certification",
+    "version": "0.1.0",
+    "source": "flows/ops/adapter-certification/flow.yaml"
+  },
+  "run": {
+    "id": "run-ops-adapter-certification-local",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T12:53:06Z",
+    "completed_at": "2026-06-28T12:53:09Z"
+  },
+  "inputs": {
+    "consumer": "nilcore",
+    "flow": "file://flows/research/codebase-orientation/flow.yaml"
+  },
+  "outputs": {
+    "adapter_smoke": "artifacts/output-adapter_smoke.md",
+    "certification_report": "artifacts/output-certification_report.md"
+  },
+  "artifacts": [
+    {
+      "id": "certification-request",
+      "kind": "json",
+      "uri": "artifacts/certification-request.json"
+    },
+    {
+      "id": "loader-output",
+      "kind": "command-output",
+      "uri": "artifacts/loader-output.log"
+    },
+    {
+      "id": "adapter-smoke-log",
+      "kind": "command-output",
+      "uri": "artifacts/adapter-smoke-log.log"
+    },
+    {
+      "id": "adapter-smoke-manifest",
+      "kind": "markdown",
+      "uri": "artifacts/adapter-smoke-manifest.md"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-ops-adapter-certification-local",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T12:53:06Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-ops-adapter-certification-local",
+      "node_id": "intake",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:53:06Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-ops-adapter-certification-local",
+      "node_id": "certify",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:53:09Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "exit_code": 0
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-ops-adapter-certification-local",
+      "node_id": "verify",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:53:09Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-ops-adapter-certification-local",
+      "node_id": "final",
+      "event": "node.completed",
+      "timestamp": "2026-06-28T12:53:09Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-ops-adapter-certification-local",
+      "node_id": "certify",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T12:53:09Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "adapter-smoke-validates",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "adapter-smoke-log",
+          "kind": "command-output",
+          "uri": "artifacts/adapter-smoke-log.log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.adapter-certification",
+      "flow_version": "0.1.0",
+      "run_id": "run-ops-adapter-certification-local",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T12:53:09Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

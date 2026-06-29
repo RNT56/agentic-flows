@@ -49,12 +49,25 @@ nodes:
     type: intake
     title: Intake run and verdict
     description: Capture the completed run bundle and the verifier outcome to export.
+    instructions: Record the completed run bundle to export proof for and the verifier outcome to attach, so the collected
+      evidence and the final verdict come from the same run.
+    inputs_schema:
+      - id: run_bundle
+        type: uri
+        required: true
+        description: The completed run bundle to export proof for.
+      - id: verifier_outcome
+        type: json
+        required: true
+        description: The verifier verdict to attach to the proof bundle.
     produces:
       - export-request
   - id: collect
     type: tool
     title: Collect evidence
     description: Gather the source flow version, event stream, gate evidence, and artifact refs.
+    instructions: Read the run bundle and index its source flow version, event stream, gate evidence, and artifact references
+      so the assembler has every element the proof bundle must contain.
     tool: bundler
     requires:
       - export-request
@@ -64,6 +77,9 @@ nodes:
     type: agent_task
     title: Assemble proof bundle
     description: Compose the compact proof bundle from the collected evidence and the verdict.
+    instructions: Compose a compact proof bundle that carries the flow version, event stream, gate evidence, artifact refs,
+      and the attached verdict, keeping it self-contained and free of run-internal noise. This step needs an exporter agent
+      supplied by the consumer.
     agent: exporter
     requires:
       - bundle-index
@@ -73,6 +89,8 @@ nodes:
     type: verifier
     title: Verify bundle completeness
     description: Confirm the bundle includes flow version, event stream, gate evidence, artifact refs, and verdict.
+    instructions: Confirm the assembled bundle includes the source flow version, event stream, gate evidence, artifact refs,
+      and verdict, and flag any missing element as incomplete.
     requires:
       - proof-bundle
     produces:
@@ -81,6 +99,7 @@ nodes:
     type: finalizer
     title: Close out export
     description: Return the proof bundle and an export manifest.
+    instructions: Return the compact proof bundle and a human-readable export manifest that lists what the bundle contains.
     requires:
       - proof-bundle
       - bundle-check

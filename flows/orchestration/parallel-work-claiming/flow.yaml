@@ -54,12 +54,26 @@ nodes:
     type: intake
     title: Intake objective and claims
     description: Capture the objective and the set of currently active claims.
+    instructions: Record the broad objective to divide and the set of currently active lane claims to avoid colliding with.
+      Done when the objective scope and the active-claims snapshot are both captured.
+    inputs_schema:
+      - id: objective
+        type: markdown
+        required: true
+        description: The broad objective to divide into ownable lanes.
+      - id: active_claims
+        type: json
+        required: true
+        description: Currently active lane claims to avoid collisions with.
     produces:
       - objective-scope
   - id: decompose
     type: plan
     title: Decompose into lanes
     description: Split the objective into independent lanes with explicit path boundaries and dependencies.
+    instructions: Split the objective into independent lanes, giving each lane an explicit path boundary and naming any cross-lane
+      dependencies so lanes can run in parallel without overlap. Done when every lane has owners-to-be, a path boundary, and
+      its dependencies declared.
     requires:
       - objective-scope
     produces:
@@ -68,6 +82,9 @@ nodes:
     type: agent_task
     title: Register claims
     description: Check active claims and register ownership for non-overlapping lanes only.
+    instructions: Compare each planned lane against the active claims and register ownership only for lanes whose path boundaries
+      overlap nothing already claimed, leaving overlapping lanes unclaimed. This step needs a claim-coordinator agent supplied
+      by the consumer.
     agent: claim-coordinator
     requires:
       - lane-plan
@@ -77,6 +94,8 @@ nodes:
     type: verifier
     title: Detect collisions
     description: Confirm no claimed lane overlaps an active claim or another new lane.
+    instructions: Cross-check every newly claimed lane against the active claims and the other new lanes, and report any path-boundary
+      overlap as a conflict. Done when the conflict report confirms no collisions remain.
     requires:
       - lane-plan
       - claim-ledger
@@ -86,6 +105,8 @@ nodes:
     type: finalizer
     title: Close out claiming
     description: Return the lane assignments and the updated claim ledger.
+    instructions: Return the lane assignments with their owners and path boundaries plus the updated claim ledger reflecting
+      the newly registered claims.
     requires:
       - claim-ledger
       - conflict-report

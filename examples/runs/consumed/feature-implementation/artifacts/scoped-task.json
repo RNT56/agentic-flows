@@ -1,0 +1,9 @@
+{
+  "inputs": {
+    "task": "Add consumer handler binding to flowctl run",
+    "repo": "."
+  },
+  "params": {
+    "test_command": "python -m pytest -q"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "inputs": {
+    "flow_requirements": "{\"required_capabilities\":[\"repo.checkout\",\"command.run\",\"evidence.capture\"]}",
+    "runtime_profile": "{\"core\":\"nilcore\",\"capabilities\":[\"repo.checkout\",\"command.run\",\"evidence.capture\"]}"
+  },
+  "params": {}
+}

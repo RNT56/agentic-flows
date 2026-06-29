@@ -12,3 +12,6 @@ build/
 coverage.xml
 tmp/
 
+
+# local run-bundle output from `flowctl run`
+.agentic-runs/

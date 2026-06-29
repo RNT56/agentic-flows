@@ -53,12 +53,25 @@ nodes:
     type: intake
     title: Intake output
     description: Capture the untrusted output and the routing policy.
+    instructions: Record the model, tool, or browser output to be routed and the tainting and redaction policy that governs
+      it. Done when the untrusted output and the policy are both captured.
+    inputs_schema:
+      - id: untrusted_output
+        type: markdown
+        required: true
+        description: The model, tool, or browser output to route.
+      - id: policy
+        type: markdown
+        required: true
+        description: The tainting and redaction policy.
     produces:
       - routing-input
   - id: taint
     type: agent_task
     title: Track taint
     description: Mark the output as tainted and trace what it could influence.
+    instructions: Mark the output as tainted and trace every downstream decision, action, or prompt it could influence. This
+      step needs a security analyst supplied by the consumer; done when the taint propagation paths are mapped.
     agent: security-analyst
     requires:
       - routing-input
@@ -68,6 +81,8 @@ nodes:
     type: tool
     title: Redact sensitive content
     description: Redact sensitive spans and record what was removed.
+    instructions: Redact the sensitive spans the policy requires and record each removed span with the reason it was redacted.
+      Done when the output is redacted and the redaction record lists what was removed and why.
     tool: redactor
     requires:
       - taint-analysis
@@ -77,15 +92,22 @@ nodes:
     type: verifier
     title: Decide routing
     description: Confirm tainted content cannot directly authorize actions and set the routing decision.
+    instructions: Confirm tainted content cannot directly authorize an action and set the routing decision specifying how
+      the output may be used and what is blocked. Done when the routing decision is recorded and the no-authorization property
+      is verified.
     requires:
       - taint-analysis
       - redaction-record
     produces:
       - routing-decision
+    on_failure:
+      action: abort
   - id: final
     type: finalizer
     title: Close out routing
     description: Return the routing decision and the redaction report.
+    instructions: Return the routing decision describing permitted and blocked uses and the redaction report explaining what
+      was redacted and why. Done when both outputs are produced.
     requires:
       - routing-decision
       - redaction-record

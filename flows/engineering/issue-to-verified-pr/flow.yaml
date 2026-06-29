@@ -60,12 +60,25 @@ nodes:
     type: intake
     title: Intake issue scope
     description: Capture the issue, repo target, constraints, and frozen acceptance criteria.
+    instructions: Record the issue, the repo target, the constraints, and the acceptance criteria, and freeze the scope so
+      the branch, implementation, and PR all map back to it.
+    inputs_schema:
+      - id: issue
+        type: markdown
+        required: true
+        description: Scoped issue with acceptance criteria and constraints.
+      - id: repo
+        type: uri
+        required: true
+        description: The repository or checkout to change.
     produces:
       - scoped-issue
   - id: plan
     type: plan
     title: Plan implementation and checks
     description: Identify touched modules, the verification strategy, and the branch and PR shape.
+    instructions: Identify the smallest set of modules to touch, the tests or checks that will prove the change, and the branch
+      name and PR shape. Name the files you expect to change.
     requires:
       - scoped-issue
     produces:
@@ -74,6 +87,9 @@ nodes:
     type: agent_task
     title: Implement scoped change
     description: Apply the smallest coherent change on a branch for the frozen scope.
+    instructions: On a working branch, apply the smallest coherent change that satisfies the frozen issue scope, touching
+      only modules named in the plan and preserving unrelated user changes. This step needs a coding agent supplied by the
+      consumer.
     agent: coding-worker
     requires:
       - implementation-plan
@@ -86,15 +102,28 @@ nodes:
     type: tool
     title: Run focused checks
     description: Run the tests, linters, or build commands selected during planning.
+    instructions: Run the checks selected during planning and capture stdout, stderr, and the exit code as evidence that the
+      change passes before the PR is drafted.
+    command: ${param.test_command}
+    parameters:
+      - id: test_command
+        type: command
+        required: false
+        default: make test || npm test || cargo test || go test ./...
+        description: The command that runs the focused project checks for the change.
     tool: command-runner
     requires:
       - patch
     produces:
       - test-log
+    on_failure:
+      action: abort
   - id: verify
     type: verifier
     title: Verify scope and acceptance
     description: Confirm the change matches the frozen scope and acceptance criteria, and collect evidence.
+    instructions: Compare the change and the test results against the frozen scope and each acceptance criterion, and write
+      review notes that map every criterion to the evidence that satisfies it.
     requires:
       - patch
       - test-log
@@ -105,6 +134,8 @@ nodes:
     type: approval
     title: Human review decision
     description: Request operator approval when behavior, public API, or deployment risk changed.
+    instructions: Ask the operator to approve when the change alters public API, behavior, or deployment risk, and record
+      the decision and its rationale.
     requires:
       - verification-result
     policy:
@@ -116,6 +147,8 @@ nodes:
     type: finalizer
     title: Draft the PR
     description: Return the patch and a draft PR summary citing changed files and validation evidence.
+    instructions: Return the patch and a draft PR summary that cites the changed files, the validation evidence, and how the
+      change maps back to the frozen issue scope.
     requires:
       - verification-result
     produces:

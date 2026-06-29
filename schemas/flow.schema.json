@@ -288,6 +288,27 @@
         }
       }
     },
+    "parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$"
+        },
+        "type": {
+          "enum": ["text", "markdown", "json", "patch", "command", "uri", "boolean", "number"]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "default": {},
+        "description": {
+          "type": "string"
+        }
+      }
+    },
     "node": {
       "type": "object",
       "additionalProperties": false,
@@ -323,6 +344,32 @@
           "type": "string",
           "minLength": 10
         },
+        "instructions": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/parameter"
+          }
+        },
+        "inputs_schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/contract_field"
+          }
+        },
+        "outputs_schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/contract_field"
+          }
+        },
         "agent": {
           "type": "string"
         },
@@ -345,6 +392,23 @@
           "uniqueItems": true,
           "items": {
             "type": "string"
+          }
+        },
+        "on_failure": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action"],
+          "properties": {
+            "action": {
+              "enum": ["retry", "abort", "escalate", "skip"]
+            },
+            "max_attempts": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "fallback_node": {
+              "$ref": "#/$defs/node_id"
+            }
           }
         },
         "policy": {

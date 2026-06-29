@@ -55,12 +55,26 @@ nodes:
     type: intake
     title: Intake grant request
     description: Capture the connector, its requested permissions, and the policy.
+    instructions: Record the connector and every permission it requests alongside the least-privilege policy to review against.
+      Done when the requested permission set and the governing policy are both captured.
+    inputs_schema:
+      - id: connector
+        type: markdown
+        required: true
+        description: The connector and the permissions it requests.
+      - id: policy
+        type: markdown
+        required: true
+        description: The least-privilege policy to review against.
     produces:
       - grant-request
   - id: analyze
     type: agent_task
     title: Analyze permissions
     description: Compare requested permissions against least privilege and flag destructive operations.
+    instructions: Compare each requested permission against the least-privilege policy, justify or trim each one, and flag
+      every destructive or broadly scoped operation. This step needs a grant reviewer supplied by the consumer; done when
+      every permission has a least-privilege verdict and destructive operations are listed.
     agent: grant-reviewer
     requires:
       - grant-request
@@ -70,6 +84,9 @@ nodes:
     type: decision
     title: Scope the grant
     description: Decide the least-privilege scope and whether destructive operations are present.
+    instructions: Set the approved least-privilege scope per permission and record whether any destructive or broad-scope
+      operation is present so routing to approval is determined. Done when the per-permission decision and the destructive-operation
+      flag are recorded.
     requires:
       - permission-analysis
     produces:
@@ -78,6 +95,8 @@ nodes:
     type: approval
     title: Approve destructive grants
     description: Require an explicit operator approval before granting any destructive operation.
+    instructions: Ask the operator to explicitly approve before any destructive or broadly scoped grant is issued, and record
+      the decision and rationale. Done when an approval record exists for each flagged grant.
     requires:
       - grant-decision
     produces:
@@ -90,6 +109,8 @@ nodes:
     type: finalizer
     title: Close out review
     description: Return the grant decision and the review notes.
+    instructions: Return the per-permission grant decision and the review notes capturing rationale and any flagged destructive
+      operations. Done when both outputs are produced.
     requires:
       - grant-decision
     produces:

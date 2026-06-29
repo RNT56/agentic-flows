@@ -51,12 +51,26 @@ nodes:
     type: intake
     title: Intake candidates
     description: Capture the candidate memories and the retention and sensitivity policy.
+    instructions: Record the candidate items being considered for long-term memory and the retention and sensitivity policy
+      that governs them, so each item can be judged against an explicit rule set.
+    inputs_schema:
+      - id: candidate_memories
+        type: json
+        required: true
+        description: The candidate items being considered for long-term memory.
+      - id: policy
+        type: markdown
+        required: true
+        description: The retention and sensitivity policy.
     produces:
       - curation-context
   - id: classify
     type: agent_task
     title: Classify candidates
     description: Classify each item by scope, retention, and sensitivity.
+    instructions: Classify each candidate against the policy, tagging its scope, its retention horizon, and whether it is
+      sensitive. Make the sensitivity tag explicit so the approval gate can key off it. This step needs an assistant agent
+      supplied by the consumer.
     agent: assistant
     requires:
       - curation-context
@@ -66,6 +80,8 @@ nodes:
     type: decision
     title: Curate memory
     description: Decide keep, expire, or localize, attaching scope and retention metadata.
+    instructions: For each classified item decide keep, expire, or localize, and attach scope and retention metadata to every
+      kept item. Justify each decision against the policy so it can be audited.
     requires:
       - classification
     produces:
@@ -74,6 +90,8 @@ nodes:
     type: approval
     title: Approve sensitive memory
     description: Require an explicit approval before saving any sensitive item to long-term memory.
+    instructions: For any item tagged sensitive, request explicit operator approval before it is saved to long-term memory,
+      and record the decision and rationale. Non-sensitive items skip this gate.
     requires:
       - curation-decision
     produces:
@@ -85,6 +103,8 @@ nodes:
     type: finalizer
     title: Close out curation
     description: Return the curation decision and a readable record.
+    instructions: Return the per-item curation decision with its scope and retention metadata, plus a readable record of what
+      was kept, expired, or localized and why.
     requires:
       - curation-decision
     produces:

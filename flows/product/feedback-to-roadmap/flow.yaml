@@ -49,12 +49,26 @@ nodes:
     type: intake
     title: Intake feedback
     description: Capture the feedback items and the product goals.
+    instructions: Record the collected feedback items to synthesize and the product goals to prioritize against, and make
+      sure each feedback item carries a stable source id that later themes can cite.
+    inputs_schema:
+      - id: feedback
+        type: markdown
+        required: true
+        description: The collected feedback items to synthesize.
+      - id: goals
+        type: markdown
+        required: true
+        description: The product goals to prioritize against.
     produces:
       - feedback-context
   - id: cluster
     type: agent_task
     title: Cluster into themes
     description: Cluster feedback into themes, citing source ids and preserving minority signals.
+    instructions: Group the feedback into themes, citing the source ids that back each theme, and keep minority or dissenting
+      signals visible instead of averaging them away. Every theme must trace back to specific feedback items. This step needs
+      a product-analyst agent supplied by the consumer.
     agent: product-analyst
     requires:
       - feedback-context
@@ -64,6 +78,9 @@ nodes:
     type: agent_task
     title: Prioritize opportunities
     description: Turn themes into opportunities and prioritize them with explicit rationale.
+    instructions: Turn the themes into candidate opportunities and rank them against the product goals, giving each priority
+      an explicit rationale that ties it to the supporting themes and goals. This step needs a product-analyst agent supplied
+      by the consumer.
     agent: product-analyst
     requires:
       - theme-map
@@ -73,6 +90,9 @@ nodes:
     type: verifier
     title: Verify synthesis
     description: Confirm sources are cited, minority signals are kept, and priorities have rationale.
+    instructions: Confirm each theme cites its source ids, minority signals are preserved, and every prioritized opportunity
+      carries a rationale, then assemble the roadmap draft. Flag any uncited theme or unjustified priority rather than passing
+      it.
     requires:
       - theme-map
       - opportunity-list
@@ -82,6 +102,7 @@ nodes:
     type: finalizer
     title: Close out roadmap
     description: Return the prioritized roadmap and the cited themes.
+    instructions: Return the prioritized roadmap with rationale and the cited themes keyed to their source ids.
     requires:
       - opportunity-list
       - roadmap-draft

@@ -49,12 +49,25 @@ nodes:
     type: intake
     title: Intake idea
     description: Capture the idea and the market and user context.
+    instructions: Record the product idea in concrete terms and the market and user context it must compete in, so value and
+      differentiation can be judged against real conditions rather than the pitch.
+    inputs_schema:
+      - id: idea
+        type: markdown
+        required: true
+        description: The product idea to evaluate.
+      - id: context
+        type: markdown
+        required: true
+        description: The market and user context to evaluate against.
     produces:
       - idea-context
   - id: analyze
     type: agent_task
     title: Analyze user and pain
     description: Identify the target user and the pain the idea addresses.
+    instructions: Name the specific target user and the concrete pain the idea relieves, and rate how acute and frequent that
+      pain is with whatever evidence supports it. This step needs a product analyst supplied by the consumer.
     agent: product-analyst
     requires:
       - idea-context
@@ -64,6 +77,9 @@ nodes:
     type: agent_task
     title: Compare alternatives
     description: Compare existing alternatives and assess novelty and differentiation.
+    instructions: List how the target user solves the pain today, including doing nothing, and assess what is genuinely novel
+      or differentiated about the idea and where it is merely a substitute. This step needs a product analyst supplied by
+      the consumer.
     agent: product-analyst
     requires:
       - user-and-pain
@@ -73,6 +89,8 @@ nodes:
     type: verifier
     title: Assess value
     description: Confirm target user, pain, alternatives, novelty, and risks are documented.
+    instructions: Confirm the assessment names the target user, the pain, the alternatives, the novelty, and the key risks,
+      and flag any of these that are unsupported or missing.
     requires:
       - user-and-pain
       - alternatives-analysis
@@ -82,6 +100,8 @@ nodes:
     type: finalizer
     title: Close out assessment
     description: Return the value assessment and the next experiment.
+    instructions: Return the value assessment covering target user, pain, alternatives, novelty, and risks, plus the single
+      cheapest next experiment that would most reduce uncertainty about the idea.
     requires:
       - value-notes
     produces:

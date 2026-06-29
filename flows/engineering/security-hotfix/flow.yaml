@@ -60,12 +60,25 @@ nodes:
     type: intake
     title: Record vulnerability
     description: Capture the vulnerability report and its source.
+    instructions: Record the vulnerability report and its source so exploitability can be assessed and the report source is
+      preserved as evidence.
+    inputs_schema:
+      - id: vulnerability
+        type: markdown
+        required: true
+        description: The vulnerability report and its source.
+      - id: repo
+        type: uri
+        required: true
+        description: Repository or local checkout target.
     produces:
       - vuln-record
   - id: assess
     type: agent_task
     title: Assess exploitability
     description: Assess exploitability and the minimal blast radius for a fix.
+    instructions: Assess how the vulnerability is exploited and identify the smallest blast radius for a fix, recording exploitability
+      and affected surface. This step needs a security agent supplied by the consumer.
     agent: security-analyst
     requires:
       - vuln-record
@@ -75,6 +88,8 @@ nodes:
     type: agent_task
     title: Apply minimal hotfix
     description: Apply the smallest patch that closes the vulnerability.
+    instructions: Apply the smallest patch that closes the vulnerability within the blast radius from the assessment, avoiding
+      unrelated changes. This step needs a coding agent supplied by the consumer.
     agent: coding-worker
     requires:
       - exploit-assessment
@@ -84,15 +99,28 @@ nodes:
     type: tool
     title: Run checks
     description: Run the tests and any security checks against the hotfix.
+    instructions: Run the project tests and any security checks against the hotfix and capture stdout, stderr, and the exit
+      code as evidence the fix holds.
+    command: ${param.test_command}
+    parameters:
+      - id: test_command
+        type: command
+        required: false
+        default: make test || npm test || pytest -q
+        description: The command that runs the project tests and security checks.
     tool: command-runner
     requires:
       - hotfix-diff
     produces:
       - test-log
+    on_failure:
+      action: abort
   - id: verify
     type: verifier
     title: Verify and draft advisory
     description: Confirm the fix passes and draft a release advisory.
+    instructions: Confirm the test log shows the hotfix passing and draft a release advisory that describes the issue, the
+      fix, and the affected versions.
     requires:
       - hotfix-diff
       - test-log
@@ -102,6 +130,8 @@ nodes:
     type: approval
     title: Approve release
     description: Require operator approval before releasing the hotfix and advisory.
+    instructions: Ask the operator to approve the security release of the hotfix and advisory and record the decision and
+      rationale before any release.
     requires:
       - release-advisory
     produces:
@@ -113,6 +143,7 @@ nodes:
     type: finalizer
     title: Close out hotfix
     description: Return the hotfix patch and the advisory.
+    instructions: Return the minimal hotfix patch and the drafted release advisory.
     requires:
       - release-advisory
     produces:
