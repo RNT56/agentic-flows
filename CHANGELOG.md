@@ -86,6 +86,7 @@ This project follows semantic versioning for releases and keeps flow compatibili
 ### Changed
 
 - Reworked the README into a full project landing page with vision, catalog status, workflow backlog links, runtime-boundary framing, and validation guidance.
+- Upgraded three existing flows to `agentic-flows/v1.1` in place (additive, no per-flow forks): `engineering.flaky-test-stabilization` now bounds its rerun node with an `iteration` loop and declares an ephemeral runner `environment`; `engineering.performance-regression` bounds its remeasure node with a tune-until-budget `iteration` loop and an ephemeral bench-host `environment`; and `orchestration.swarm-execution` replaces its single-dispatch model with a real `fan_out` over lanes. Their existing samples, run bundles, and adapter smoke evidence remain valid.
 - Expanded the catalog to sixty-eight reusable workflows: the original sixty-four (all 46 build-now candidates plus the 12 strongest contract-first backlog flows — security hotfix, repo bootstrap, monorepo slice, performance regression, backlog grooming, release-candidate audit, untrusted-output routing, access review, technology radar, incident response, self-improvement loop, connector productionization), plus the four v1.1 generative/composition flows (design.website-to-spec, engineering.backend-service, engineering.frontend-build, program.webapp-build), and recorded their compatibility states.
 
 ## 0.1.1 - 2026-06-27

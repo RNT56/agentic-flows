@@ -1,4 +1,4 @@
-spec_version: agentic-flows/v1
+spec_version: agentic-flows/v1.1
 id: engineering.flaky-test-stabilization
 version: 0.1.0
 title: Flaky test stabilization
@@ -62,6 +62,15 @@ nodes:
       - flaky-context
     produces:
       - repeated-run-log
+    environment:
+      ephemeral: true
+      provides:
+        - ephemeral-runner
+      teardown_required: true
+    iteration:
+      max_iterations: 5
+      on_exhausted: handoff
+      until: gate:repeated-run-evidence
   - id: analyze
     type: agent_task
     title: Find root cause

@@ -1,4 +1,4 @@
-spec_version: agentic-flows/v1
+spec_version: agentic-flows/v1.1
 id: orchestration.swarm-execution
 version: 0.1.0
 title: Swarm execution
@@ -72,6 +72,13 @@ nodes:
       - dispatch-plan
     produces:
       - worker-results
+    fan_out:
+      aggregate: all_pass
+      cardinality:
+        max: 20
+        min: 1
+      instance_id: lane
+      over: lanes
   - id: reconcile
     type: verifier
     title: Reconcile outputs

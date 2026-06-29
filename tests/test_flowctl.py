@@ -725,3 +725,13 @@ def test_security_campaign_combines_fanout_iteration_flowref() -> None:
     harden = next(node for node in doc["nodes"] if node["id"] == "harden")
     assert isinstance(harden.get("fan_out"), dict)
     assert isinstance(harden.get("iteration"), dict)
+
+
+def test_inplace_v1_1_primitive_upgrades() -> None:
+    flaky = load_yaml(Path("flows/engineering/flaky-test-stabilization/flow.yaml"))
+    perf = load_yaml(Path("flows/engineering/performance-regression/flow.yaml"))
+    swarm = load_yaml(Path("flows/orchestration/swarm-execution/flow.yaml"))
+    assert flaky["spec_version"] == "agentic-flows/v1.1"
+    assert any(isinstance(node.get("iteration"), dict) for node in flaky["nodes"])
+    assert any(isinstance(node.get("iteration"), dict) for node in perf["nodes"])
+    assert any(isinstance(node.get("fan_out"), dict) for node in swarm["nodes"])

@@ -1,4 +1,4 @@
-spec_version: agentic-flows/v1
+spec_version: agentic-flows/v1.1
 id: engineering.performance-regression
 version: 0.1.0
 title: Performance regression
@@ -67,6 +67,11 @@ nodes:
     produces:
       - benchmark-method
       - baseline-numbers
+    environment:
+      ephemeral: true
+      provides:
+        - ephemeral-bench-host
+      teardown_required: true
   - id: fix
     type: agent_task
     title: Isolate and fix
@@ -85,6 +90,10 @@ nodes:
       - fix-diff
     produces:
       - after-numbers
+    iteration:
+      max_iterations: 3
+      on_exhausted: fail
+      until: gate:before-after-bounded
   - id: verify
     type: verifier
     title: Verify improvement
