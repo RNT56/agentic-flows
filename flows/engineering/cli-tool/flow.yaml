@@ -1,0 +1,192 @@
+spec_version: agentic-flows/v1.1
+id: engineering.cli-tool
+version: 0.1.0
+title: CLI tool build
+summary: Build a scoped command-line tool in a given stack with build, test, and golden-output evidence and a documented command
+  surface.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - cli
+  - tooling
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - patch.apply
+    - command.run
+    - evidence.capture
+contracts:
+  inputs:
+    - id: target_spec
+      type: markdown
+      required: true
+      description: 'What to build: subcommands, flags, and acceptance criteria for the tool.'
+    - id: stack
+      type: text
+      required: true
+      description: Target stack identifier such as node, go, rust, or python; selects the build and test commands.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or checkout target where the tool is built.
+  outputs:
+    - id: tool_patch
+      type: patch
+      required: true
+      description: Source changes implementing the tool.
+    - id: command_surface
+      type: markdown
+      required: true
+      description: The documented subcommands, flags, and exit codes.
+  artifacts:
+    - build-plan
+    - tool-diff
+    - test-log
+    - golden-log
+    - command-surface-doc
+parameters:
+  - id: build_command
+    type: text
+    required: true
+    description: Build or compile command for the chosen stack.
+  - id: test_command
+    type: text
+    required: true
+    description: Test command for the chosen stack.
+  - id: golden_command
+    type: text
+    required: true
+    description: Command that checks the tool output against golden files.
+nodes:
+  - id: intake
+    type: intake
+    title: Intake tool scope
+    description: Capture the tool spec, stack, and repo target.
+    produces:
+      - cli-scope
+  - id: plan
+    type: plan
+    title: Plan the tool
+    description: Plan the subcommands and the stack build, test, and golden commands.
+    requires:
+      - cli-scope
+    produces:
+      - build-plan
+  - id: implement
+    type: agent_task
+    title: Implement the tool
+    description: Build the subcommands and flags, iterating until build and tests pass.
+    agent: cli-worker
+    requires:
+      - build-plan
+    produces:
+      - tool-diff
+    iteration:
+      max_iterations: 3
+      on_exhausted: fail
+      until: gate:build-and-tests-pass
+    policy:
+      preserve_user_changes: true
+  - id: build-test
+    type: tool
+    title: Build and test
+    description: Build the tool and run its tests using the stack commands.
+    tool: command-runner
+    requires:
+      - tool-diff
+    produces:
+      - test-log
+  - id: golden
+    type: tool
+    title: Check golden output
+    description: Compare the tool output against golden files.
+    tool: command-runner
+    requires:
+      - tool-diff
+    produces:
+      - golden-log
+  - id: document
+    type: agent_task
+    title: Document the command surface
+    description: Document the subcommands, flags, and exit codes.
+    agent: cli-worker
+    requires:
+      - test-log
+    produces:
+      - command-surface-doc
+  - id: verify
+    type: verifier
+    title: Verify the tool
+    description: Confirm build, tests, golden output, and documentation are complete.
+    requires:
+      - test-log
+      - golden-log
+      - command-surface-doc
+    produces:
+      - cli-verification
+  - id: final
+    type: finalizer
+    title: Close out the tool
+    description: Return the tool patch and the command surface.
+    requires:
+      - cli-verification
+    produces:
+      - tool_patch
+      - command_surface
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: implement
+  - from: implement
+    to: build-test
+  - from: build-test
+    to: golden
+  - from: golden
+    to: document
+  - from: document
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: build-and-tests-pass
+    title: Build and tests pass
+    type: command
+    required: true
+    command: '{{param.build_command}} && {{param.test_command}}'
+    evidence: Build and test output for the chosen stack.
+    evidence_refs:
+      - test-log
+    evidence_class: deterministic
+  - id: golden-output-matches
+    title: Golden output matches
+    type: command
+    required: true
+    command: '{{param.golden_command}}'
+    evidence: Tool output matches the golden files.
+    evidence_refs:
+      - golden-log
+    evidence_class: deterministic
+  - id: cli-contract-documented
+    title: Command surface documented
+    type: artifact
+    required: true
+    evidence: Subcommands, flags, and exit codes are documented.
+    evidence_refs:
+      - command-surface-doc
+    evidence_class: deterministic
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds
+    - tests.executed

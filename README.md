@@ -10,7 +10,7 @@ Versioned workflow contracts for agentic systems that must plan, act, verify, ap
 | --- | --- |
 | Latest release | `v0.1.1` |
 | Flow spec | `agentic-flows/v1` and `agentic-flows/v1.1` (additive: `flow_ref` sub-flow composition) |
-| Catalog size | 71 reusable workflows, 3 starter templates |
+| Catalog size | 75 reusable workflows, 3 starter templates |
 | Tooling | Python CLI, JSON Schema, YAML flow definitions |
 | Evidence model | Events, streams, run bundles, adapter smoke manifests |
 | CI gate | Schema validation, normalization, samples, runs, links, changelog, package build, tests |
@@ -57,7 +57,7 @@ flowchart LR
 
 - A versioned YAML workflow format backed by JSON Schema.
 - `flowctl`, a repo-local CLI for validation, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
-- Seventy-one reusable workflow definitions across coding, engineering, design, research, security, product, program, personal, collaboration, operations, proof, orchestration, documentation, and human review.
+- Seventy-five reusable workflow definitions across coding, engineering, design, infrastructure, research, security, product, program, personal, collaboration, operations, proof, orchestration, documentation, and human review.
 - Three copyable starter templates for project-specific workflows.
 - Event and run-bundle schemas for evidence-backed execution.
 - Adapter smoke manifest schemas and examples for independent optional consumers.
@@ -141,6 +141,10 @@ flowchart LR
 | [`ops.ephemeral-preview-deploy`](flows/ops/ephemeral-preview-deploy/README.md) | Experimental | Deploy to a throwaway preview, probe its health, and capture a rollback plan (first `probe` gate; sandbox-run evidence with provisioning provenance). | NilCore | NilCore run bundle with sandbox-run health evidence, sample contract |
 | [`ops.integration-test-lab`](flows/ops/integration-test-lab/README.md) | Experimental | Run a service's integration suite against a runtime-provisioned ephemeral stack. | NilCore | NilCore run bundle with sandbox-run suite evidence, sample contract |
 | [`engineering.browser-matrix-check`](flows/engineering/browser-matrix-check/README.md) | Experimental | Render a built UI and run assertions across a parameterized browser/viewport matrix in a headless browser (`fan_out` + `environment`). | NilCore | NilCore run bundle with per-target sandbox-run evidence, sample contract |
+| [`design.service-to-spec`](flows/design/service-to-spec/README.md) | Experimental | Turn a service/API brief into an approved, traceable backend spec that feeds `engineering.backend-service`. | ThinClaw, NilCore, standalone | Standalone run bundle (deterministic + judgment sign-off), sample contract |
+| [`engineering.cli-tool`](flows/engineering/cli-tool/README.md) | Experimental | Build a scoped CLI tool in a given stack with build, test, and golden-output evidence (parameters + bounded `iteration`). | NilCore, standalone | Standalone run bundle, sample contract |
+| [`engineering.library-package`](flows/engineering/library-package/README.md) | Experimental | Build a library package to publish-ready state with build, test, and reviewed public-API/semver evidence. | NilCore, standalone | Standalone run bundle (deterministic + judgment review), sample contract |
+| [`infra.iac-module`](flows/infra/iac-module/README.md) | Experimental | Author an infrastructure-as-code change with a plan diff, policy gate, and sandbox apply against an ephemeral environment. | NilCore | NilCore run bundle with sandbox-run apply evidence, sample contract |
 
 ## Starter templates
 

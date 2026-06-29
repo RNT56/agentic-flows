@@ -649,3 +649,45 @@ def test_wave1_sandbox_runs_validate() -> None:
 def test_preview_deploy_uses_probe_gate() -> None:
     doc = load_yaml(Path("flows/ops/ephemeral-preview-deploy/flow.yaml"))
     assert any(gate["type"] == "probe" for gate in doc["quality_gates"])
+
+
+def test_wave2_flows_validate() -> None:
+    schema = load_json(DEFAULT_SCHEMA)
+    for path in (
+        "flows/design/service-to-spec/flow.yaml",
+        "flows/engineering/cli-tool/flow.yaml",
+        "flows/engineering/library-package/flow.yaml",
+        "flows/infra/iac-module/flow.yaml",
+    ):
+        assert validate_flow_document(load_yaml(Path(path)), schema) == [], path
+
+
+def test_wave2_runs_validate() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    for path in (
+        "examples/runs/service-to-spec.run.json",
+        "examples/runs/cli-tool.run.json",
+        "examples/runs/library-package.run.json",
+        "examples/runs/iac-module.run.json",
+    ):
+        assert validate_run_document(load_json(Path(path)), rs, es, fs, run_path=Path(path)) == [], path
+
+
+def test_service_to_spec_output_feeds_backend_service() -> None:
+    spec = load_yaml(Path("flows/design/service-to-spec/flow.yaml"))
+    backend = load_yaml(Path("flows/engineering/backend-service/flow.yaml"))
+    spec_outputs = {field["id"] for field in spec["contracts"]["outputs"]}
+    backend_inputs = {field["id"] for field in backend["contracts"]["inputs"]}
+    # the design spec is the shape the backend build consumes (program.service-from-spec composition)
+    assert "design_spec" in spec_outputs
+    assert "target_spec" in backend_inputs
+
+
+def test_cli_tool_uses_bounded_iteration() -> None:
+    doc = load_yaml(Path("flows/engineering/cli-tool/flow.yaml"))
+    assert any(
+        isinstance(node.get("iteration"), dict) and isinstance(node["iteration"].get("max_iterations"), int)
+        for node in doc["nodes"]
+    )

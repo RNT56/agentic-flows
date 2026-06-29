@@ -1,0 +1,132 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.cli-tool",
+    "version": "0.1.0",
+    "source": "flows/engineering/cli-tool/flow.yaml"
+  },
+  "run": {
+    "id": "run-cli-tool-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T15:00:00Z",
+    "completed_at": "2026-06-28T15:03:00Z"
+  },
+  "inputs": {
+    "target_spec": "git-stats CLI.",
+    "stack": "go",
+    "repo": "https://github.com/RNT56/example-cli"
+  },
+  "outputs": {
+    "tool_patch": "artifact://runs/run-cli-tool-0001/tool.patch",
+    "command_surface": "artifact://runs/run-cli-tool-0001/surface.md"
+  },
+  "artifacts": [
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-cli-tool-0001/test-log"
+    },
+    {
+      "id": "golden-log",
+      "kind": "golden-log",
+      "uri": "artifact://runs/run-cli-tool-0001/golden-log"
+    },
+    {
+      "id": "command-surface-doc",
+      "kind": "command-surface-doc",
+      "uri": "artifact://runs/run-cli-tool-0001/command-surface-doc"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.cli-tool",
+      "flow_version": "0.1.0",
+      "run_id": "run-cli-tool-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T15:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.cli-tool",
+      "flow_version": "0.1.0",
+      "run_id": "run-cli-tool-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:00:30Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "build-test",
+      "payload": {
+        "gate_id": "build-and-tests-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-cli-tool-0001/test-log",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.cli-tool",
+      "flow_version": "0.1.0",
+      "run_id": "run-cli-tool-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:01:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "golden",
+      "payload": {
+        "gate_id": "golden-output-matches",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "golden-log",
+          "kind": "golden-log",
+          "uri": "artifact://runs/run-cli-tool-0001/golden-log",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.cli-tool",
+      "flow_version": "0.1.0",
+      "run_id": "run-cli-tool-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:01:30Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "document",
+      "payload": {
+        "gate_id": "cli-contract-documented",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "command-surface-doc",
+          "kind": "command-surface-doc",
+          "uri": "artifact://runs/run-cli-tool-0001/command-surface-doc",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.cli-tool",
+      "flow_version": "0.1.0",
+      "run_id": "run-cli-tool-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T15:03:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

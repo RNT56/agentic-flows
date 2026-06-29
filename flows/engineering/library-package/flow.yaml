@@ -1,0 +1,165 @@
+spec_version: agentic-flows/v1.1
+id: engineering.library-package
+version: 0.1.0
+title: Library package build
+summary: Build a reusable library package in a given ecosystem to publish-ready state with build, test, and reviewed public-API
+  and semver evidence.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - library
+  - packaging
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - patch.apply
+    - command.run
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: target_spec
+      type: markdown
+      required: true
+      description: What the library provides and its acceptance criteria.
+    - id: ecosystem
+      type: text
+      required: true
+      description: Package ecosystem such as npm, pypi, crates, or go-module; selects the build and test commands.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or checkout target where the package is built.
+  outputs:
+    - id: package_patch
+      type: patch
+      required: true
+      description: Source changes implementing the library to publish-ready state.
+    - id: changelog_entry
+      type: markdown
+      required: true
+      description: The changelog entry describing the change and its semver impact.
+  artifacts:
+    - build-plan
+    - package-diff
+    - test-log
+    - api-surface-diff
+parameters:
+  - id: build_command
+    type: text
+    required: true
+    description: Build or pack command for the chosen ecosystem.
+  - id: test_command
+    type: text
+    required: true
+    description: Test command for the chosen ecosystem.
+nodes:
+  - id: intake
+    type: intake
+    title: Intake package scope
+    description: Capture what the library provides, the ecosystem, and the repo target.
+    produces:
+      - pkg-scope
+  - id: plan
+    type: plan
+    title: Plan the package
+    description: Plan the public API and the ecosystem build and test commands.
+    requires:
+      - pkg-scope
+    produces:
+      - build-plan
+  - id: implement
+    type: agent_task
+    title: Implement the library
+    description: Implement the library to publish-ready state.
+    agent: library-worker
+    requires:
+      - build-plan
+    produces:
+      - package-diff
+    policy:
+      preserve_user_changes: true
+  - id: build-test
+    type: tool
+    title: Build and test
+    description: Build the package and run its tests using the ecosystem commands.
+    tool: command-runner
+    requires:
+      - package-diff
+    produces:
+      - test-log
+  - id: api-diff
+    type: agent_task
+    title: Compute public-API diff
+    description: Compute the public-API surface diff and the implied semver bump.
+    agent: library-worker
+    requires:
+      - package-diff
+    produces:
+      - api-surface-diff
+  - id: review
+    type: approval
+    title: Public-API review
+    description: An independent reviewer signs off the public-API surface and semver bump.
+    requires:
+      - api-surface-diff
+  - id: final
+    type: finalizer
+    title: Close out the package
+    description: Return the package patch and changelog entry, publish-ready (no publish in-flow).
+    requires:
+      - test-log
+      - api-surface-diff
+    produces:
+      - package_patch
+      - changelog_entry
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: implement
+  - from: implement
+    to: build-test
+  - from: build-test
+    to: api-diff
+  - from: api-diff
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: build-and-tests-pass
+    title: Build and tests pass
+    type: command
+    required: true
+    command: '{{param.build_command}} && {{param.test_command}}'
+    evidence: Build and test output for the chosen ecosystem.
+    evidence_refs:
+      - test-log
+    evidence_class: deterministic
+  - id: public-api-reviewed
+    title: Public API reviewed
+    type: judgment
+    required: true
+    evidence: An independent reviewer signed off the public-API surface and semver bump.
+    evidence_refs:
+      - api-surface-diff
+    evidence_class: judgment
+    criteria:
+      - Breaking changes are flagged
+      - Semver bump matches the API diff
+      - No unintended exports
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds
+    - tests.executed
