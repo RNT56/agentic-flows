@@ -1,0 +1,169 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.browser-matrix-check",
+    "version": "0.1.0",
+    "source": "flows/engineering/browser-matrix-check/flow.yaml"
+  },
+  "run": {
+    "id": "run-browser-matrix-0001",
+    "core": "nilcore",
+    "status": "completed",
+    "started_at": "2026-06-28T15:00:00Z",
+    "completed_at": "2026-06-28T15:03:00Z"
+  },
+  "inputs": {
+    "ui_ref": "artifact://builds/webapp-ui-1.2.3",
+    "targets": [
+      {
+        "browser": "chromium",
+        "viewport": "1280x800"
+      },
+      {
+        "browser": "firefox",
+        "viewport": "375x667"
+      }
+    ]
+  },
+  "outputs": {
+    "matrix_report": "artifact://runs/run-browser-matrix-0001/matrix-report.md",
+    "failing_targets": []
+  },
+  "artifacts": [
+    {
+      "id": "matrix-log",
+      "kind": "matrix-log",
+      "uri": "artifact://runs/run-browser-matrix-0001/matrix-log"
+    },
+    {
+      "id": "console-log",
+      "kind": "console-log",
+      "uri": "artifact://runs/run-browser-matrix-0001/console-log"
+    },
+    {
+      "id": "coverage-matrix",
+      "kind": "coverage-matrix",
+      "uri": "artifact://runs/run-browser-matrix-0001/coverage-matrix"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.browser-matrix-check",
+      "flow_version": "0.1.0",
+      "run_id": "run-browser-matrix-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T15:00:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.browser-matrix-check",
+      "flow_version": "0.1.0",
+      "run_id": "run-browser-matrix-0001",
+      "event": "env.provisioned",
+      "timestamp": "2026-06-28T15:00:10Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "matrix",
+      "payload": {
+        "node_id": "matrix",
+        "provisioner": "nilcore-sandbox"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.browser-matrix-check",
+      "flow_version": "0.1.0",
+      "run_id": "run-browser-matrix-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:00:30Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "matrix",
+      "payload": {
+        "gate_id": "ui-assertions-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "matrix-log",
+          "kind": "matrix-log",
+          "uri": "artifact://runs/run-browser-matrix-0001/matrix-log",
+          "evidence_class": "sandbox-run"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.browser-matrix-check",
+      "flow_version": "0.1.0",
+      "run_id": "run-browser-matrix-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:01:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "matrix",
+      "payload": {
+        "gate_id": "no-console-errors",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "console-log",
+          "kind": "console-log",
+          "uri": "artifact://runs/run-browser-matrix-0001/console-log",
+          "evidence_class": "sandbox-run"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.browser-matrix-check",
+      "flow_version": "0.1.0",
+      "run_id": "run-browser-matrix-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:01:30Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "coverage",
+      "payload": {
+        "gate_id": "viewport-coverage-documented",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "coverage-matrix",
+          "kind": "coverage-matrix",
+          "uri": "artifact://runs/run-browser-matrix-0001/coverage-matrix",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.browser-matrix-check",
+      "flow_version": "0.1.0",
+      "run_id": "run-browser-matrix-0001",
+      "event": "env.torn_down",
+      "timestamp": "2026-06-28T15:02:30Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "matrix",
+      "payload": {
+        "node_id": "matrix"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.browser-matrix-check",
+      "flow_version": "0.1.0",
+      "run_id": "run-browser-matrix-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T15:03:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    }
+  ]
+}

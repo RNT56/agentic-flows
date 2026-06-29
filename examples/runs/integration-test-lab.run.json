@@ -1,0 +1,131 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "ops.integration-test-lab",
+    "version": "0.1.0",
+    "source": "flows/ops/integration-test-lab/flow.yaml"
+  },
+  "run": {
+    "id": "run-integration-lab-0001",
+    "core": "nilcore",
+    "status": "completed",
+    "started_at": "2026-06-28T15:00:00Z",
+    "completed_at": "2026-06-28T15:03:00Z"
+  },
+  "inputs": {
+    "service_ref": "https://github.com/RNT56/example-webapp/tree/main/service",
+    "repo": "https://github.com/RNT56/example-webapp"
+  },
+  "outputs": {
+    "integration_report": "artifact://runs/run-integration-lab-0001/integration-report.md"
+  },
+  "artifacts": [
+    {
+      "id": "integration-log",
+      "kind": "integration-log",
+      "uri": "artifact://runs/run-integration-lab-0001/integration-log"
+    },
+    {
+      "id": "provision-record",
+      "kind": "provision-record",
+      "uri": "artifact://runs/run-integration-lab-0001/provision-record"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.integration-test-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-integration-lab-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T15:00:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.integration-test-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-integration-lab-0001",
+      "event": "env.provisioned",
+      "timestamp": "2026-06-28T15:00:10Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "provision",
+      "payload": {
+        "node_id": "provision",
+        "provisioner": "nilcore-sandbox"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.integration-test-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-integration-lab-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:00:30Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "test",
+      "payload": {
+        "gate_id": "integration-suite-passed",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "integration-log",
+          "kind": "integration-log",
+          "uri": "artifact://runs/run-integration-lab-0001/integration-log",
+          "evidence_class": "sandbox-run"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.integration-test-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-integration-lab-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:01:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "verify",
+      "payload": {
+        "gate_id": "env-provenance-recorded",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "provision-record",
+          "kind": "provision-record",
+          "uri": "artifact://runs/run-integration-lab-0001/provision-record",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.integration-test-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-integration-lab-0001",
+      "event": "env.torn_down",
+      "timestamp": "2026-06-28T15:02:30Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "provision",
+      "payload": {
+        "node_id": "provision"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.integration-test-lab",
+      "flow_version": "0.1.0",
+      "run_id": "run-integration-lab-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T15:03:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    }
+  ]
+}

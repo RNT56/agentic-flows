@@ -1,0 +1,165 @@
+spec_version: agentic-flows/v1.1
+id: engineering.browser-matrix-check
+version: 0.1.0
+title: Browser matrix check
+summary: Render a built UI and run deterministic assertions across a parameterized browser and viewport matrix in a provisioned
+  headless browser, with per-instance evidence.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - browser
+  - matrix
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+  required_capabilities:
+    - repo.checkout
+    - command.run
+    - headless-browser
+    - evidence.capture
+contracts:
+  inputs:
+    - id: ui_ref
+      type: uri
+      required: true
+      description: The built UI or dev-server target to render.
+    - id: targets
+      type: json
+      required: true
+      description: The list of browser and viewport targets to run the matrix over.
+  outputs:
+    - id: matrix_report
+      type: markdown
+      required: true
+      description: Per-target pass/fail with screenshot and console references.
+    - id: failing_targets
+      type: json
+      required: true
+      description: The targets that failed assertions, or an empty list.
+  artifacts:
+    - matrix-plan
+    - matrix-log
+    - console-log
+    - coverage-matrix
+parameters:
+  - id: assertion_command
+    type: text
+    required: true
+    description: Command that runs the UI assertions for one target instance.
+nodes:
+  - id: intake
+    type: intake
+    title: Intake matrix scope
+    description: Capture the UI target, the browser/viewport matrix, and the assertions to run.
+    produces:
+      - matrix-scope
+  - id: plan
+    type: plan
+    title: Plan the matrix
+    description: Plan the headless-browser environment and the per-target assertions.
+    requires:
+      - matrix-scope
+    produces:
+      - matrix-plan
+  - id: matrix
+    type: tool
+    title: Run the browser matrix
+    description: Render the UI and run assertions for each browser and viewport target instance.
+    tool: command-runner
+    requires:
+      - matrix-plan
+    produces:
+      - matrix-log
+      - console-log
+    environment:
+      ephemeral: true
+      provides:
+        - headless-browser
+        - dev-server
+      teardown_required: true
+    fan_out:
+      aggregate: all_pass
+      cardinality:
+        max: 25
+        min: 1
+      instance_id: target
+      over: targets
+  - id: coverage
+    type: agent_task
+    title: Document viewport coverage
+    description: Record which browsers and viewports the matrix covered and any gaps.
+    agent: ui-test-worker
+    requires:
+      - matrix-log
+    produces:
+      - coverage-matrix
+  - id: verify
+    type: verifier
+    title: Verify matrix results
+    description: Confirm assertions passed on every target and console output is clean.
+    requires:
+      - matrix-log
+      - console-log
+      - coverage-matrix
+    produces:
+      - matrix-verification
+  - id: final
+    type: finalizer
+    title: Close out the matrix
+    description: Return the matrix report and any failing targets.
+    requires:
+      - matrix-verification
+    produces:
+      - matrix_report
+      - failing_targets
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: matrix
+  - from: matrix
+    to: coverage
+  - from: coverage
+    to: verify
+  - from: verify
+    to: final
+quality_gates:
+  - id: ui-assertions-pass
+    title: UI assertions pass on every target
+    type: command
+    required: true
+    command: '{{param.assertion_command}}'
+    evidence: Per-target assertion output across the matrix.
+    evidence_refs:
+      - matrix-log
+    evidence_class: sandbox-run
+  - id: no-console-errors
+    title: No console errors
+    type: artifact
+    required: true
+    evidence: Console output across the matrix is free of errors.
+    evidence_refs:
+      - console-log
+    evidence_class: sandbox-run
+  - id: viewport-coverage-documented
+    title: Viewport coverage documented
+    type: artifact
+    required: true
+    evidence: The browsers and viewports covered are recorded.
+    evidence_refs:
+      - coverage-matrix
+    evidence_class: deterministic
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - env.provisioned
+    - env.torn_down
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds
+    - instances.count

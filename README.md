@@ -10,7 +10,7 @@ Versioned workflow contracts for agentic systems that must plan, act, verify, ap
 | --- | --- |
 | Latest release | `v0.1.1` |
 | Flow spec | `agentic-flows/v1` and `agentic-flows/v1.1` (additive: `flow_ref` sub-flow composition) |
-| Catalog size | 68 reusable workflows, 3 starter templates |
+| Catalog size | 71 reusable workflows, 3 starter templates |
 | Tooling | Python CLI, JSON Schema, YAML flow definitions |
 | Evidence model | Events, streams, run bundles, adapter smoke manifests |
 | CI gate | Schema validation, normalization, samples, runs, links, changelog, package build, tests |
@@ -57,7 +57,7 @@ flowchart LR
 
 - A versioned YAML workflow format backed by JSON Schema.
 - `flowctl`, a repo-local CLI for validation, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
-- Sixty-eight reusable workflow definitions across coding, engineering, design, research, security, product, program, personal, collaboration, operations, proof, orchestration, documentation, and human review.
+- Seventy-one reusable workflow definitions across coding, engineering, design, research, security, product, program, personal, collaboration, operations, proof, orchestration, documentation, and human review.
 - Three copyable starter templates for project-specific workflows.
 - Event and run-bundle schemas for evidence-backed execution.
 - Adapter smoke manifest schemas and examples for independent optional consumers.
@@ -138,6 +138,9 @@ flowchart LR
 | [`engineering.backend-service`](flows/engineering/backend-service/README.md) | Experimental | Build a scoped backend service or API in a given stack with build, test, and API-contract evidence. | NilCore, CrustCore, standalone | Standalone run bundle, sample contract |
 | [`engineering.frontend-build`](flows/engineering/frontend-build/README.md) | Experimental | Build a frontend in a given stack with build, component-test, and accessibility evidence and an operator visual review. | NilCore, standalone | Standalone run bundle, sample contract |
 | [`program.webapp-build`](flows/program/webapp-build/README.md) | Experimental | Compose the design, backend, and frontend sub-flows into one evidence-backed web app build (uses `flow_ref` composition). | NilCore, standalone | Standalone run bundle with recursively-validated child sub-runs, sample contract |
+| [`ops.ephemeral-preview-deploy`](flows/ops/ephemeral-preview-deploy/README.md) | Experimental | Deploy to a throwaway preview, probe its health, and capture a rollback plan (first `probe` gate; sandbox-run evidence with provisioning provenance). | NilCore | NilCore run bundle with sandbox-run health evidence, sample contract |
+| [`ops.integration-test-lab`](flows/ops/integration-test-lab/README.md) | Experimental | Run a service's integration suite against a runtime-provisioned ephemeral stack. | NilCore | NilCore run bundle with sandbox-run suite evidence, sample contract |
+| [`engineering.browser-matrix-check`](flows/engineering/browser-matrix-check/README.md) | Experimental | Render a built UI and run assertions across a parameterized browser/viewport matrix in a headless browser (`fan_out` + `environment`). | NilCore | NilCore run bundle with per-target sandbox-run evidence, sample contract |
 
 ## Starter templates
 

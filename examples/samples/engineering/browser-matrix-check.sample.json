@@ -1,0 +1,26 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.browser-matrix-check",
+    "version": "0.1.0",
+    "source": "flows/engineering/browser-matrix-check/flow.yaml"
+  },
+  "inputs": {
+    "ui_ref": "artifact://builds/webapp-ui-1.2.3",
+    "targets": [
+      {
+        "browser": "chromium",
+        "viewport": "1280x800"
+      },
+      {
+        "browser": "firefox",
+        "viewport": "375x667"
+      }
+    ]
+  },
+  "expected_outputs": {
+    "matrix_report": "Per-target pass/fail with screenshot refs.",
+    "failing_targets": []
+  },
+  "notes": "Sample for engineering.browser-matrix-check."
+}

@@ -622,3 +622,30 @@ def test_check_composition_cli_passes() -> None:
     from flowctl.cli import main
 
     assert main(["check-composition"]) == 0
+
+
+def test_wave1_flows_validate() -> None:
+    schema = load_json(DEFAULT_SCHEMA)
+    for path in (
+        "flows/ops/ephemeral-preview-deploy/flow.yaml",
+        "flows/ops/integration-test-lab/flow.yaml",
+        "flows/engineering/browser-matrix-check/flow.yaml",
+    ):
+        assert validate_flow_document(load_yaml(Path(path)), schema) == [], path
+
+
+def test_wave1_sandbox_runs_validate() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    for path in (
+        "examples/runs/ephemeral-preview-deploy.run.json",
+        "examples/runs/integration-test-lab.run.json",
+        "examples/runs/browser-matrix-check.run.json",
+    ):
+        assert validate_run_document(load_json(Path(path)), rs, es, fs, run_path=Path(path)) == [], path
+
+
+def test_preview_deploy_uses_probe_gate() -> None:
+    doc = load_yaml(Path("flows/ops/ephemeral-preview-deploy/flow.yaml"))
+    assert any(gate["type"] == "probe" for gate in doc["quality_gates"])

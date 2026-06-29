@@ -1,0 +1,16 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "ops.integration-test-lab",
+    "version": "0.1.0",
+    "source": "flows/ops/integration-test-lab/flow.yaml"
+  },
+  "inputs": {
+    "service_ref": "https://github.com/RNT56/example-webapp/tree/main/service",
+    "repo": "https://github.com/RNT56/example-webapp"
+  },
+  "expected_outputs": {
+    "integration_report": "Integration suite result against the provisioned stack."
+  },
+  "notes": "Sample for ops.integration-test-lab."
+}
