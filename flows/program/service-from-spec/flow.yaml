@@ -1,0 +1,187 @@
+spec_version: agentic-flows/v1.1
+id: program.service-from-spec
+version: 0.1.0
+title: Service from spec program
+summary: Compose service design-to-spec, backend build, and integration verification into one Design-Build-Verify program
+  for a backend service.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - program
+  - service
+  - composition
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+  required_capabilities:
+    - repo.checkout
+    - patch.apply
+    - command.run
+    - ephemeral-datastore
+    - evidence.capture
+    - human.review
+    - subflow.dispatch
+contracts:
+  inputs:
+    - id: brief
+      type: markdown
+      required: true
+      description: The service brief.
+    - id: stack
+      type: text
+      required: true
+      description: Target stack passed to the backend build.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or checkout target.
+  outputs:
+    - id: service_patch
+      type: patch
+      required: true
+      description: The assembled backend service changes.
+    - id: closeout
+      type: markdown
+      required: true
+      description: Program closeout with sub-flow evidence and integration result.
+  artifacts:
+    - program-plan
+    - design-spec
+    - service-patch
+    - integration-report
+    - subflows-report
+nodes:
+  - id: intake
+    type: intake
+    title: Intake brief
+    description: Capture the service brief, stack, and repo.
+    produces:
+      - program-scope
+  - id: plan
+    type: plan
+    title: Plan the service program
+    description: Order the design, build, and verify sub-flows and bind their inputs.
+    requires:
+      - program-scope
+    produces:
+      - program-plan
+  - id: design
+    type: flow_ref
+    title: Design to spec
+    description: Run the service design-to-spec sub-flow to produce an approved spec.
+    requires:
+      - program-plan
+    produces:
+      - design-spec
+    ref:
+      flow_id: design.service-to-spec
+      version_constraint: '>=0.1.0 <0.2.0'
+    with:
+      brief: '{{input.brief}}'
+    expose:
+      design_spec: design-spec
+  - id: backend
+    type: flow_ref
+    title: Build backend
+    description: Run the backend-service sub-flow against the design spec.
+    requires:
+      - design-spec
+    produces:
+      - service-patch
+    ref:
+      flow_id: engineering.backend-service
+      version_constraint: '>=0.1.0 <0.2.0'
+    with:
+      repo: '{{input.repo}}'
+      stack: '{{input.stack}}'
+      target_spec: '{{artifact.design-spec}}'
+    expose:
+      service_patch: service-patch
+  - id: integration
+    type: flow_ref
+    title: Integration test lab
+    description: Run the integration test lab against the built service.
+    requires:
+      - service-patch
+    produces:
+      - integration-report
+    ref:
+      flow_id: ops.integration-test-lab
+      version_constraint: '>=0.1.0 <0.2.0'
+    with:
+      repo: '{{input.repo}}'
+      service_ref: '{{input.repo}}'
+    expose:
+      integration_report: integration-report
+  - id: verify
+    type: verifier
+    title: Verify the service
+    description: Aggregate sub-flow evidence and confirm the service is integration-verified.
+    requires:
+      - integration-report
+    produces:
+      - subflows-report
+  - id: approve
+    type: approval
+    title: Service owner sign-off
+    description: A service owner approves the assembled service before closeout.
+    requires:
+      - subflows-report
+  - id: final
+    type: finalizer
+    title: Close out program
+    description: Return the assembled service patch and closeout.
+    requires:
+      - subflows-report
+    produces:
+      - service_patch
+      - closeout
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: design
+  - from: design
+    to: backend
+  - from: backend
+    to: integration
+  - from: integration
+    to: verify
+  - from: verify
+    to: approve
+  - from: approve
+    to: final
+quality_gates:
+  - id: subflows-passed
+    title: Every sub-flow run passed
+    type: artifact
+    required: true
+    evidence: Each flow_ref node references a child run bundle whose required gates passed.
+    evidence_refs:
+      - subflows-report
+    evidence_class: deterministic
+  - id: service-verified
+    title: Service is integration-verified
+    type: judgment
+    required: true
+    evidence: The integration result is reviewed and accepted.
+    evidence_refs:
+      - integration-report
+    evidence_class: judgment
+    criteria:
+      - Backend and frontend contracts align
+      - Integration suite passed against the provisioned stack
+      - No unresolved integration risk
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - subflow.started
+    - subflow.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - subflows.count
+    - duration.seconds

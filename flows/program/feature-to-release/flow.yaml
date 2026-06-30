@@ -1,0 +1,165 @@
+spec_version: agentic-flows/v1.1
+id: program.feature-to-release
+version: 0.1.0
+title: Feature to release program
+summary: Compose issue-to-verified-pr and ephemeral preview deploy into one Build-Ship-Govern program, gated by an independent
+  release acceptance.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - program
+  - release
+  - composition
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+  required_capabilities:
+    - repo.checkout
+    - patch.apply
+    - command.run
+    - evidence.capture
+    - human.review
+    - pr.draft
+    - preview-deploy
+    - subflow.dispatch
+contracts:
+  inputs:
+    - id: issue
+      type: markdown
+      required: true
+      description: The scoped issue to take to a verified PR.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or checkout target.
+  outputs:
+    - id: release_patch
+      type: patch
+      required: true
+      description: The verified, preview-deployed feature changes.
+    - id: acceptance_record
+      type: markdown
+      required: true
+      description: The independent release acceptance record.
+  artifacts:
+    - program-plan
+    - feature-patch
+    - deploy-record
+    - subflows-report
+nodes:
+  - id: intake
+    type: intake
+    title: Intake issue
+    description: Capture the issue and repo for the release.
+    produces:
+      - program-scope
+  - id: plan
+    type: plan
+    title: Plan the release program
+    description: Order the build and ship sub-flows and bind their inputs.
+    requires:
+      - program-scope
+    produces:
+      - program-plan
+  - id: build
+    type: flow_ref
+    title: Issue to verified PR
+    description: Run the issue-to-verified-pr sub-flow to produce a verified patch.
+    requires:
+      - program-plan
+    produces:
+      - feature-patch
+    ref:
+      flow_id: engineering.issue-to-verified-pr
+      version_constraint: '>=0.1.0 <0.2.0'
+    with:
+      issue: '{{input.issue}}'
+      repo: '{{input.repo}}'
+    expose:
+      patch: feature-patch
+  - id: deploy
+    type: flow_ref
+    title: Ephemeral preview deploy
+    description: Deploy the verified patch to a throwaway preview and probe its health.
+    requires:
+      - feature-patch
+    produces:
+      - deploy-record
+    ref:
+      flow_id: ops.ephemeral-preview-deploy
+      version_constraint: '>=0.1.0 <0.2.0'
+    with:
+      artifact_ref: '{{artifact.feature-patch}}'
+      repo: '{{input.repo}}'
+    expose:
+      deploy_record: deploy-record
+  - id: verify
+    type: verifier
+    title: Verify the release
+    description: Aggregate sub-flow evidence and confirm the preview is healthy.
+    requires:
+      - deploy-record
+    produces:
+      - subflows-report
+  - id: accept
+    type: approval
+    title: Release acceptance
+    description: An independent owner accepts the release based on verified evidence.
+    requires:
+      - subflows-report
+  - id: final
+    type: finalizer
+    title: Close out program
+    description: Return the release patch and the acceptance record.
+    requires:
+      - subflows-report
+    produces:
+      - release_patch
+      - acceptance_record
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: build
+  - from: build
+    to: deploy
+  - from: deploy
+    to: verify
+  - from: verify
+    to: accept
+  - from: accept
+    to: final
+quality_gates:
+  - id: subflows-passed
+    title: Every sub-flow run passed
+    type: artifact
+    required: true
+    evidence: Each flow_ref node references a child run bundle whose required gates passed.
+    evidence_refs:
+      - subflows-report
+    evidence_class: deterministic
+  - id: release-accepted
+    title: Release independently accepted
+    type: acceptance
+    required: true
+    evidence: An owner who did not produce the change accepts the release.
+    evidence_refs:
+      - deploy-record
+    evidence_class: judgment
+    criteria:
+      - Preview health probes passed
+      - Verified patch evidence is present
+      - Reviewer is independent of the producing agents
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - subflow.started
+    - subflow.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - subflows.count
+    - duration.seconds

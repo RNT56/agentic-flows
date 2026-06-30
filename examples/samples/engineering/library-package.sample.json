@@ -1,0 +1,18 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.library-package",
+    "version": "0.1.0",
+    "source": "flows/engineering/library-package/flow.yaml"
+  },
+  "inputs": {
+    "target_spec": "A date-formatting library with a small public API.",
+    "ecosystem": "npm",
+    "repo": "https://github.com/RNT56/example-lib"
+  },
+  "expected_outputs": {
+    "package_patch": "A diff implementing the library to publish-ready state.",
+    "changelog_entry": "A changelog entry with the semver impact."
+  },
+  "notes": "Sample for engineering.library-package."
+}

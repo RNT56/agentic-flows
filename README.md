@@ -9,8 +9,8 @@ A library of runnable, consumable agentic workflows — each carrying the instru
 | Surface | Current state |
 | --- | --- |
 | Latest release | `v0.1.1` |
-| Flow spec | `agentic-flows/v1` |
-| Catalog size | 64 reusable workflows, 3 starter templates |
+| Flow spec | `agentic-flows/v1` and `agentic-flows/v1.1` (additive: `flow_ref` sub-flow composition) |
+| Catalog size | 78 reusable workflows, 3 starter templates |
 | Tooling | Python CLI, JSON Schema, YAML flow definitions |
 | Evidence model | Events, streams, run bundles, adapter smoke manifests |
 | CI gate | Schema validation, normalization, samples, runs, links, changelog, package build, tests |
@@ -55,10 +55,10 @@ flowchart LR
 
 ## What is built now
 
-- A versioned YAML workflow format backed by JSON Schema, with a **substance layer**: per-node instructions, structured inputs/outputs, parameters, concrete commands, and failure handling (see [docs/runnable-flows.md](docs/runnable-flows.md)).
-- `flowctl`, a repo-local CLI for validation, **execution (`flowctl run`)**, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
+- A versioned YAML workflow format backed by JSON Schema, with a **substance layer**: per-node instructions, structured inputs/outputs, parameters, concrete commands, and failure handling (see [docs/runnable-flows.md](docs/runnable-flows.md)); and an additive `agentic-flows/v1.1` superset adding sub-flow composition, evidence classes, environments, bounded loops, and fan-out.
+- `flowctl`, a repo-local CLI for validation, **execution (`flowctl run`)**, **composition checks (`flowctl check-composition`)**, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
 - A **reference runner** that executes runnable flows locally and emits real run bundles with real artifacts — not placeholder evidence. Contract flows run end-to-end too when a consumer binds their open nodes with `flowctl run --handler node_id=command`.
-- Sixty-four reusable workflow definitions across coding, engineering, research, security, product, program, personal, collaboration, operations, proof, orchestration, documentation, and human review. Every flow carries the substance layer — per-node instructions, intake input schemas, parameters, and concrete commands with failure handling on the steps that map to real commands — so each is a consumable contract, and the command-driven ones run directly under `flowctl run`.
+- Seventy-eight reusable workflow definitions across coding, engineering, design, infrastructure, research, security, product, program, personal, collaboration, operations, proof, orchestration, documentation, and human review. Every flow carries the substance layer — per-node instructions, intake input schemas, parameters, and concrete commands with failure handling on the steps that map to real commands — so each is a consumable contract, and the command-driven ones run directly under `flowctl run`.
 - Three copyable starter templates for project-specific workflows.
 - Event and run-bundle schemas for evidence-backed execution.
 - Adapter smoke manifest schemas and examples for independent optional consumers.
@@ -135,6 +135,20 @@ flowchart LR
 | [`ops.incident-response`](flows/ops/incident-response/README.md) | Experimental | Triage, mitigate, communicate, and close an incident with severity and timeline. | ThinClaw, NilCore, CrustCore, standalone | Standalone run bundle, ThinClaw contract smoke, sample contract |
 | [`orchestration.self-improvement-loop`](flows/orchestration/self-improvement-loop/README.md) | Experimental | Identify repeated failures and propose a tested, reversible improvement. | ThinClaw, NilCore, CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
 | [`program.connector-productionization`](flows/program/connector-productionization/README.md) | Experimental | Take an experimental connector to production readiness with tested failure modes. | ThinClaw, NilCore, CrustCore, standalone | Standalone run bundle, CrustCore contract smoke, sample contract |
+| [`design.website-to-spec`](flows/design/website-to-spec/README.md) | Experimental | Turn a product brief into a traceable website design spec (IA, components, acceptance criteria). | ThinClaw, NilCore, standalone | Standalone run bundle, sample contract |
+| [`engineering.backend-service`](flows/engineering/backend-service/README.md) | Experimental | Build a scoped backend service or API in a given stack with build, test, and API-contract evidence. | NilCore, CrustCore, standalone | Standalone run bundle, sample contract |
+| [`engineering.frontend-build`](flows/engineering/frontend-build/README.md) | Experimental | Build a frontend in a given stack with build, component-test, and accessibility evidence and an operator visual review. | NilCore, standalone | Standalone run bundle, sample contract |
+| [`program.webapp-build`](flows/program/webapp-build/README.md) | Experimental | Compose the design, backend, and frontend sub-flows into one evidence-backed web app build (uses `flow_ref` composition). | NilCore, standalone | Standalone run bundle with recursively-validated child sub-runs, sample contract |
+| [`ops.ephemeral-preview-deploy`](flows/ops/ephemeral-preview-deploy/README.md) | Experimental | Deploy to a throwaway preview, probe its health, and capture a rollback plan (first `probe` gate; sandbox-run evidence with provisioning provenance). | NilCore | NilCore run bundle with sandbox-run health evidence, sample contract |
+| [`ops.integration-test-lab`](flows/ops/integration-test-lab/README.md) | Experimental | Run a service's integration suite against a runtime-provisioned ephemeral stack. | NilCore | NilCore run bundle with sandbox-run suite evidence, sample contract |
+| [`engineering.browser-matrix-check`](flows/engineering/browser-matrix-check/README.md) | Experimental | Render a built UI and run assertions across a parameterized browser/viewport matrix in a headless browser (`fan_out` + `environment`). | NilCore | NilCore run bundle with per-target sandbox-run evidence, sample contract |
+| [`design.service-to-spec`](flows/design/service-to-spec/README.md) | Experimental | Turn a service/API brief into an approved, traceable backend spec that feeds `engineering.backend-service`. | ThinClaw, NilCore, standalone | Standalone run bundle (deterministic + judgment sign-off), sample contract |
+| [`engineering.cli-tool`](flows/engineering/cli-tool/README.md) | Experimental | Build a scoped CLI tool in a given stack with build, test, and golden-output evidence (parameters + bounded `iteration`). | NilCore, standalone | Standalone run bundle, sample contract |
+| [`engineering.library-package`](flows/engineering/library-package/README.md) | Experimental | Build a library package to publish-ready state with build, test, and reviewed public-API/semver evidence. | NilCore, standalone | Standalone run bundle (deterministic + judgment review), sample contract |
+| [`infra.iac-module`](flows/infra/iac-module/README.md) | Experimental | Author an infrastructure-as-code change with a plan diff, policy gate, and sandbox apply against an ephemeral environment. | NilCore | NilCore run bundle with sandbox-run apply evidence, sample contract |
+| [`program.service-from-spec`](flows/program/service-from-spec/README.md) | Experimental | Compose service design-to-spec, backend build, and integration verification into one Design-Build-Verify program. | NilCore | Run bundle recursively validating three child sub-runs, sample contract |
+| [`program.feature-to-release`](flows/program/feature-to-release/README.md) | Experimental | Compose issue-to-verified-pr and preview deploy into a Build-Ship-Govern program with an independent release acceptance. | NilCore | Run bundle recursively validating two child sub-runs, sample contract |
+| [`program.security-hardening-campaign`](flows/program/security-hardening-campaign/README.md) | Experimental | Inventory findings, fan out a bounded per-finding fix-and-verify loop, and export one audit trail (`fan_out` + `iteration` + `flow_ref`). | CrustCore, standalone | Run bundle recursively validating the audit and export sub-runs, sample contract |
 
 ## Starter templates
 

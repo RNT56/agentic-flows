@@ -1,0 +1,143 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "infra.iac-module",
+    "version": "0.1.0",
+    "source": "flows/infra/iac-module/flow.yaml"
+  },
+  "run": {
+    "id": "run-iac-module-0001",
+    "core": "nilcore",
+    "status": "completed",
+    "started_at": "2026-06-28T15:00:00Z",
+    "completed_at": "2026-06-28T15:03:00Z"
+  },
+  "inputs": {
+    "iac_target": "S3 bucket module.",
+    "repo": "https://github.com/RNT56/example-infra"
+  },
+  "outputs": {
+    "iac_patch": "artifact://runs/run-iac-module-0001/iac.patch",
+    "change_summary": "artifact://runs/run-iac-module-0001/summary.md"
+  },
+  "artifacts": [
+    {
+      "id": "plan-diff",
+      "kind": "plan-diff",
+      "uri": "artifact://runs/run-iac-module-0001/plan-diff"
+    },
+    {
+      "id": "policy-log",
+      "kind": "policy-log",
+      "uri": "artifact://runs/run-iac-module-0001/policy-log"
+    },
+    {
+      "id": "apply-probe-log",
+      "kind": "apply-probe-log",
+      "uri": "artifact://runs/run-iac-module-0001/apply-probe-log"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "infra.iac-module",
+      "flow_version": "0.1.0",
+      "run_id": "run-iac-module-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T15:00:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "infra.iac-module",
+      "flow_version": "0.1.0",
+      "run_id": "run-iac-module-0001",
+      "event": "env.provisioned",
+      "timestamp": "2026-06-28T15:00:10Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "apply",
+      "payload": {
+        "node_id": "apply",
+        "provisioner": "nilcore-sandbox"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "infra.iac-module",
+      "flow_version": "0.1.0",
+      "run_id": "run-iac-module-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:00:30Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "policy",
+      "payload": {
+        "gate_id": "plan-and-policy-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "plan-diff",
+          "kind": "plan-diff",
+          "uri": "artifact://runs/run-iac-module-0001/plan-diff",
+          "evidence_class": "deterministic"
+        },
+        {
+          "id": "policy-log",
+          "kind": "policy-log",
+          "uri": "artifact://runs/run-iac-module-0001/policy-log",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "infra.iac-module",
+      "flow_version": "0.1.0",
+      "run_id": "run-iac-module-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:01:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "apply",
+      "payload": {
+        "gate_id": "sandbox-apply-verified",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "apply-probe-log",
+          "kind": "apply-probe-log",
+          "uri": "artifact://runs/run-iac-module-0001/apply-probe-log",
+          "evidence_class": "sandbox-run"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "infra.iac-module",
+      "flow_version": "0.1.0",
+      "run_id": "run-iac-module-0001",
+      "event": "env.torn_down",
+      "timestamp": "2026-06-28T15:02:30Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "apply",
+      "payload": {
+        "node_id": "apply"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "infra.iac-module",
+      "flow_version": "0.1.0",
+      "run_id": "run-iac-module-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T15:03:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    }
+  ]
+}

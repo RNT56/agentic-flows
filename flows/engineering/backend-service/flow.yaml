@@ -1,0 +1,190 @@
+spec_version: agentic-flows/v1.1
+id: engineering.backend-service
+version: 0.1.0
+title: Backend service build
+summary: Build a scoped backend service or API in a given stack with build and test evidence and a documented API contract.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - backend
+  - api
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - patch.apply
+    - command.run
+    - evidence.capture
+contracts:
+  inputs:
+    - id: target_spec
+      type: markdown
+      required: true
+      description: 'What to build: endpoints, data model, and acceptance criteria for the service.'
+    - id: stack
+      type: text
+      required: true
+      description: Target stack identifier such as node, go, python, or rust; selects the build and test commands.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target where the service is built.
+  outputs:
+    - id: service_patch
+      type: patch
+      required: true
+      description: Source changes implementing the scoped service.
+    - id: api_contract
+      type: markdown
+      required: true
+      description: The documented endpoint contract and data model summary.
+  artifacts:
+    - build-plan
+    - service-diff
+    - build-log
+    - test-log
+    - api-contract-doc
+parameters:
+  - id: build_command
+    type: text
+    required: true
+    description: Build or compile command for the chosen stack, e.g. 'npm run build' or 'go build ./...'.
+  - id: test_command
+    type: text
+    required: true
+    description: Unit and integration test command for the chosen stack, e.g. 'npm test' or 'go test ./...'.
+nodes:
+  - id: intake
+    type: intake
+    title: Intake service scope
+    description: Capture the target spec, stack, repo target, and acceptance criteria.
+    produces:
+      - scoped-service
+  - id: plan
+    type: plan
+    title: Plan service architecture
+    description: Define endpoints, data model, and the stack-specific build and test commands.
+    requires:
+      - scoped-service
+    produces:
+      - build-plan
+  - id: implement
+    type: agent_task
+    title: Implement the service
+    description: Apply the endpoints, data model, and auth as the smallest coherent change.
+    agent: backend-worker
+    requires:
+      - build-plan
+    produces:
+      - service-diff
+    policy:
+      preserve_user_changes: true
+  - id: build
+    type: tool
+    title: Build the service
+    description: Compile or typecheck the service using the stack build command.
+    tool: command-runner
+    requires:
+      - service-diff
+    produces:
+      - build-log
+  - id: test
+    type: tool
+    title: Run unit and integration tests
+    description: Run the service tests, including endpoint and auth tests, using the stack test command.
+    tool: command-runner
+    requires:
+      - service-diff
+    produces:
+      - test-log
+    environment:
+      ephemeral: true
+      provides:
+        - ephemeral-datastore
+      teardown_required: true
+    fan_out:
+      aggregate: all_pass
+      cardinality:
+        max: 50
+        min: 1
+      instance_id: endpoint
+      over: endpoints
+  - id: verify
+    type: verifier
+    title: Verify and document the contract
+    description: Confirm build and tests passed and document the endpoint contract and data model.
+    requires:
+      - build-log
+      - test-log
+    produces:
+      - api-contract-doc
+  - id: approve
+    type: approval
+    title: Risk review decision
+    description: Request operator approval when auth surface, public API, or data model changed.
+    requires:
+      - api-contract-doc
+    policy:
+      human_required_when:
+        - auth_surface_change
+        - public_api_change
+        - destructive_migration
+  - id: final
+    type: finalizer
+    title: Close out service
+    description: Return the service patch and the documented API contract.
+    requires:
+      - api-contract-doc
+    produces:
+      - service_patch
+      - api_contract
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: implement
+  - from: implement
+    to: build
+  - from: build
+    to: test
+  - from: test
+    to: verify
+  - from: verify
+    to: approve
+  - from: approve
+    to: final
+quality_gates:
+  - id: build-and-tests-pass
+    title: Build and tests pass
+    type: command
+    required: true
+    command: '{{param.build_command}} && {{param.test_command}}'
+    evidence: Build and test output selected by the runtime for the chosen stack.
+    evidence_refs:
+      - test-log
+    evidence_class_min: deterministic
+  - id: api-contract-documented
+    title: API contract documented
+    type: artifact
+    required: true
+    evidence: The endpoint contract and data model are documented and match the implementation.
+    evidence_refs:
+      - api-contract-doc
+    evidence_class: deterministic
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+    - env.provisioned
+    - env.torn_down
+  metrics:
+    - duration.seconds
+    - tests.executed

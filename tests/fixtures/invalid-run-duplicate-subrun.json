@@ -1,0 +1,260 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "program.webapp-build",
+    "version": "0.1.0",
+    "source": "flows/program/webapp-build/flow.yaml"
+  },
+  "run": {
+    "id": "run-webapp-dupsub1",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-27T13:59:00Z",
+    "completed_at": "2026-06-27T14:10:00Z"
+  },
+  "inputs": {
+    "product_brief": "Task-tracker web app.",
+    "stack": "node",
+    "repo": "https://github.com/RNT56/example-webapp"
+  },
+  "outputs": {
+    "app_patch": "artifact://runs/run-webapp-0001/app.patch",
+    "closeout": "artifact://runs/run-webapp-0001/closeout.md"
+  },
+  "artifacts": [
+    {
+      "id": "subflows-report",
+      "kind": "subflows-report",
+      "uri": "artifact://runs/run-webapp-0001/subflows-report.md"
+    },
+    {
+      "id": "integration-report",
+      "kind": "integration-report",
+      "uri": "artifact://runs/run-webapp-0001/integration-report.md"
+    }
+  ],
+  "sub_runs": [
+    {
+      "node_id": "backend",
+      "flow": {
+        "id": "engineering.backend-service",
+        "version": "0.1.0"
+      },
+      "run": {
+        "id": "run-backend-fail9",
+        "status": "failed"
+      },
+      "uri": "webapp/backend.run.json"
+    },
+    {
+      "node_id": "design",
+      "flow": {
+        "id": "design.website-to-spec",
+        "version": "0.1.0"
+      },
+      "run": {
+        "id": "run-design-0001",
+        "status": "completed"
+      },
+      "uri": "webapp/design.run.json"
+    },
+    {
+      "node_id": "backend",
+      "flow": {
+        "id": "engineering.backend-service",
+        "version": "0.1.0"
+      },
+      "run": {
+        "id": "run-backend-0001",
+        "status": "completed"
+      },
+      "uri": "webapp/backend.run.json"
+    },
+    {
+      "node_id": "frontend",
+      "flow": {
+        "id": "engineering.frontend-build",
+        "version": "0.1.0"
+      },
+      "run": {
+        "id": "run-frontend-0001",
+        "status": "completed"
+      },
+      "uri": "webapp/frontend.run.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.webapp-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-webapp-dupsub1",
+      "event": "flow.started",
+      "timestamp": "2026-06-27T13:59:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.webapp-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-webapp-dupsub1",
+      "event": "subflow.started",
+      "timestamp": "2026-06-27T14:02:31Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "design",
+      "payload": {
+        "node_id": "design",
+        "child_flow_id": "design.website-to-spec",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-design-0001"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.webapp-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-webapp-dupsub1",
+      "event": "subflow.completed",
+      "timestamp": "2026-06-27T14:02:32Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "design",
+      "payload": {
+        "node_id": "design",
+        "child_flow_id": "design.website-to-spec",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-design-0001",
+        "child_status": "completed"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.webapp-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-webapp-dupsub1",
+      "event": "subflow.started",
+      "timestamp": "2026-06-27T14:07:01Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "backend",
+      "payload": {
+        "node_id": "backend",
+        "child_flow_id": "engineering.backend-service",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-backend-0001"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.webapp-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-webapp-dupsub1",
+      "event": "subflow.completed",
+      "timestamp": "2026-06-27T14:07:02Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "backend",
+      "payload": {
+        "node_id": "backend",
+        "child_flow_id": "engineering.backend-service",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-backend-0001",
+        "child_status": "completed"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.webapp-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-webapp-dupsub1",
+      "event": "subflow.started",
+      "timestamp": "2026-06-27T14:08:01Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "frontend",
+      "payload": {
+        "node_id": "frontend",
+        "child_flow_id": "engineering.frontend-build",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-frontend-0001"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.webapp-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-webapp-dupsub1",
+      "event": "subflow.completed",
+      "timestamp": "2026-06-27T14:08:02Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "frontend",
+      "payload": {
+        "node_id": "frontend",
+        "child_flow_id": "engineering.frontend-build",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-frontend-0001",
+        "child_status": "completed"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.webapp-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-webapp-dupsub1",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T14:09:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "integrate",
+      "payload": {
+        "gate_id": "subflows-passed",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "subflows-report",
+          "kind": "subflows-report",
+          "uri": "artifact://runs/run-webapp-0001/subflows-report.md",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.webapp-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-webapp-dupsub1",
+      "event": "gate.completed",
+      "timestamp": "2026-06-27T14:09:30Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "integrate",
+      "payload": {
+        "gate_id": "integration-verified",
+        "status": "passed",
+        "reviewer_id": "operator:release-owner"
+      },
+      "evidence": [
+        {
+          "id": "integration-report",
+          "kind": "integration-report",
+          "uri": "artifact://runs/run-webapp-0001/integration-report.md",
+          "evidence_class": "judgment"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.webapp-build",
+      "flow_version": "0.1.0",
+      "run_id": "run-webapp-dupsub1",
+      "event": "flow.completed",
+      "timestamp": "2026-06-27T14:10:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

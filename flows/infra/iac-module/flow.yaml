@@ -1,0 +1,178 @@
+spec_version: agentic-flows/v1.1
+id: infra.iac-module
+version: 0.1.0
+title: Infrastructure-as-code module
+summary: Author or change an infrastructure-as-code module with a plan diff, a policy gate, and a sandbox apply against an
+  ephemeral environment.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - infra
+  - iac
+  - provisioning
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+  required_capabilities:
+    - repo.checkout
+    - command.run
+    - ephemeral-cloud-target
+    - evidence.capture
+contracts:
+  inputs:
+    - id: iac_target
+      type: markdown
+      required: true
+      description: The infrastructure to author or change and its constraints.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or checkout target where the module lives.
+  outputs:
+    - id: iac_patch
+      type: patch
+      required: true
+      description: The infrastructure-as-code changes.
+    - id: change_summary
+      type: markdown
+      required: true
+      description: The plan diff summary and applied-in-sandbox result.
+  artifacts:
+    - iac-plan
+    - iac-diff
+    - plan-diff
+    - policy-log
+    - apply-probe-log
+parameters:
+  - id: plan_command
+    type: text
+    required: true
+    description: Plan command for the chosen IaC tool.
+  - id: policy_command
+    type: text
+    required: true
+    description: Policy or lint command for the chosen IaC tool.
+nodes:
+  - id: intake
+    type: intake
+    title: Intake infra scope
+    description: Capture the infrastructure to change, the IaC tool, and constraints.
+    produces:
+      - iac-scope
+  - id: plan
+    type: plan
+    title: Plan the change
+    description: Plan the module change and the plan, policy, and apply commands.
+    requires:
+      - iac-scope
+    produces:
+      - iac-plan
+  - id: generate
+    type: agent_task
+    title: Author the module change
+    description: Author the smallest coherent infrastructure-as-code change.
+    agent: infra-worker
+    requires:
+      - iac-plan
+    produces:
+      - iac-diff
+    policy:
+      preserve_user_changes: true
+  - id: validate-plan
+    type: tool
+    title: Produce a plan diff
+    description: Run the IaC plan to produce a reviewable diff.
+    tool: command-runner
+    requires:
+      - iac-diff
+    produces:
+      - plan-diff
+  - id: policy
+    type: tool
+    title: Run policy checks
+    description: Run policy and lint checks against the change.
+    tool: command-runner
+    requires:
+      - iac-diff
+    produces:
+      - policy-log
+  - id: apply
+    type: tool
+    title: Apply in a sandbox
+    description: Apply the change against an ephemeral environment and probe the result.
+    tool: command-runner
+    requires:
+      - plan-diff
+      - policy-log
+    produces:
+      - apply-probe-log
+    environment:
+      ephemeral: true
+      provides:
+        - ephemeral-cloud-target
+      teardown_required: true
+  - id: approve
+    type: approval
+    title: Destructive-change approval
+    description: Require operator approval for destructive or IAM-affecting changes.
+    requires:
+      - apply-probe-log
+    policy:
+      human_required_when:
+        - destructive_change
+        - iam_change
+  - id: final
+    type: finalizer
+    title: Close out the change
+    description: Return the IaC patch and change summary after the sandbox is torn down.
+    requires:
+      - apply-probe-log
+    produces:
+      - iac_patch
+      - change_summary
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: generate
+  - from: generate
+    to: validate-plan
+  - from: validate-plan
+    to: policy
+  - from: policy
+    to: apply
+  - from: apply
+    to: approve
+  - from: approve
+    to: final
+quality_gates:
+  - id: plan-and-policy-pass
+    title: Plan and policy pass
+    type: command
+    required: true
+    command: '{{param.plan_command}} && {{param.policy_command}}'
+    evidence: Plan diff and policy output.
+    evidence_refs:
+      - plan-diff
+      - policy-log
+    evidence_class: deterministic
+  - id: sandbox-apply-verified
+    title: Sandbox apply verified
+    type: probe
+    required: true
+    evidence: The change applied cleanly against an ephemeral environment.
+    evidence_refs:
+      - apply-probe-log
+    evidence_class: sandbox-run
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - env.provisioned
+    - env.torn_down
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

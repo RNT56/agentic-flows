@@ -1,0 +1,96 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.issue-to-verified-pr",
+    "version": "0.1.0",
+    "source": "flows/engineering/issue-to-verified-pr/flow.yaml"
+  },
+  "run": {
+    "id": "run-ftr-build-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T16:00:00Z",
+    "completed_at": "2026-06-28T16:09:00Z"
+  },
+  "inputs": {},
+  "outputs": {
+    "patch": "artifact://runs/run-ftr-build-0001/patch",
+    "pr_summary": "artifact://runs/run-ftr-build-0001/pr_summary"
+  },
+  "artifacts": [
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-ftr-build-0001/test-log"
+    },
+    {
+      "id": "review-notes",
+      "kind": "review-notes",
+      "uri": "artifact://runs/run-ftr-build-0001/review-notes"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-ftr-build-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T16:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-ftr-build-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T16:01:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "tests-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-ftr-build-0001/test-log"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-ftr-build-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T16:02:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "scope-frozen",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "review-notes",
+          "kind": "review-notes",
+          "uri": "artifact://runs/run-ftr-build-0001/review-notes"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.issue-to-verified-pr",
+      "flow_version": "0.1.0",
+      "run_id": "run-ftr-build-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T16:09:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

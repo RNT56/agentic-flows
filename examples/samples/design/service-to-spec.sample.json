@@ -1,0 +1,15 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "design.service-to-spec",
+    "version": "0.1.0",
+    "source": "flows/design/service-to-spec/flow.yaml"
+  },
+  "inputs": {
+    "brief": "A REST API for a task tracker: CRUD tasks, list with filters, token auth."
+  },
+  "expected_outputs": {
+    "design_spec": "An approved service spec with endpoints, data model, auth, and traceable acceptance criteria."
+  },
+  "notes": "Sample for design.service-to-spec."
+}

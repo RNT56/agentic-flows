@@ -1,0 +1,18 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "program.security-hardening-campaign",
+    "version": "0.1.0",
+    "source": "flows/program/security-hardening-campaign/flow.yaml"
+  },
+  "inputs": {
+    "manifest": "https://github.com/RNT56/example-webapp/blob/main/package-lock.json",
+    "policy": "No high-severity advisories; permissive licenses only.",
+    "repo": "https://github.com/RNT56/example-webapp"
+  },
+  "expected_outputs": {
+    "campaign_report": "The campaign result: findings, fixes, and residual risk.",
+    "audit_bundle": "The exported audit trail."
+  },
+  "notes": "Sample for program.security-hardening-campaign."
+}

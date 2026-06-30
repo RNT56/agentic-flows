@@ -10,6 +10,7 @@ This folder is the operating handbook for `agentic-flows`.
 - [Task backlog](tasks.md): prioritized implementation tasks, acceptance gates, and current status.
 - [Buildable-now assessment](buildable-now.md): which backlog workflows can be built end-to-end now, with evidence-honesty reasoning.
 - [Project plan](project-plan.md): original plan assessment and current project shape.
+- [Proposals](proposals/README.md): not-yet-adopted, additive `v1.1` design proposals — the lifecycle/evidence reframe and sub-flow composition — with validated draft schemas.
 
 ## Building and operating flows
 

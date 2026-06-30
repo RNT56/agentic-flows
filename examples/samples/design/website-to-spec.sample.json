@@ -1,0 +1,15 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "design.website-to-spec",
+    "version": "0.1.0",
+    "source": "flows/design/website-to-spec/flow.yaml"
+  },
+  "inputs": {
+    "brief": "Design a marketing site for a developer tool: home, pricing, docs, and a contact page. Audience is engineers; goals are clarity and fast load."
+  },
+  "expected_outputs": {
+    "design_spec": "An approved spec with IA, a component inventory, and traceable acceptance criteria."
+  },
+  "notes": "Sample for design.website-to-spec."
+}

@@ -1,0 +1,18 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.cli-tool",
+    "version": "0.1.0",
+    "source": "flows/engineering/cli-tool/flow.yaml"
+  },
+  "inputs": {
+    "target_spec": "A git-stats CLI: subcommands summary and authors, JSON output, exit codes.",
+    "stack": "go",
+    "repo": "https://github.com/RNT56/example-cli"
+  },
+  "expected_outputs": {
+    "tool_patch": "A diff implementing the subcommands and flags.",
+    "command_surface": "The documented subcommands, flags, and exit codes."
+  },
+  "notes": "Sample for engineering.cli-tool."
+}

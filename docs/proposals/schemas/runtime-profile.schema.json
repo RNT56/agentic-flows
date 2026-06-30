@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/RNT56/agentic-flows/docs/proposals/schemas/runtime-profile.schema.json",
+  "title": "Agentic Flow Runtime Capability Profile (v1.1 proposal)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile_version",
+    "core",
+    "implements"
+  ],
+  "properties": {
+    "profile_version": {
+      "const": "agentic-flows.runtime-profile/v1.1"
+    },
+    "core": {
+      "enum": [
+        "thinclaw",
+        "nilcore",
+        "crustcore",
+        "standalone"
+      ]
+    },
+    "implements": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9._-]*$"
+      },
+      "description": "Capability ids from the registry this runtime can honestly satisfy."
+    },
+    "forbids_evidence_classes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "deterministic",
+          "fixture",
+          "sandbox-run",
+          "judgment",
+          "external-production"
+        ]
+      },
+      "description": "Evidence classes this core may NOT emit (e.g. standalone forbids sandbox-run, external-production)."
+    }
+  }
+}

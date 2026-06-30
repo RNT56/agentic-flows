@@ -77,6 +77,32 @@ Completed runs must also include:
 - required outputs exist for completed runs
 - required quality gates have passed evidence
 - passed gate evidence matches the gate's declared `evidence_refs`
+- sub-flow composition evidence (see below)
+
+## Sub-runs (composition evidence)
+
+When the source flow uses `flow_ref` nodes (`agentic-flows/v1.1`), the parent run bundle links each child run via a `sub_runs` array:
+
+```json
+"sub_runs": [
+  {
+    "node_id": "backend",
+    "flow": { "id": "engineering.backend-service", "version": "0.1.0" },
+    "run": { "id": "run-backend-0001", "status": "completed" },
+    "uri": "examples/runs/webapp/backend.run.json"
+  }
+]
+```
+
+`flowctl validate-run` then, for each `flow_ref` node in the source flow:
+
+- requires a matching `sub_runs` entry whose `flow.id` matches the node's `ref.flow_id` and whose `flow.version` satisfies the `ref.version_constraint`,
+- loads the child bundle at `uri` and recursively validates it (so the child's own required gates must have passed),
+- requires the child `run.status` to be `completed` when the parent is `completed`,
+- requires a `subflow.completed` event for the node,
+- rejects any `sub_runs` entry that does not correspond to a real `flow_ref` node.
+
+This is what makes a parent's "every sub-flow passed" gate honest: it is backed by recursively-validated child evidence, not a parent self-assertion. A completed parent that omits a child sub-run, or points at a child that failed or did not validate, is rejected.
 
 ## Replay
 

@@ -4,15 +4,27 @@
   "title": "Agentic Flow Run Bundle",
   "type": "object",
   "additionalProperties": false,
-  "required": ["run_version", "flow", "run", "events"],
+  "required": [
+    "run_version",
+    "flow",
+    "run",
+    "events"
+  ],
   "properties": {
     "run_version": {
-      "const": "agentic-flows.run/v1"
+      "enum": [
+        "agentic-flows.run/v1",
+        "agentic-flows.run/v1.1"
+      ]
     },
     "flow": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "version", "source"],
+      "required": [
+        "id",
+        "version",
+        "source"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -31,17 +43,32 @@
     "run": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "core", "status", "started_at"],
+      "required": [
+        "id",
+        "core",
+        "status",
+        "started_at"
+      ],
       "properties": {
         "id": {
           "type": "string",
           "minLength": 8
         },
         "core": {
-          "enum": ["thinclaw", "nilcore", "crustcore", "standalone"]
+          "enum": [
+            "thinclaw",
+            "nilcore",
+            "crustcore",
+            "standalone"
+          ]
         },
         "status": {
-          "enum": ["completed", "failed", "cancelled", "running"]
+          "enum": [
+            "completed",
+            "failed",
+            "cancelled",
+            "running"
+          ]
         },
         "started_at": {
           "type": "string",
@@ -66,7 +93,11 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "kind", "uri"],
+        "required": [
+          "id",
+          "kind",
+          "uri"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -75,6 +106,72 @@
           "kind": {
             "type": "string",
             "pattern": "^[a-z][a-z0-9._-]*$"
+          },
+          "uri": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "sub_runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "node_id",
+          "flow",
+          "run",
+          "uri"
+        ],
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "flow": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "version"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9._/\\-]*[a-z0-9]$"
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+              }
+            }
+          },
+          "run": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "status"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 8
+              },
+              "status": {
+                "enum": [
+                  "completed",
+                  "failed",
+                  "cancelled",
+                  "running"
+                ]
+              }
+            }
           },
           "uri": {
             "type": "string"

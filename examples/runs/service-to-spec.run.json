@@ -1,0 +1,102 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "design.service-to-spec",
+    "version": "0.1.0",
+    "source": "flows/design/service-to-spec/flow.yaml"
+  },
+  "run": {
+    "id": "run-service-spec-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T15:00:00Z",
+    "completed_at": "2026-06-28T15:03:00Z"
+  },
+  "inputs": {
+    "brief": "REST API for a task tracker."
+  },
+  "outputs": {
+    "design_spec": "artifact://runs/run-service-spec-0001/spec.md"
+  },
+  "artifacts": [
+    {
+      "id": "acceptance-criteria",
+      "kind": "acceptance-criteria",
+      "uri": "artifact://runs/run-service-spec-0001/acceptance-criteria"
+    },
+    {
+      "id": "spec-doc",
+      "kind": "spec-doc",
+      "uri": "artifact://runs/run-service-spec-0001/spec-doc"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "design.service-to-spec",
+      "flow_version": "0.1.0",
+      "run_id": "run-service-spec-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T15:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "design.service-to-spec",
+      "flow_version": "0.1.0",
+      "run_id": "run-service-spec-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:00:30Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "criteria",
+      "payload": {
+        "gate_id": "acceptance-criteria-traceable",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "acceptance-criteria",
+          "kind": "acceptance-criteria",
+          "uri": "artifact://runs/run-service-spec-0001/acceptance-criteria",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "design.service-to-spec",
+      "flow_version": "0.1.0",
+      "run_id": "run-service-spec-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:01:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "review",
+      "payload": {
+        "gate_id": "spec-approved",
+        "status": "passed",
+        "reviewer_id": "operator:service-architect"
+      },
+      "evidence": [
+        {
+          "id": "spec-doc",
+          "kind": "spec-doc",
+          "uri": "artifact://runs/run-service-spec-0001/spec-doc",
+          "evidence_class": "judgment"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "design.service-to-spec",
+      "flow_version": "0.1.0",
+      "run_id": "run-service-spec-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T15:03:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

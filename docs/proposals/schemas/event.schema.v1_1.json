@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/RNT56/agentic-flows/schemas/event.schema.v1_1.json",
+  "title": "Agentic Flow Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_version", "flow_id", "flow_version", "run_id", "event", "timestamp", "core", "severity"],
+  "properties": {
+    "event_version": {
+      "enum": ["agentic-flows.events/v1", "agentic-flows.events/v1.1"]
+    },
+    "flow_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._/\\-]*[a-z0-9]$"
+    },
+    "flow_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 8
+    },
+    "node_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "event": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]*$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "core": {
+      "enum": ["thinclaw", "nilcore", "crustcore", "standalone"]
+    },
+    "severity": {
+      "enum": ["debug", "info", "warning", "error"]
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "sub_run": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "flow_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._/\\-]*[a-z0-9]$"
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 8
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "uri"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$"
+          },
+          "kind": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9._-]*$"
+          },
+          "uri": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "evidence_class": {
+            "enum": ["deterministic", "fixture", "sandbox-run", "judgment", "external-production"]
+          }
+        }
+      }
+    }
+  }
+}

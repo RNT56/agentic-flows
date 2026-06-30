@@ -1,0 +1,70 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "proof.evidence-bundle-export",
+    "version": "0.1.0",
+    "source": "flows/proof/evidence-bundle-export/flow.yaml"
+  },
+  "run": {
+    "id": "run-shc-export-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T16:00:00Z",
+    "completed_at": "2026-06-28T16:09:00Z"
+  },
+  "inputs": {},
+  "outputs": {
+    "proof_bundle": "artifact://runs/run-shc-export-0001/proof_bundle",
+    "export_manifest": "artifact://runs/run-shc-export-0001/export_manifest"
+  },
+  "artifacts": [
+    {
+      "id": "proof-bundle",
+      "kind": "proof-bundle",
+      "uri": "artifact://runs/run-shc-export-0001/proof-bundle"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.evidence-bundle-export",
+      "flow_version": "0.1.0",
+      "run_id": "run-shc-export-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T16:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.evidence-bundle-export",
+      "flow_version": "0.1.0",
+      "run_id": "run-shc-export-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T16:01:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "bundle-complete",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "proof-bundle",
+          "kind": "proof-bundle",
+          "uri": "artifact://runs/run-shc-export-0001/proof-bundle"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "proof.evidence-bundle-export",
+      "flow_version": "0.1.0",
+      "run_id": "run-shc-export-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T16:09:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

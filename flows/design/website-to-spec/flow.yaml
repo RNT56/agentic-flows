@@ -1,0 +1,135 @@
+spec_version: agentic-flows/v1.1
+id: design.website-to-spec
+version: 0.1.0
+title: Website design to spec
+summary: 'Turn a product brief into an approved, traceable website design spec: information architecture, component inventory,
+  and acceptance criteria.'
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - design
+  - website
+  - spec
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - standalone
+  required_capabilities:
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: brief
+      type: markdown
+      required: true
+      description: 'Product brief: audience, goals, content, and constraints for the website.'
+  outputs:
+    - id: design_spec
+      type: markdown
+      required: true
+      description: Approved design spec with IA, component inventory, and acceptance criteria.
+  artifacts:
+    - ia-outline
+    - component-inventory
+    - acceptance-criteria
+    - spec-doc
+nodes:
+  - id: intake
+    type: intake
+    title: Intake brief
+    description: Capture the product brief, audience, goals, and content constraints.
+    produces:
+      - brief-scope
+  - id: structure
+    type: plan
+    title: Plan information architecture
+    description: Draft the information architecture and page/content outline from the brief.
+    requires:
+      - brief-scope
+    produces:
+      - ia-outline
+  - id: inventory
+    type: agent_task
+    title: Build component inventory
+    description: Enumerate the reusable components and content blocks the pages require.
+    agent: design-worker
+    requires:
+      - ia-outline
+    produces:
+      - component-inventory
+  - id: criteria
+    type: agent_task
+    title: Write acceptance criteria
+    description: Write traceable acceptance criteria, each citing a brief goal or constraint.
+    agent: design-worker
+    requires:
+      - component-inventory
+    produces:
+      - acceptance-criteria
+  - id: review
+    type: verifier
+    title: Assemble design spec
+    description: Assemble IA, inventory, and criteria into a single coherent design spec document.
+    requires:
+      - acceptance-criteria
+    produces:
+      - spec-doc
+  - id: approve
+    type: approval
+    title: Design owner sign-off
+    description: A design owner approves the spec before it is released to build.
+    requires:
+      - spec-doc
+  - id: final
+    type: finalizer
+    title: Close out design
+    description: Return the approved design spec for downstream build flows.
+    requires:
+      - spec-doc
+    produces:
+      - design_spec
+edges:
+  - from: intake
+    to: structure
+  - from: structure
+    to: inventory
+  - from: inventory
+    to: criteria
+  - from: criteria
+    to: review
+  - from: review
+    to: approve
+  - from: approve
+    to: final
+quality_gates:
+  - id: acceptance-criteria-traceable
+    title: Acceptance criteria are traceable
+    type: artifact
+    required: true
+    evidence: Every acceptance criterion cites a brief goal or named constraint.
+    evidence_refs:
+      - acceptance-criteria
+    evidence_class: deterministic
+  - id: spec-approved
+    title: Design spec approved
+    type: judgment
+    required: true
+    evidence: A design owner approved the assembled spec.
+    evidence_refs:
+      - spec-doc
+    evidence_class: judgment
+    criteria:
+      - Information architecture covers every brief goal
+      - Acceptance criteria are traceable to the brief
+      - No orphaned components in the inventory
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

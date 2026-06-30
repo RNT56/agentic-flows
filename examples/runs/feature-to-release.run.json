@@ -1,0 +1,195 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "program.feature-to-release",
+    "version": "0.1.0",
+    "source": "flows/program/feature-to-release/flow.yaml"
+  },
+  "run": {
+    "id": "run-feature-to-release-0001",
+    "core": "nilcore",
+    "status": "completed",
+    "started_at": "2026-06-29T16:00:00Z",
+    "completed_at": "2026-06-29T16:09:00Z"
+  },
+  "inputs": {},
+  "outputs": {
+    "release_patch": "artifact://runs/run-feature-to-release-0001/release_patch",
+    "acceptance_record": "artifact://runs/run-feature-to-release-0001/acceptance_record"
+  },
+  "artifacts": [
+    {
+      "id": "subflows-report",
+      "kind": "subflows-report",
+      "uri": "artifact://runs/run-feature-to-release-0001/subflows-report"
+    },
+    {
+      "id": "deploy-record",
+      "kind": "deploy-record",
+      "uri": "artifact://runs/run-feature-to-release-0001/deploy-record"
+    }
+  ],
+  "sub_runs": [
+    {
+      "node_id": "build",
+      "flow": {
+        "id": "engineering.issue-to-verified-pr",
+        "version": "0.1.0"
+      },
+      "run": {
+        "id": "run-ftr-build-0001",
+        "status": "completed"
+      },
+      "uri": "feature-to-release/build.run.json"
+    },
+    {
+      "node_id": "deploy",
+      "flow": {
+        "id": "ops.ephemeral-preview-deploy",
+        "version": "0.1.0"
+      },
+      "run": {
+        "id": "run-ftr-deploy-0001",
+        "status": "completed"
+      },
+      "uri": "feature-to-release/deploy.run.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.feature-to-release",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-to-release-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-29T16:00:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.feature-to-release",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-to-release-0001",
+      "event": "subflow.started",
+      "timestamp": "2026-06-29T16:00:10Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "build",
+      "payload": {
+        "node_id": "build",
+        "child_flow_id": "engineering.issue-to-verified-pr",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-ftr-build-0001"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.feature-to-release",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-to-release-0001",
+      "event": "subflow.completed",
+      "timestamp": "2026-06-29T16:00:20Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "build",
+      "payload": {
+        "node_id": "build",
+        "child_flow_id": "engineering.issue-to-verified-pr",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-ftr-build-0001",
+        "child_status": "completed"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.feature-to-release",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-to-release-0001",
+      "event": "subflow.started",
+      "timestamp": "2026-06-29T16:01:10Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "deploy",
+      "payload": {
+        "node_id": "deploy",
+        "child_flow_id": "ops.ephemeral-preview-deploy",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-ftr-deploy-0001"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.feature-to-release",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-to-release-0001",
+      "event": "subflow.completed",
+      "timestamp": "2026-06-29T16:01:20Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "deploy",
+      "payload": {
+        "node_id": "deploy",
+        "child_flow_id": "ops.ephemeral-preview-deploy",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-ftr-deploy-0001",
+        "child_status": "completed"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.feature-to-release",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-to-release-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-29T16:05:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "subflows-passed",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "subflows-report",
+          "kind": "subflows-report",
+          "uri": "artifact://runs/run-feature-to-release-0001/subflows-report",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.feature-to-release",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-to-release-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-29T16:06:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "release-accepted",
+        "status": "passed",
+        "reviewer_id": "operator:reviewer"
+      },
+      "evidence": [
+        {
+          "id": "deploy-record",
+          "kind": "deploy-record",
+          "uri": "artifact://runs/run-feature-to-release-0001/deploy-record",
+          "evidence_class": "judgment"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.feature-to-release",
+      "flow_version": "0.1.0",
+      "run_id": "run-feature-to-release-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-29T16:09:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    }
+  ]
+}

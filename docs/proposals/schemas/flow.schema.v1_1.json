@@ -1,0 +1,594 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/RNT56/agentic-flows/schemas/flow.schema.v1_1.json",
+  "title": "Agentic Flow",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "spec_version",
+    "id",
+    "version",
+    "title",
+    "summary",
+    "stability",
+    "owners",
+    "tags",
+    "entrypoint",
+    "runtime",
+    "contracts",
+    "nodes",
+    "edges",
+    "quality_gates",
+    "observability"
+  ],
+  "properties": {
+    "spec_version": {
+      "enum": [
+        "agentic-flows/v1",
+        "agentic-flows/v1.1"
+      ]
+    },
+    "id": {
+      "$ref": "#/$defs/flow_id"
+    },
+    "version": {
+      "$ref": "#/$defs/semver"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 3
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 10
+    },
+    "stability": {
+      "enum": [
+        "experimental",
+        "preview",
+        "stable"
+      ]
+    },
+    "deprecated_by": {
+      "$ref": "#/$defs/flow_id"
+    },
+    "migration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "steps"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "minLength": 10
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "parameters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]*$"
+          },
+          "type": {
+            "enum": [
+              "enum",
+              "text",
+              "boolean",
+              "number"
+            ]
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "choices": {
+            "type": "array"
+          },
+          "default": {},
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "owners": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 2
+      }
+    },
+    "tags": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9-]*$"
+      }
+    },
+    "entrypoint": {
+      "$ref": "#/$defs/node_id"
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "supported_cores",
+        "required_capabilities"
+      ],
+      "properties": {
+        "supported_cores": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "thinclaw",
+              "nilcore",
+              "crustcore",
+              "standalone"
+            ]
+          }
+        },
+        "required_capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$"
+          }
+        },
+        "adapter_hints": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "inputs",
+        "outputs"
+      ],
+      "properties": {
+        "inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/contract_field"
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/contract_field"
+          }
+        },
+        "artifacts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$"
+          }
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/node"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/edge"
+      }
+    },
+    "quality_gates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/quality_gate"
+      }
+    },
+    "observability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "events"
+      ],
+      "properties": {
+        "events": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_.-]*$"
+          }
+        },
+        "metrics": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_.-]*$"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "flow_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._/\\-]*[a-z0-9]$"
+    },
+    "node_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "contract_field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "required"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$"
+        },
+        "type": {
+          "enum": [
+            "text",
+            "markdown",
+            "json",
+            "patch",
+            "command",
+            "uri",
+            "boolean",
+            "number"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "title",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/node_id"
+        },
+        "type": {
+          "enum": [
+            "intake",
+            "plan",
+            "agent_task",
+            "tool",
+            "verifier",
+            "approval",
+            "decision",
+            "handoff",
+            "finalizer",
+            "flow_ref"
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 3
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10
+        },
+        "agent": {
+          "type": "string"
+        },
+        "tool": {
+          "type": "string"
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "requires": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "produces": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "policy": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "flow_id"
+          ],
+          "properties": {
+            "flow_id": {
+              "$ref": "#/$defs/flow_id"
+            },
+            "version_constraint": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "expose": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$"
+          }
+        },
+        "environment": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "provides": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ephemeral": {
+              "type": "boolean"
+            },
+            "teardown_required": {
+              "type": "boolean"
+            }
+          }
+        },
+        "iteration": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_iterations": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "until": {
+              "type": "string"
+            },
+            "on_exhausted": {
+              "enum": [
+                "fail",
+                "handoff"
+              ]
+            }
+          }
+        },
+        "fan_out": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "over": {
+              "type": "string"
+            },
+            "cardinality": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "min": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "max": {
+                  "type": "integer"
+                }
+              }
+            },
+            "aggregate": {
+              "enum": [
+                "all_pass",
+                "threshold",
+                "any"
+              ]
+            },
+            "instance_id": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "flow_ref"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "ref",
+              "expose"
+            ]
+          }
+        },
+        {
+          "if": {
+            "not": {
+              "properties": {
+                "type": {
+                  "const": "flow_ref"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "ref": false,
+              "with": false,
+              "expose": false
+            }
+          }
+        }
+      ]
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "$ref": "#/$defs/node_id"
+        },
+        "to": {
+          "$ref": "#/$defs/node_id"
+        },
+        "condition": {
+          "type": "string"
+        }
+      }
+    },
+    "quality_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "type",
+        "required"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 3
+        },
+        "type": {
+          "enum": [
+            "command",
+            "review",
+            "artifact",
+            "policy",
+            "judgment",
+            "acceptance",
+            "probe"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "command": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9._-]*$"
+          }
+        },
+        "evidence_class": {
+          "enum": [
+            "deterministic",
+            "fixture",
+            "sandbox-run",
+            "judgment",
+            "external-production"
+          ]
+        },
+        "evidence_class_min": {
+          "enum": [
+            "deterministic",
+            "fixture",
+            "sandbox-run",
+            "judgment",
+            "external-production"
+          ],
+          "description": "Floor: evidence of this class or stricter satisfies the gate."
+        },
+        "criteria": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reviewer_id": {
+          "type": "string"
+        },
+        "acceptance_spec": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "threshold": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

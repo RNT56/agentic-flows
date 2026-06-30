@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "ops.ephemeral-preview-deploy",
+    "version": "0.1.0",
+    "source": "flows/ops/ephemeral-preview-deploy/flow.yaml"
+  },
+  "inputs": {
+    "artifact_ref": "artifact://builds/webapp-1.2.3",
+    "repo": "https://github.com/RNT56/example-webapp"
+  },
+  "expected_outputs": {
+    "deploy_record": "Preview URL, digest, env id, and passing probes.",
+    "rollback_plan": "The documented rollback path."
+  },
+  "notes": "Sample for ops.ephemeral-preview-deploy."
+}

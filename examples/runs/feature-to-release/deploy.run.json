@@ -1,0 +1,154 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "ops.ephemeral-preview-deploy",
+    "version": "0.1.0",
+    "source": "flows/ops/ephemeral-preview-deploy/flow.yaml"
+  },
+  "run": {
+    "id": "run-ftr-deploy-0001",
+    "core": "nilcore",
+    "status": "completed",
+    "started_at": "2026-06-28T16:00:00Z",
+    "completed_at": "2026-06-28T16:09:00Z"
+  },
+  "inputs": {},
+  "outputs": {
+    "deploy_record": "artifact://runs/run-ftr-deploy-0001/deploy_record",
+    "rollback_plan": "artifact://runs/run-ftr-deploy-0001/rollback_plan"
+  },
+  "artifacts": [
+    {
+      "id": "preflight-log",
+      "kind": "preflight-log",
+      "uri": "artifact://runs/run-ftr-deploy-0001/preflight-log"
+    },
+    {
+      "id": "health-probe-log",
+      "kind": "health-probe-log",
+      "uri": "artifact://runs/run-ftr-deploy-0001/health-probe-log"
+    },
+    {
+      "id": "rollback-plan",
+      "kind": "rollback-plan",
+      "uri": "artifact://runs/run-ftr-deploy-0001/rollback-plan"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.ephemeral-preview-deploy",
+      "flow_version": "0.1.0",
+      "run_id": "run-ftr-deploy-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T16:00:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.ephemeral-preview-deploy",
+      "flow_version": "0.1.0",
+      "run_id": "run-ftr-deploy-0001",
+      "event": "env.provisioned",
+      "timestamp": "2026-06-28T16:00:10Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "deploy",
+      "payload": {
+        "node_id": "deploy",
+        "provisioner": "nilcore-sandbox"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.ephemeral-preview-deploy",
+      "flow_version": "0.1.0",
+      "run_id": "run-ftr-deploy-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T16:01:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "preflight-passed",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "preflight-log",
+          "kind": "preflight-log",
+          "uri": "artifact://runs/run-ftr-deploy-0001/preflight-log",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.ephemeral-preview-deploy",
+      "flow_version": "0.1.0",
+      "run_id": "run-ftr-deploy-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T16:02:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "preview-health-probed",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "health-probe-log",
+          "kind": "health-probe-log",
+          "uri": "artifact://runs/run-ftr-deploy-0001/health-probe-log",
+          "evidence_class": "sandbox-run"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.ephemeral-preview-deploy",
+      "flow_version": "0.1.0",
+      "run_id": "run-ftr-deploy-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T16:03:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "rollback-plan-present",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "rollback-plan",
+          "kind": "rollback-plan",
+          "uri": "artifact://runs/run-ftr-deploy-0001/rollback-plan",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.ephemeral-preview-deploy",
+      "flow_version": "0.1.0",
+      "run_id": "run-ftr-deploy-0001",
+      "event": "env.torn_down",
+      "timestamp": "2026-06-28T16:08:30Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "deploy",
+      "payload": {
+        "node_id": "deploy"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "ops.ephemeral-preview-deploy",
+      "flow_version": "0.1.0",
+      "run_id": "run-ftr-deploy-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T16:09:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    }
+  ]
+}

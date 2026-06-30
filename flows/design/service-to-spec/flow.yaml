@@ -1,0 +1,135 @@
+spec_version: agentic-flows/v1.1
+id: design.service-to-spec
+version: 0.1.0
+title: Service design to spec
+summary: 'Turn a service or API brief into an approved, traceable backend spec: endpoints, data model, auth surface, and acceptance
+  criteria.'
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - design
+  - service
+  - spec
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - standalone
+  required_capabilities:
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: brief
+      type: markdown
+      required: true
+      description: 'Service brief: purpose, capabilities, data, and constraints.'
+  outputs:
+    - id: design_spec
+      type: markdown
+      required: true
+      description: Approved service spec (endpoints, data model, auth, acceptance criteria) shaped as a backend-service target_spec.
+  artifacts:
+    - endpoint-outline
+    - data-model
+    - acceptance-criteria
+    - spec-doc
+nodes:
+  - id: intake
+    type: intake
+    title: Intake brief
+    description: Capture the service brief, capabilities, data, and constraints.
+    produces:
+      - brief-scope
+  - id: structure
+    type: plan
+    title: Outline endpoints
+    description: Draft the endpoint and operation outline from the brief.
+    requires:
+      - brief-scope
+    produces:
+      - endpoint-outline
+  - id: model
+    type: agent_task
+    title: Design the data model
+    description: Design the data model and auth surface the endpoints require.
+    agent: service-design-worker
+    requires:
+      - endpoint-outline
+    produces:
+      - data-model
+  - id: criteria
+    type: agent_task
+    title: Write acceptance criteria
+    description: Write traceable acceptance criteria, each citing a brief capability or constraint.
+    agent: service-design-worker
+    requires:
+      - data-model
+    produces:
+      - acceptance-criteria
+  - id: review
+    type: verifier
+    title: Assemble service spec
+    description: Assemble endpoints, data model, auth, and criteria into one coherent spec.
+    requires:
+      - acceptance-criteria
+    produces:
+      - spec-doc
+  - id: approve
+    type: approval
+    title: Service architect sign-off
+    description: A service architect approves the spec before it is released to build.
+    requires:
+      - spec-doc
+  - id: final
+    type: finalizer
+    title: Close out design
+    description: Return the approved service spec for the backend build flow.
+    requires:
+      - spec-doc
+    produces:
+      - design_spec
+edges:
+  - from: intake
+    to: structure
+  - from: structure
+    to: model
+  - from: model
+    to: criteria
+  - from: criteria
+    to: review
+  - from: review
+    to: approve
+  - from: approve
+    to: final
+quality_gates:
+  - id: acceptance-criteria-traceable
+    title: Acceptance criteria are traceable
+    type: artifact
+    required: true
+    evidence: Every acceptance criterion cites a brief capability or named constraint.
+    evidence_refs:
+      - acceptance-criteria
+    evidence_class: deterministic
+  - id: spec-approved
+    title: Service spec approved
+    type: judgment
+    required: true
+    evidence: A service architect approved the assembled spec.
+    evidence_refs:
+      - spec-doc
+    evidence_class: judgment
+    criteria:
+      - Endpoints cover every brief capability
+      - Data model is normalized and complete
+      - Auth surface is explicit
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

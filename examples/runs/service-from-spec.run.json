@@ -1,0 +1,242 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "program.service-from-spec",
+    "version": "0.1.0",
+    "source": "flows/program/service-from-spec/flow.yaml"
+  },
+  "run": {
+    "id": "run-service-from-spec-0001",
+    "core": "nilcore",
+    "status": "completed",
+    "started_at": "2026-06-29T16:00:00Z",
+    "completed_at": "2026-06-29T16:09:00Z"
+  },
+  "inputs": {},
+  "outputs": {
+    "service_patch": "artifact://runs/run-service-from-spec-0001/service_patch",
+    "closeout": "artifact://runs/run-service-from-spec-0001/closeout"
+  },
+  "artifacts": [
+    {
+      "id": "subflows-report",
+      "kind": "subflows-report",
+      "uri": "artifact://runs/run-service-from-spec-0001/subflows-report"
+    },
+    {
+      "id": "integration-report",
+      "kind": "integration-report",
+      "uri": "artifact://runs/run-service-from-spec-0001/integration-report"
+    }
+  ],
+  "sub_runs": [
+    {
+      "node_id": "design",
+      "flow": {
+        "id": "design.service-to-spec",
+        "version": "0.1.0"
+      },
+      "run": {
+        "id": "run-sfs-design-0001",
+        "status": "completed"
+      },
+      "uri": "service-from-spec/design.run.json"
+    },
+    {
+      "node_id": "backend",
+      "flow": {
+        "id": "engineering.backend-service",
+        "version": "0.1.0"
+      },
+      "run": {
+        "id": "run-sfs-backend-0001",
+        "status": "completed"
+      },
+      "uri": "service-from-spec/backend.run.json"
+    },
+    {
+      "node_id": "integration",
+      "flow": {
+        "id": "ops.integration-test-lab",
+        "version": "0.1.0"
+      },
+      "run": {
+        "id": "run-sfs-integration-0001",
+        "status": "completed"
+      },
+      "uri": "service-from-spec/integration.run.json"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.service-from-spec",
+      "flow_version": "0.1.0",
+      "run_id": "run-service-from-spec-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-29T16:00:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.service-from-spec",
+      "flow_version": "0.1.0",
+      "run_id": "run-service-from-spec-0001",
+      "event": "subflow.started",
+      "timestamp": "2026-06-29T16:00:10Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "design",
+      "payload": {
+        "node_id": "design",
+        "child_flow_id": "design.service-to-spec",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-sfs-design-0001"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.service-from-spec",
+      "flow_version": "0.1.0",
+      "run_id": "run-service-from-spec-0001",
+      "event": "subflow.completed",
+      "timestamp": "2026-06-29T16:00:20Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "design",
+      "payload": {
+        "node_id": "design",
+        "child_flow_id": "design.service-to-spec",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-sfs-design-0001",
+        "child_status": "completed"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.service-from-spec",
+      "flow_version": "0.1.0",
+      "run_id": "run-service-from-spec-0001",
+      "event": "subflow.started",
+      "timestamp": "2026-06-29T16:01:10Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "backend",
+      "payload": {
+        "node_id": "backend",
+        "child_flow_id": "engineering.backend-service",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-sfs-backend-0001"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.service-from-spec",
+      "flow_version": "0.1.0",
+      "run_id": "run-service-from-spec-0001",
+      "event": "subflow.completed",
+      "timestamp": "2026-06-29T16:01:20Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "backend",
+      "payload": {
+        "node_id": "backend",
+        "child_flow_id": "engineering.backend-service",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-sfs-backend-0001",
+        "child_status": "completed"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.service-from-spec",
+      "flow_version": "0.1.0",
+      "run_id": "run-service-from-spec-0001",
+      "event": "subflow.started",
+      "timestamp": "2026-06-29T16:02:10Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "integration",
+      "payload": {
+        "node_id": "integration",
+        "child_flow_id": "ops.integration-test-lab",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-sfs-integration-0001"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.service-from-spec",
+      "flow_version": "0.1.0",
+      "run_id": "run-service-from-spec-0001",
+      "event": "subflow.completed",
+      "timestamp": "2026-06-29T16:02:20Z",
+      "core": "nilcore",
+      "severity": "info",
+      "node_id": "integration",
+      "payload": {
+        "node_id": "integration",
+        "child_flow_id": "ops.integration-test-lab",
+        "resolved_version": "0.1.0",
+        "sub_run_id": "run-sfs-integration-0001",
+        "child_status": "completed"
+      }
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.service-from-spec",
+      "flow_version": "0.1.0",
+      "run_id": "run-service-from-spec-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-29T16:05:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "subflows-passed",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "subflows-report",
+          "kind": "subflows-report",
+          "uri": "artifact://runs/run-service-from-spec-0001/subflows-report",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.service-from-spec",
+      "flow_version": "0.1.0",
+      "run_id": "run-service-from-spec-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-29T16:06:00Z",
+      "core": "nilcore",
+      "severity": "info",
+      "payload": {
+        "gate_id": "service-verified",
+        "status": "passed",
+        "reviewer_id": "operator:reviewer"
+      },
+      "evidence": [
+        {
+          "id": "integration-report",
+          "kind": "integration-report",
+          "uri": "artifact://runs/run-service-from-spec-0001/integration-report",
+          "evidence_class": "judgment"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "program.service-from-spec",
+      "flow_version": "0.1.0",
+      "run_id": "run-service-from-spec-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-29T16:09:00Z",
+      "core": "nilcore",
+      "severity": "info"
+    }
+  ]
+}

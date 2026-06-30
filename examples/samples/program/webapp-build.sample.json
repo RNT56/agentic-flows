@@ -1,0 +1,18 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "program.webapp-build",
+    "version": "0.1.0",
+    "source": "flows/program/webapp-build/flow.yaml"
+  },
+  "inputs": {
+    "product_brief": "Build a task-tracker web app: a REST backend and a React UI, from one brief.",
+    "stack": "node",
+    "repo": "https://github.com/RNT56/example-webapp"
+  },
+  "expected_outputs": {
+    "app_patch": "The assembled application changes across backend and frontend.",
+    "closeout": "A program closeout with sub-flow evidence and integration result."
+  },
+  "notes": "Sample for program.webapp-build."
+}

@@ -1,0 +1,105 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.library-package",
+    "version": "0.1.0",
+    "source": "flows/engineering/library-package/flow.yaml"
+  },
+  "run": {
+    "id": "run-library-pkg-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T15:00:00Z",
+    "completed_at": "2026-06-28T15:03:00Z"
+  },
+  "inputs": {
+    "target_spec": "date-formatting library.",
+    "ecosystem": "npm",
+    "repo": "https://github.com/RNT56/example-lib"
+  },
+  "outputs": {
+    "package_patch": "artifact://runs/run-library-pkg-0001/pkg.patch",
+    "changelog_entry": "artifact://runs/run-library-pkg-0001/changelog.md"
+  },
+  "artifacts": [
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-library-pkg-0001/test-log"
+    },
+    {
+      "id": "api-surface-diff",
+      "kind": "api-surface-diff",
+      "uri": "artifact://runs/run-library-pkg-0001/api-surface-diff"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.library-package",
+      "flow_version": "0.1.0",
+      "run_id": "run-library-pkg-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T15:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.library-package",
+      "flow_version": "0.1.0",
+      "run_id": "run-library-pkg-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:00:30Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "build-test",
+      "payload": {
+        "gate_id": "build-and-tests-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-library-pkg-0001/test-log",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.library-package",
+      "flow_version": "0.1.0",
+      "run_id": "run-library-pkg-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T15:01:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "node_id": "review",
+      "payload": {
+        "gate_id": "public-api-reviewed",
+        "status": "passed",
+        "reviewer_id": "operator:api-reviewer"
+      },
+      "evidence": [
+        {
+          "id": "api-surface-diff",
+          "kind": "api-surface-diff",
+          "uri": "artifact://runs/run-library-pkg-0001/api-surface-diff",
+          "evidence_class": "judgment"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.library-package",
+      "flow_version": "0.1.0",
+      "run_id": "run-library-pkg-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T15:03:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

@@ -22,6 +22,8 @@ try:
 except ImportError as exc:  # pragma: no cover - exercised by users without deps
     raise SystemExit("jsonschema is required. Install with: python -m pip install -e .") from exc
 
+from flowctl import composition
+
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SCHEMA = REPO_ROOT / "schemas" / "flow.schema.json"
@@ -60,7 +62,16 @@ DEFAULT_RELEASE_PACKAGE_PATHS = [
 ]
 ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 OPTIONAL_CONSUMERS = {"crustcore", "nilcore", "thinclaw"}
+EVIDENCE_CLASS_ORDER = {
+    "deterministic": 0,
+    "fixture": 1,
+    "sandbox-run": 2,
+    "judgment": 3,
+    "external-production": 4,
+}
+STANDALONE_FORBIDDEN_EVIDENCE_CLASSES = {"sandbox-run", "external-production"}
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]*]\(([^)]+)\)")
+PARAM_REFERENCE_PATTERN = re.compile(r"\{\{\s*param\.([a-z][a-z0-9_-]*)(?:\.[a-z0-9_-]+)?\s*\}\}")
 FLOW_KEY_ORDER = [
     "spec_version",
     "id",
@@ -75,6 +86,7 @@ FLOW_KEY_ORDER = [
     "entrypoint",
     "runtime",
     "contracts",
+    "parameters",
     "nodes",
     "edges",
     "quality_gates",
@@ -99,14 +111,35 @@ NODE_KEY_ORDER = [
     "timeout_seconds",
     "requires",
     "produces",
+    "ref",
+    "with",
+    "expose",
+    "environment",
+    "iteration",
+    "fan_out",
     "on_failure",
     "policy",
 ]
-PARAMETER_KEY_ORDER = ["id", "type", "required", "default", "description"]
+PARAMETER_KEY_ORDER = ["id", "type", "required", "choices", "default", "description"]
 NODE_FIELD_KEY_ORDER = ["id", "type", "required", "description"]
 ON_FAILURE_KEY_ORDER = ["action", "max_attempts", "fallback_node"]
 EDGE_KEY_ORDER = ["from", "to", "condition"]
-QUALITY_GATE_KEY_ORDER = ["id", "title", "type", "required", "command", "evidence", "evidence_refs"]
+QUALITY_GATE_KEY_ORDER = [
+    "id",
+    "title",
+    "type",
+    "required",
+    "command",
+    "evidence",
+    "evidence_refs",
+    "evidence_class",
+    "evidence_class_min",
+    "criteria",
+    "reviewer_id",
+    "acceptance_spec",
+    "threshold",
+]
+PARAMETER_KEY_ORDER = ["id", "type", "required", "choices", "default", "description"]
 OBSERVABILITY_KEY_ORDER = ["events", "metrics"]
 
 
@@ -149,6 +182,28 @@ def find_flow_files(paths: Iterable[Path]) -> list[Path]:
         files.extend(sorted(path.rglob("flow.yml")))
 
     return sorted(dict.fromkeys(files))
+
+
+def build_flow_catalog(
+    paths: Iterable[Path],
+) -> tuple[dict[str, list[dict[str, Any]]], list[str]]:
+    """Index every flow file by id -> [{version, path, document}], for composition resolution."""
+    catalog: dict[str, list[dict[str, Any]]] = {}
+    errors: list[str] = []
+    for path in find_flow_files(paths):
+        if not path.exists():
+            continue
+        try:
+            document = load_yaml(path)
+        except Exception as exc:  # noqa: BLE001 - catalog build should report file context
+            errors.append(f"{display_path(path)}: {exc}")
+            continue
+        flow_id = document.get("id")
+        version = document.get("version")
+        if not isinstance(flow_id, str) or not isinstance(version, str):
+            continue
+        catalog.setdefault(flow_id, []).append({"version": version, "path": path, "document": document})
+    return catalog, errors
 
 
 def find_json_files(paths: Iterable[Path]) -> list[Path]:
@@ -316,6 +371,7 @@ def normalize_flow_document(document: dict[str, Any]) -> dict[str, Any]:
         list_child_orders={
             "inputs": CONTRACT_FIELD_KEY_ORDER,
             "outputs": CONTRACT_FIELD_KEY_ORDER,
+            "parameters": PARAMETER_KEY_ORDER,
             "nodes": NODE_KEY_ORDER,
             "edges": EDGE_KEY_ORDER,
             "quality_gates": QUALITY_GATE_KEY_ORDER,
@@ -411,6 +467,7 @@ def validate_run_document(
     flow_schema: dict[str, Any],
     *,
     run_path: Path | None = None,
+    _depth: int = 0,
 ) -> list[str]:
     validator = Draft202012Validator(run_schema, format_checker=FormatChecker())
     errors = [
@@ -486,6 +543,136 @@ def validate_run_document(
             for output_id in required_outputs:
                 if output_id not in outputs:
                     errors.append(f"$.outputs.{output_id}: required output is missing")
+
+    errors.extend(
+        validate_sub_runs(
+            document,
+            flow_document,
+            run_schema,
+            event_schema,
+            flow_schema,
+            run_path=run_path,
+            _depth=_depth,
+        )
+    )
+
+    return errors
+
+
+def validate_sub_runs(
+    document: dict[str, Any],
+    flow_document: dict[str, Any] | None,
+    run_schema: dict[str, Any],
+    event_schema: dict[str, Any],
+    flow_schema: dict[str, Any],
+    *,
+    run_path: Path | None = None,
+    _depth: int = 0,
+) -> list[str]:
+    """Runtime arm of sub-flow composition: recursively validate each flow_ref child bundle.
+
+    A parent run that declares (via its source flow) a ``flow_ref`` node must carry a matching
+    ``sub_runs`` entry whose child bundle recursively validates, is ``completed`` (when the parent
+    is), and has a ``subflow.completed`` event. A passed ``subflows-passed`` gate is therefore
+    backed by honest, recursively-checked child evidence rather than a parent self-assertion.
+    """
+    errors: list[str] = []
+    if not flow_document:
+        return errors
+
+    flow_refs = {
+        node["id"]: node
+        for node in composition.flow_ref_nodes(flow_document)
+        if isinstance(node.get("id"), str)
+    }
+    if not flow_refs:
+        return errors
+
+    if _depth > 16:
+        return ["$.sub_runs: composition nesting too deep (possible cycle)"]
+
+    sub_runs = document.get("sub_runs", [])
+    if not isinstance(sub_runs, list):
+        sub_runs = []
+    sub_by_node: dict[str, dict[str, Any]] = {}
+    seen_node_ids: set[str] = set()
+    for index, sub in enumerate(sub_runs):
+        if not isinstance(sub, dict):
+            continue
+        node_id = sub.get("node_id")
+        if isinstance(node_id, str):
+            if node_id in seen_node_ids:
+                errors.append(
+                    f"$.sub_runs[{index}].node_id: duplicate sub_run for flow_ref node '{node_id}' "
+                    "(each flow_ref node maps to exactly one sub_run)"
+                )
+            seen_node_ids.add(node_id)
+            sub_by_node[node_id] = sub
+        if node_id not in flow_refs:
+            errors.append(f"$.sub_runs[{index}].node_id: '{node_id}' is not a flow_ref node in the source flow")
+
+    status = document.get("run", {}).get("status") if isinstance(document.get("run"), dict) else None
+    completed_subflow_nodes: set[str] = set()
+    for event in document.get("events", []):
+        if isinstance(event, dict) and event.get("event") == "subflow.completed":
+            payload = event.get("payload") if isinstance(event.get("payload"), dict) else {}
+            node_id = payload.get("node_id") or event.get("node_id")
+            if node_id:
+                completed_subflow_nodes.add(node_id)
+
+    for node_id, node in flow_refs.items():
+        ref = node.get("ref") or {}
+        sub = sub_by_node.get(node_id)
+        if sub is None:
+            if status == "completed":
+                errors.append(f"$.sub_runs: completed run has no sub_run for flow_ref node '{node_id}'")
+            continue
+
+        child_flow = sub.get("flow", {}) if isinstance(sub.get("flow"), dict) else {}
+        if child_flow.get("id") != ref.get("flow_id"):
+            errors.append(
+                f"$.sub_runs[{node_id}].flow.id: '{child_flow.get('id')}' does not match node ref.flow_id "
+                f"'{ref.get('flow_id')}'"
+            )
+        constraint = composition.parse_constraint(ref.get("version_constraint"))
+        if constraint is None:
+            errors.append(f"$.sub_runs[{node_id}]: source flow_ref has an unparseable version_constraint")
+        elif not composition.version_satisfies(child_flow.get("version"), constraint):
+            errors.append(
+                f"$.sub_runs[{node_id}].flow.version: '{child_flow.get('version')}' does not satisfy "
+                f"'{ref.get('version_constraint')}'"
+            )
+
+        uri = sub.get("uri")
+        if isinstance(uri, str):
+            child_path = resolve_adapter_artifact_source(uri, run_path)
+            if not child_path.exists():
+                errors.append(f"$.sub_runs[{node_id}].uri: child run bundle does not exist: {uri}")
+            else:
+                try:
+                    child_document = load_json(child_path)
+                    child_errors = validate_run_document(
+                        child_document,
+                        run_schema,
+                        event_schema,
+                        flow_schema,
+                        run_path=child_path,
+                        _depth=_depth + 1,
+                    )
+                    for error in child_errors:
+                        errors.append(f"$.sub_runs[{node_id}].uri({uri}): {error}")
+                    child_status = child_document.get("run", {}).get("status")
+                    if status == "completed" and child_status != "completed":
+                        errors.append(
+                            f"$.sub_runs[{node_id}]: parent run is completed but child run status is '{child_status}'"
+                        )
+                except Exception as exc:  # noqa: BLE001 - CLI should report run context
+                    errors.append(f"$.sub_runs[{node_id}].uri: {exc}")
+
+        if status == "completed" and node_id not in completed_subflow_nodes:
+            errors.append(
+                f"$.events: completed run requires a subflow.completed event for flow_ref node '{node_id}'"
+            )
 
     return errors
 
@@ -843,6 +1030,21 @@ def validate_run_events(
         and isinstance(gate.get("id"), str)
         and isinstance(gate.get("evidence_refs"), list)
     }
+    gate_evidence_class = {
+        gate["id"]: (gate.get("evidence_class"), gate.get("evidence_class_min"))
+        for gate in source_gates
+        if isinstance(gate, dict) and isinstance(gate.get("id"), str)
+    }
+    gate_types = {
+        gate["id"]: gate.get("type")
+        for gate in source_gates
+        if isinstance(gate, dict) and isinstance(gate.get("id"), str)
+    }
+    producing_agents = {
+        node["agent"]
+        for node in (flow_document.get("nodes", []) if flow_document else [])
+        if isinstance(node, dict) and isinstance(node.get("agent"), str)
+    }
 
     for index, event in enumerate(events):
         if not isinstance(event, dict):
@@ -880,14 +1082,49 @@ def validate_run_events(
                 evidence = event.get("evidence")
                 if not evidence:
                     errors.append(f"$.events[{index}].evidence: passed required gates need evidence")
-                elif gate_evidence_refs.get(gate_id):
-                    observed_evidence_refs = collect_event_evidence_refs(evidence)
-                    expected_refs = gate_evidence_refs[gate_id]
-                    if observed_evidence_refs.isdisjoint(expected_refs):
-                        expected = ", ".join(sorted(expected_refs))
+                else:
+                    if gate_evidence_refs.get(gate_id):
+                        observed_evidence_refs = collect_event_evidence_refs(evidence)
+                        expected_refs = gate_evidence_refs[gate_id]
+                        if observed_evidence_refs.isdisjoint(expected_refs):
+                            expected = ", ".join(sorted(expected_refs))
+                            errors.append(
+                                f"$.events[{index}].evidence: passed gate '{gate_id}' needs evidence id or kind matching one of: {expected}"
+                            )
+                    exact_class, floor_class = gate_evidence_class.get(gate_id, (None, None))
+                    if exact_class or floor_class:
+                        observed_classes = collect_event_evidence_classes(evidence)
+                        if not evidence_class_satisfies(observed_classes, exact_class, floor_class):
+                            requirement = exact_class if exact_class else f">= {floor_class}"
+                            got = ", ".join(sorted(observed_classes)) or "none"
+                            errors.append(
+                                f"$.events[{index}].evidence: passed gate '{gate_id}' requires evidence_class "
+                                f"{requirement}; got {got}"
+                            )
+                if gate_types.get(gate_id) in {"judgment", "acceptance"}:
+                    reviewer_id = payload.get("reviewer_id")
+                    if not isinstance(reviewer_id, str) or not reviewer_id:
                         errors.append(
-                            f"$.events[{index}].evidence: passed gate '{gate_id}' needs evidence id or kind matching one of: {expected}"
+                            f"$.events[{index}].payload.reviewer_id: {gate_types[gate_id]} gate '{gate_id}' "
+                            "requires a reviewer_id"
                         )
+                    elif reviewer_id in producing_agents:
+                        errors.append(
+                            f"$.events[{index}].payload.reviewer_id: reviewer '{reviewer_id}' for gate '{gate_id}' "
+                            "must not be a producing agent (no self-review)"
+                        )
+
+    if core == "standalone":
+        for index, event in enumerate(events):
+            if not isinstance(event, dict):
+                continue
+            for forbidden in collect_event_evidence_classes(event.get("evidence")) & STANDALONE_FORBIDDEN_EVIDENCE_CLASSES:
+                errors.append(
+                    f"$.events[{index}].evidence: standalone runs may not emit '{forbidden}' evidence; "
+                    "that evidence class requires a runtime that provisioned the environment"
+                )
+
+    errors.extend(validate_environment_provenance(events, flow_document, producing_agents))
 
     if status == "completed" and "flow.completed" not in observed_events:
         errors.append("$.events: completed runs require a flow.completed event")
@@ -921,6 +1158,87 @@ def collect_event_evidence_refs(evidence: Any) -> set[str]:
         if isinstance(kind, str):
             refs.add(kind)
     return refs
+
+
+def collect_event_evidence_classes(evidence: Any) -> set[str]:
+    if not isinstance(evidence, list):
+        return set()
+    classes: set[str] = set()
+    for item in evidence:
+        if isinstance(item, dict) and isinstance(item.get("evidence_class"), str):
+            classes.add(item["evidence_class"])
+    return classes
+
+
+def evidence_class_satisfies(observed: set[str], exact: Any, floor: Any) -> bool:
+    """Whether observed evidence classes meet a gate's declared class requirement."""
+    if exact and exact in observed:
+        return True
+    if floor and floor in EVIDENCE_CLASS_ORDER:
+        floor_rank = EVIDENCE_CLASS_ORDER[floor]
+        if any(EVIDENCE_CLASS_ORDER.get(value, -1) >= floor_rank for value in observed):
+            return True
+    return False
+
+
+def validate_environment_provenance(
+    events: list[Any],
+    flow_document: dict[str, Any] | None,
+    producing_agents: set[str],
+) -> list[str]:
+    """Provenance backbone for `sandbox-run` evidence (reframe guardrail G1).
+
+    `sandbox-run` evidence is only honest if a runtime — not the authoring agent — actually
+    provisioned the environment. So an `env.provisioned` event must be runtime-issued (its
+    `provisioner` is not one of the flow's producing agents), an environment whose
+    `teardown_required` is set must record an `env.torn_down`, and any `sandbox-run` evidence
+    must be backed by an `env.provisioned` event.
+    """
+    errors: list[str] = []
+    env_nodes = {
+        node["id"]: (node.get("environment") or {})
+        for node in (flow_document.get("nodes", []) if flow_document else [])
+        if isinstance(node, dict) and isinstance(node.get("id"), str) and isinstance(node.get("environment"), dict)
+    }
+
+    torn_down_node_ids: set[str] = set()
+    provisioned_events: list[tuple[int, dict[str, Any]]] = []
+    sandbox_present = False
+    for index, event in enumerate(events):
+        if not isinstance(event, dict):
+            continue
+        if "sandbox-run" in collect_event_evidence_classes(event.get("evidence")):
+            sandbox_present = True
+        payload = event.get("payload") if isinstance(event.get("payload"), dict) else {}
+        node_id = payload.get("node_id") or event.get("node_id")
+        if event.get("event") == "env.torn_down" and node_id:
+            torn_down_node_ids.add(node_id)
+        if event.get("event") == "env.provisioned":
+            provisioned_events.append((index, event))
+
+    for index, event in provisioned_events:
+        payload = event.get("payload") if isinstance(event.get("payload"), dict) else {}
+        provisioner = payload.get("provisioner")
+        node_id = payload.get("node_id") or event.get("node_id")
+        if not isinstance(provisioner, str) or not provisioner:
+            errors.append(f"$.events[{index}].payload.provisioner: env.provisioned requires a provisioner id")
+        elif provisioner in producing_agents:
+            errors.append(
+                f"$.events[{index}].payload.provisioner: provisioner '{provisioner}' must be a runtime, "
+                "not a producing agent (provenance must be non-self-issued)"
+            )
+        if env_nodes.get(node_id, {}).get("teardown_required", True) and node_id and node_id not in torn_down_node_ids:
+            errors.append(
+                f"$.events[{index}]: env.provisioned for node '{node_id}' requires a matching env.torn_down event"
+            )
+
+    if sandbox_present and not provisioned_events:
+        errors.append(
+            "$.events: sandbox-run evidence requires an env.provisioned provenance event "
+            "(flowctl checks consistency; the runtime attests authenticity)"
+        )
+
+    return errors
 
 
 def prefix_error_path(error: str, prefix: str) -> str:
@@ -1036,6 +1354,105 @@ def validate_semantics(document: dict[str, Any]) -> list[str]:
             if gate.get("type") == "command" and not gate.get("command"):
                 errors.append(f"$.quality_gates[{index}].command: command gates require a command")
             errors.extend(validate_quality_gate_evidence_refs(document, gate, index))
+
+    errors.extend(validate_parameter_references(document))
+    errors.extend(validate_node_extensions(document))
+
+    return errors
+
+
+def validate_node_extensions(document: dict[str, Any]) -> list[str]:
+    """Bounds checks for the v1.1 `iteration` and `fan_out` node primitives.
+
+    Loops must terminate (a mandatory `max_iterations`) and reference a real gate;
+    fan-out must declare what it ranges over, a bounded cardinality, and an aggregation
+    rule. This extends the existing "execution steps are bounded" guarantee to loops and
+    fan-out instead of letting them escape it.
+    """
+    errors: list[str] = []
+    gate_ids = {
+        gate["id"]
+        for gate in document.get("quality_gates", [])
+        if isinstance(gate, dict) and isinstance(gate.get("id"), str)
+    }
+    for index, node in enumerate(document.get("nodes", [])):
+        if not isinstance(node, dict):
+            continue
+
+        iteration = node.get("iteration")
+        if isinstance(iteration, dict):
+            if not isinstance(iteration.get("max_iterations"), int):
+                errors.append(
+                    f"$.nodes[{index}].iteration.max_iterations: bounded loops require an integer max_iterations"
+                )
+            until = iteration.get("until")
+            if isinstance(until, str) and until.startswith("gate:"):
+                gate_id = until.split(":", 1)[1]
+                if gate_id not in gate_ids:
+                    errors.append(f"$.nodes[{index}].iteration.until: references unknown gate '{gate_id}'")
+
+        fan_out = node.get("fan_out")
+        if isinstance(fan_out, dict):
+            if not isinstance(fan_out.get("over"), str) or not fan_out.get("over"):
+                errors.append(f"$.nodes[{index}].fan_out.over: fan-out requires a non-empty 'over' source")
+            cardinality = fan_out.get("cardinality")
+            if not isinstance(cardinality, dict) or not isinstance(cardinality.get("min"), int):
+                errors.append(
+                    f"$.nodes[{index}].fan_out.cardinality: fan-out requires a cardinality with an integer min"
+                )
+            if not isinstance(fan_out.get("aggregate"), str):
+                errors.append(f"$.nodes[{index}].fan_out.aggregate: fan-out requires an aggregate rule")
+
+        environment = node.get("environment")
+        if isinstance(environment, dict):
+            provides = environment.get("provides")
+            if not isinstance(provides, list) or not provides:
+                errors.append(
+                    f"$.nodes[{index}].environment.provides: a declared environment must provide at least one capability"
+                )
+
+    return errors
+
+
+def validate_parameter_references(document: dict[str, Any]) -> list[str]:
+    """Check `parameters` declarations and that every `{{param.x}}` reference resolves.
+
+    This is what lets a flow be reusable across stacks via one parameterized contract
+    (the build/test commands resolve from a declared parameter) instead of a separate
+    per-stack flow.
+    """
+    errors: list[str] = []
+    parameters = document.get("parameters", [])
+    if not isinstance(parameters, list):
+        parameters = []
+    declared = {param["id"] for param in parameters if isinstance(param, dict) and isinstance(param.get("id"), str)}
+
+    for index, param in enumerate(parameters):
+        if isinstance(param, dict) and param.get("type") == "enum":
+            choices = param.get("choices")
+            if not isinstance(choices, list) or not choices:
+                errors.append(f"$.parameters[{index}].choices: enum parameters require a non-empty choices list")
+
+    references: list[tuple[str, str]] = []
+    for index, gate in enumerate(document.get("quality_gates", [])):
+        if isinstance(gate, dict) and isinstance(gate.get("command"), str):
+            references.append((f"$.quality_gates[{index}].command", gate["command"]))
+    for index, node in enumerate(document.get("nodes", [])):
+        if not isinstance(node, dict):
+            continue
+        if isinstance(node.get("tool"), str):
+            references.append((f"$.nodes[{index}].tool", node["tool"]))
+        bindings = node.get("with")
+        if isinstance(bindings, dict):
+            for key, value in bindings.items():
+                if isinstance(value, str):
+                    references.append((f"$.nodes[{index}].with.{key}", value))
+
+    for location, text in references:
+        for match in PARAM_REFERENCE_PATTERN.finditer(text):
+            param_id = match.group(1)
+            if param_id not in declared:
+                errors.append(f"{location}: references undeclared parameter '{param_id}'")
 
     return errors
 
@@ -2014,6 +2431,51 @@ def production_flow_ids(flow_schema: dict[str, Any]) -> set[str]:
     return flow_ids
 
 
+def cmd_check_composition(args: argparse.Namespace) -> int:
+    catalog, catalog_errors = build_flow_catalog([])
+    targets = find_flow_files(args.paths)
+    if not targets:
+        print("No flow.yaml files found", file=sys.stderr)
+        return 1
+
+    failures = 0
+    if catalog_errors:
+        print("Catalog build warnings:", file=sys.stderr)
+        for error in catalog_errors:
+            print(f"  - {error}", file=sys.stderr)
+
+    composing = 0
+    for path in targets:
+        if not path.exists():
+            print(f"FAIL {path}: path does not exist", file=sys.stderr)
+            failures += 1
+            continue
+        try:
+            document = load_yaml(path)
+        except Exception as exc:  # noqa: BLE001 - CLI should report file context
+            print(f"FAIL {path}: {exc}", file=sys.stderr)
+            failures += 1
+            continue
+        if not composition.flow_ref_nodes(document):
+            continue
+        composing += 1
+        errors = composition.validate_composition_static(document, catalog)
+        if errors:
+            failures += 1
+            print(f"FAIL {display_path(path)}", file=sys.stderr)
+            for error in errors:
+                print(f"  - {error}", file=sys.stderr)
+        elif args.verbose:
+            print(f"OK   {display_path(path)}")
+
+    if failures:
+        print(f"{failures} flow file(s) failed composition checks", file=sys.stderr)
+        return 1
+
+    print(f"Checked composition for {composing} composing flow file(s)")
+    return 0
+
+
 def cmd_list(args: argparse.Namespace) -> int:
     schema = load_json(args.schema)
     rows: list[tuple[str, str, str, str]] = []
@@ -2660,6 +3122,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="Path to the sample JSON Schema.",
     )
     release_check.set_defaults(func=cmd_release_check)
+
+    check_composition = subparsers.add_parser(
+        "check-composition",
+        help="Validate flow_ref sub-flow composition (resolution, bindings, cycles, capabilities) against the catalog.",
+    )
+    check_composition.add_argument("paths", nargs="*", type=Path, help="Flow files or directories. Defaults to flows/ and templates/.")
+    check_composition.add_argument("-v", "--verbose", action="store_true", help="Print each passing composing file.")
+    check_composition.set_defaults(func=cmd_check_composition)
 
     list_cmd = subparsers.add_parser("list", help="List valid flow definitions.")
     list_cmd.add_argument("paths", nargs="*", type=Path, help="Flow files or directories. Defaults to flows/ and templates/.")

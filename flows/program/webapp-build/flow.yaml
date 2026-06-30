@@ -1,0 +1,192 @@
+spec_version: agentic-flows/v1.1
+id: program.webapp-build
+version: 0.1.0
+title: Web app build program
+summary: Compose the design-to-spec, backend, and frontend sub-flows into one evidence-backed web application build program.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - program
+  - webapp
+  - composition
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - standalone
+  required_capabilities:
+    - repo.checkout
+    - patch.apply
+    - command.run
+    - evidence.capture
+    - human.review
+    - subflow.dispatch
+contracts:
+  inputs:
+    - id: product_brief
+      type: markdown
+      required: true
+      description: 'The web application brief: audience, goals, and constraints.'
+    - id: stack
+      type: text
+      required: true
+      description: Target stack identifier passed through to the backend and frontend sub-flows.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or local checkout target for the application.
+  outputs:
+    - id: app_patch
+      type: patch
+      required: true
+      description: The assembled application changes across backend and frontend.
+    - id: closeout
+      type: markdown
+      required: true
+      description: 'Program closeout: sub-flow evidence, integration result, and residual risk.'
+  artifacts:
+    - program-plan
+    - design-spec
+    - backend-patch
+    - frontend-patch
+    - integration-report
+    - subflows-report
+nodes:
+  - id: intake
+    type: intake
+    title: Intake brief
+    description: Capture the product brief, stack, and repo for the application build.
+    produces:
+      - program-scope
+  - id: plan
+    type: plan
+    title: Plan the build program
+    description: Order the design, backend, and frontend sub-flows and bind their inputs.
+    requires:
+      - program-scope
+    produces:
+      - program-plan
+  - id: design
+    type: flow_ref
+    title: Design to spec
+    description: Run the website design-to-spec sub-flow to produce an approved design spec.
+    requires:
+      - program-plan
+    produces:
+      - design-spec
+    ref:
+      flow_id: design.website-to-spec
+      version_constraint: '>=0.1.0 <0.2.0'
+    with:
+      brief: '{{input.product_brief}}'
+    expose:
+      design_spec: design-spec
+  - id: backend
+    type: flow_ref
+    title: Build backend
+    description: Run the backend-service sub-flow to build the API for the design spec.
+    requires:
+      - design-spec
+    produces:
+      - backend-patch
+    ref:
+      flow_id: engineering.backend-service
+      version_constraint: '>=0.1.0 <0.2.0'
+    with:
+      repo: '{{input.repo}}'
+      stack: '{{input.stack}}'
+      target_spec: '{{artifact.design-spec}}'
+    expose:
+      service_patch: backend-patch
+  - id: frontend
+    type: flow_ref
+    title: Build frontend
+    description: Run the frontend-build sub-flow to build the UI against the design spec.
+    requires:
+      - design-spec
+    produces:
+      - frontend-patch
+    ref:
+      flow_id: engineering.frontend-build
+      version_constraint: '>=0.1.0 <0.2.0'
+    with:
+      design_spec: '{{artifact.design-spec}}'
+      repo: '{{input.repo}}'
+      stack: '{{input.stack}}'
+    expose:
+      frontend_patch: frontend-patch
+  - id: integrate
+    type: verifier
+    title: Integrate and verify
+    description: Verify the backend and frontend integrate and aggregate sub-flow evidence.
+    requires:
+      - backend-patch
+      - frontend-patch
+    produces:
+      - integration-report
+      - subflows-report
+      - app_patch
+  - id: approve
+    type: approval
+    title: Operator sign-off
+    description: An operator approves the assembled application before closeout.
+    requires:
+      - integration-report
+  - id: final
+    type: finalizer
+    title: Close out program
+    description: Return the assembled application patch and the program closeout.
+    requires:
+      - integration-report
+    produces:
+      - closeout
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: design
+  - from: design
+    to: backend
+  - from: design
+    to: frontend
+  - from: backend
+    to: integrate
+  - from: frontend
+    to: integrate
+  - from: integrate
+    to: approve
+  - from: approve
+    to: final
+quality_gates:
+  - id: subflows-passed
+    title: Every sub-flow run passed
+    type: artifact
+    required: true
+    evidence: Each flow_ref node references a child run bundle whose required gates passed.
+    evidence_refs:
+      - subflows-report
+    evidence_class: deterministic
+  - id: integration-verified
+    title: Backend and frontend integrate
+    type: judgment
+    required: true
+    evidence: The integration verifier confirms the assembled application works end to end.
+    evidence_refs:
+      - integration-report
+    evidence_class: judgment
+    criteria:
+      - Backend and frontend contracts align
+      - End-to-end flow works against the assembled app
+      - No unresolved integration risks
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - subflow.started
+    - subflow.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - subflows.count
+    - duration.seconds

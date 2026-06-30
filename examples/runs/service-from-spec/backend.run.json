@@ -1,0 +1,98 @@
+{
+  "run_version": "agentic-flows.run/v1",
+  "flow": {
+    "id": "engineering.backend-service",
+    "version": "0.1.0",
+    "source": "flows/engineering/backend-service/flow.yaml"
+  },
+  "run": {
+    "id": "run-sfs-backend-0001",
+    "core": "standalone",
+    "status": "completed",
+    "started_at": "2026-06-28T16:00:00Z",
+    "completed_at": "2026-06-28T16:09:00Z"
+  },
+  "inputs": {},
+  "outputs": {
+    "service_patch": "artifact://runs/run-sfs-backend-0001/service_patch",
+    "api_contract": "artifact://runs/run-sfs-backend-0001/api_contract"
+  },
+  "artifacts": [
+    {
+      "id": "test-log",
+      "kind": "test-log",
+      "uri": "artifact://runs/run-sfs-backend-0001/test-log"
+    },
+    {
+      "id": "api-contract-doc",
+      "kind": "api-contract-doc",
+      "uri": "artifact://runs/run-sfs-backend-0001/api-contract-doc"
+    }
+  ],
+  "events": [
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.backend-service",
+      "flow_version": "0.1.0",
+      "run_id": "run-sfs-backend-0001",
+      "event": "flow.started",
+      "timestamp": "2026-06-28T16:00:00Z",
+      "core": "standalone",
+      "severity": "info"
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.backend-service",
+      "flow_version": "0.1.0",
+      "run_id": "run-sfs-backend-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T16:01:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "build-and-tests-pass",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "test-log",
+          "kind": "test-log",
+          "uri": "artifact://runs/run-sfs-backend-0001/test-log",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.backend-service",
+      "flow_version": "0.1.0",
+      "run_id": "run-sfs-backend-0001",
+      "event": "gate.completed",
+      "timestamp": "2026-06-28T16:02:00Z",
+      "core": "standalone",
+      "severity": "info",
+      "payload": {
+        "gate_id": "api-contract-documented",
+        "status": "passed"
+      },
+      "evidence": [
+        {
+          "id": "api-contract-doc",
+          "kind": "api-contract-doc",
+          "uri": "artifact://runs/run-sfs-backend-0001/api-contract-doc",
+          "evidence_class": "deterministic"
+        }
+      ]
+    },
+    {
+      "event_version": "agentic-flows.events/v1",
+      "flow_id": "engineering.backend-service",
+      "flow_version": "0.1.0",
+      "run_id": "run-sfs-backend-0001",
+      "event": "flow.completed",
+      "timestamp": "2026-06-28T16:09:00Z",
+      "core": "standalone",
+      "severity": "info"
+    }
+  ]
+}

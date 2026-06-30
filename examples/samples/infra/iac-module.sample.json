@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "infra.iac-module",
+    "version": "0.1.0",
+    "source": "flows/infra/iac-module/flow.yaml"
+  },
+  "inputs": {
+    "iac_target": "A Terraform module for an S3 bucket with versioning and least-privilege access.",
+    "repo": "https://github.com/RNT56/example-infra"
+  },
+  "expected_outputs": {
+    "iac_patch": "The infrastructure-as-code changes.",
+    "change_summary": "The plan diff and sandbox-apply result."
+  },
+  "notes": "Sample for infra.iac-module."
+}

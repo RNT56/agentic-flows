@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 import re
 
+from flowctl import composition
 from flowctl.cli import (
     DEFAULT_ADAPTER_SMOKE_SCHEMA,
     DEFAULT_EVENT_SCHEMA,
@@ -10,6 +11,7 @@ from flowctl.cli import (
     DEFAULT_RUN_SCHEMA,
     DEFAULT_SAMPLE_SCHEMA,
     DEFAULT_SCHEMA,
+    build_flow_catalog,
     build_replay_summary,
     build_report_summary,
     collect_release_package_files,
@@ -434,6 +436,316 @@ def test_report_summary_counts_stability_and_cores() -> None:
     assert summary["by_optional_consumer"] == {"nilcore": 1, "standalone": 2}
 
 
+def test_semver_constraint_resolution() -> None:
+    constraint = composition.parse_constraint(">=0.1.0 <0.2.0")
+    assert constraint is not None
+    assert composition.version_satisfies("0.1.5", constraint)
+    assert not composition.version_satisfies("0.2.0", constraint)
+    assert composition.resolve_version(constraint, ["0.1.0", "0.1.5", "0.2.0"]) == "0.1.5"
+    assert composition.parse_constraint("not-a-range") is None
+
+
+def test_webapp_program_composition_is_valid() -> None:
+    catalog, _ = build_flow_catalog([])
+    program = load_yaml(Path("flows/program/webapp-build/flow.yaml"))
+    assert composition.validate_composition_static(program, catalog) == []
+
+
+def test_webapp_program_run_validates_child_subruns() -> None:
+    run_schema = load_json(DEFAULT_RUN_SCHEMA)
+    event_schema = load_json(DEFAULT_EVENT_SCHEMA)
+    flow_schema = load_json(DEFAULT_SCHEMA)
+    path = Path("examples/runs/webapp-build.run.json")
+    errors = validate_run_document(load_json(path), run_schema, event_schema, flow_schema, run_path=path)
+    assert errors == []
+
+
+def test_run_without_subruns_is_rejected() -> None:
+    run_schema = load_json(DEFAULT_RUN_SCHEMA)
+    event_schema = load_json(DEFAULT_EVENT_SCHEMA)
+    flow_schema = load_json(DEFAULT_SCHEMA)
+    path = Path("tests/fixtures/invalid-run-subflow-missing.json")
+    errors = validate_run_document(load_json(path), run_schema, event_schema, flow_schema, run_path=path)
+    assert any("no sub_run for flow_ref node" in error for error in errors)
+
+
+def test_composition_static_rejects_expose_mismatch() -> None:
+    catalog, _ = build_flow_catalog([])
+    program = load_yaml(Path("flows/program/webapp-build/flow.yaml"))
+    for node in program["nodes"]:
+        if node.get("id") == "backend":
+            node["produces"] = ["wrong-name"]
+    errors = composition.validate_composition_static(program, catalog)
+    assert any("must equal the exposed artifact names" in error for error in errors)
+
+
+def test_composition_static_rejects_unresolvable_ref() -> None:
+    catalog, _ = build_flow_catalog([])
+    program = load_yaml(Path("flows/program/webapp-build/flow.yaml"))
+    for node in program["nodes"]:
+        if node.get("id") == "design":
+            node["ref"] = {"flow_id": "design.does-not-exist", "version_constraint": ">=0.1.0"}
+    errors = composition.validate_composition_static(program, catalog)
+    assert any("nonexistent flow_id" in error for error in errors)
+
+
+def test_evidence_class_mismatch_is_rejected() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    path = Path("tests/fixtures/invalid-run-evidence-class-mismatch.json")
+    errors = validate_run_document(load_json(path), rs, es, fs, run_path=path)
+    assert any("requires evidence_class" in error for error in errors)
+
+
+def test_standalone_forbidden_evidence_class_is_rejected() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    path = Path("tests/fixtures/invalid-run-standalone-sandbox.json")
+    errors = validate_run_document(load_json(path), rs, es, fs, run_path=path)
+    assert any("standalone runs may not emit" in error for error in errors)
+
+
+def test_evidence_class_ordering() -> None:
+    from flowctl.cli import evidence_class_satisfies
+
+    assert evidence_class_satisfies({"judgment"}, "judgment", None)
+    assert not evidence_class_satisfies({"deterministic"}, "judgment", None)
+    assert evidence_class_satisfies({"sandbox-run"}, None, "fixture")
+    assert not evidence_class_satisfies({"deterministic"}, None, "sandbox-run")
+
+
+def test_undeclared_parameter_reference_is_rejected() -> None:
+    schema = load_json(DEFAULT_SCHEMA)
+    invalid = load_yaml(Path("tests/fixtures/invalid-parameter-reference.yaml"))
+    errors = validate_flow_document(invalid, schema)
+    assert any("references undeclared parameter 'missing'" in error for error in errors)
+
+
+def test_backend_service_parameterizes_stack_commands() -> None:
+    schema = load_json(DEFAULT_SCHEMA)
+    document = load_yaml(Path("flows/engineering/backend-service/flow.yaml"))
+    declared = {param["id"] for param in document.get("parameters", [])}
+    assert {"build_command", "test_command"} <= declared
+    assert validate_flow_document(document, schema) == []
+
+
+def test_self_review_is_rejected() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    path = Path("tests/fixtures/invalid-run-self-review.json")
+    errors = validate_run_document(load_json(path), rs, es, fs, run_path=path)
+    assert any("must not be a producing agent" in error for error in errors)
+
+
+def test_missing_reviewer_on_judgment_gate_is_rejected() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    path = Path("tests/fixtures/invalid-run-missing-reviewer.json")
+    errors = validate_run_document(load_json(path), rs, es, fs, run_path=path)
+    assert any("requires a reviewer_id" in error for error in errors)
+
+
+def test_unbounded_iteration_is_rejected() -> None:
+    schema = load_json(DEFAULT_SCHEMA)
+    invalid = load_yaml(Path("tests/fixtures/invalid-iteration-unbounded.yaml"))
+    errors = validate_flow_document(invalid, schema)
+    assert any("require an integer max_iterations" in error for error in errors)
+
+
+def test_fanout_missing_cardinality_is_rejected() -> None:
+    schema = load_json(DEFAULT_SCHEMA)
+    invalid = load_yaml(Path("tests/fixtures/invalid-fanout-missing-cardinality.yaml"))
+    errors = validate_flow_document(invalid, schema)
+    assert any("requires a cardinality" in error for error in errors)
+
+
+def test_shipped_iteration_and_fanout_validate() -> None:
+    schema = load_json(DEFAULT_SCHEMA)
+    frontend = load_yaml(Path("flows/engineering/frontend-build/flow.yaml"))
+    backend = load_yaml(Path("flows/engineering/backend-service/flow.yaml"))
+    assert validate_flow_document(frontend, schema) == []
+    assert validate_flow_document(backend, schema) == []
+    assert any(node.get("iteration") for node in frontend["nodes"])
+    assert any(node.get("fan_out") for node in backend["nodes"])
+
+
+def test_backend_nilcore_sandbox_run_validates() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    path = Path("examples/runs/webapp/backend-nilcore.run.json")
+    errors = validate_run_document(load_json(path), rs, es, fs, run_path=path)
+    assert errors == []
+
+
+def test_sandbox_evidence_requires_provenance() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    path = Path("tests/fixtures/invalid-run-sandbox-no-provenance.json")
+    errors = validate_run_document(load_json(path), rs, es, fs, run_path=path)
+    assert any("requires an env.provisioned" in error for error in errors)
+
+
+def test_self_provisioned_environment_is_rejected() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    path = Path("tests/fixtures/invalid-run-self-provisioned.json")
+    errors = validate_run_document(load_json(path), rs, es, fs, run_path=path)
+    assert any("must be a runtime" in error for error in errors)
+
+
+def test_missing_teardown_is_rejected() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    path = Path("tests/fixtures/invalid-run-missing-teardown.json")
+    errors = validate_run_document(load_json(path), rs, es, fs, run_path=path)
+    assert any("requires a matching env.torn_down" in error for error in errors)
+
+
+def test_duplicate_subrun_is_rejected() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    path = Path("tests/fixtures/invalid-run-duplicate-subrun.json")
+    errors = validate_run_document(load_json(path), rs, es, fs, run_path=path)
+    assert any("duplicate sub_run" in error for error in errors)
+
+
+def test_composition_detects_cycles() -> None:
+    assert composition.find_cycle("a", {"a": {"b"}, "b": {"c"}, "c": {"a"}}) is not None
+    assert composition.find_cycle("a", {"a": {"b"}, "b": set()}) is None
+
+
+def test_build_flow_catalog_indexes_flows() -> None:
+    catalog, _ = build_flow_catalog([])
+    assert "program.webapp-build" in catalog
+    assert any(entry["version"] == "0.1.0" for entry in catalog["engineering.backend-service"])
+
+
+def test_check_composition_cli_passes() -> None:
+    from flowctl.cli import main
+
+    assert main(["check-composition"]) == 0
+
+
+def test_wave1_flows_validate() -> None:
+    schema = load_json(DEFAULT_SCHEMA)
+    for path in (
+        "flows/ops/ephemeral-preview-deploy/flow.yaml",
+        "flows/ops/integration-test-lab/flow.yaml",
+        "flows/engineering/browser-matrix-check/flow.yaml",
+    ):
+        assert validate_flow_document(load_yaml(Path(path)), schema) == [], path
+
+
+def test_wave1_sandbox_runs_validate() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    for path in (
+        "examples/runs/ephemeral-preview-deploy.run.json",
+        "examples/runs/integration-test-lab.run.json",
+        "examples/runs/browser-matrix-check.run.json",
+    ):
+        assert validate_run_document(load_json(Path(path)), rs, es, fs, run_path=Path(path)) == [], path
+
+
+def test_preview_deploy_uses_probe_gate() -> None:
+    doc = load_yaml(Path("flows/ops/ephemeral-preview-deploy/flow.yaml"))
+    assert any(gate["type"] == "probe" for gate in doc["quality_gates"])
+
+
+def test_wave2_flows_validate() -> None:
+    schema = load_json(DEFAULT_SCHEMA)
+    for path in (
+        "flows/design/service-to-spec/flow.yaml",
+        "flows/engineering/cli-tool/flow.yaml",
+        "flows/engineering/library-package/flow.yaml",
+        "flows/infra/iac-module/flow.yaml",
+    ):
+        assert validate_flow_document(load_yaml(Path(path)), schema) == [], path
+
+
+def test_wave2_runs_validate() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    for path in (
+        "examples/runs/service-to-spec.run.json",
+        "examples/runs/cli-tool.run.json",
+        "examples/runs/library-package.run.json",
+        "examples/runs/iac-module.run.json",
+    ):
+        assert validate_run_document(load_json(Path(path)), rs, es, fs, run_path=Path(path)) == [], path
+
+
+def test_service_to_spec_output_feeds_backend_service() -> None:
+    spec = load_yaml(Path("flows/design/service-to-spec/flow.yaml"))
+    backend = load_yaml(Path("flows/engineering/backend-service/flow.yaml"))
+    spec_outputs = {field["id"] for field in spec["contracts"]["outputs"]}
+    backend_inputs = {field["id"] for field in backend["contracts"]["inputs"]}
+    # the design spec is the shape the backend build consumes (program.service-from-spec composition)
+    assert "design_spec" in spec_outputs
+    assert "target_spec" in backend_inputs
+
+
+def test_cli_tool_uses_bounded_iteration() -> None:
+    doc = load_yaml(Path("flows/engineering/cli-tool/flow.yaml"))
+    assert any(
+        isinstance(node.get("iteration"), dict) and isinstance(node["iteration"].get("max_iterations"), int)
+        for node in doc["nodes"]
+    )
+
+
+def test_wave3_programs_validate_and_compose() -> None:
+    schema = load_json(DEFAULT_SCHEMA)
+    catalog, _ = build_flow_catalog([])
+    for path in (
+        "flows/program/service-from-spec/flow.yaml",
+        "flows/program/feature-to-release/flow.yaml",
+        "flows/program/security-hardening-campaign/flow.yaml",
+    ):
+        doc = load_yaml(Path(path))
+        assert validate_flow_document(doc, schema) == [], path
+        assert composition.validate_composition_static(doc, catalog) == [], path
+
+
+def test_wave3_program_runs_validate_recursively() -> None:
+    rs = load_json(DEFAULT_RUN_SCHEMA)
+    es = load_json(DEFAULT_EVENT_SCHEMA)
+    fs = load_json(DEFAULT_SCHEMA)
+    for path in (
+        "examples/runs/service-from-spec.run.json",
+        "examples/runs/feature-to-release.run.json",
+        "examples/runs/security-hardening-campaign.run.json",
+    ):
+        assert validate_run_document(load_json(Path(path)), rs, es, fs, run_path=Path(path)) == [], path
+
+
+def test_security_campaign_combines_fanout_iteration_flowref() -> None:
+    doc = load_yaml(Path("flows/program/security-hardening-campaign/flow.yaml"))
+    types = [node.get("type") for node in doc["nodes"]]
+    assert types.count("flow_ref") >= 2
+    harden = next(node for node in doc["nodes"] if node["id"] == "harden")
+    assert isinstance(harden.get("fan_out"), dict)
+    assert isinstance(harden.get("iteration"), dict)
+
+
+def test_inplace_v1_1_primitive_upgrades() -> None:
+    flaky = load_yaml(Path("flows/engineering/flaky-test-stabilization/flow.yaml"))
+    perf = load_yaml(Path("flows/engineering/performance-regression/flow.yaml"))
+    swarm = load_yaml(Path("flows/orchestration/swarm-execution/flow.yaml"))
+    assert flaky["spec_version"] == "agentic-flows/v1.1"
+    assert any(isinstance(node.get("iteration"), dict) for node in flaky["nodes"])
+    assert any(isinstance(node.get("iteration"), dict) for node in perf["nodes"])
+    assert any(isinstance(node.get("fan_out"), dict) for node in swarm["nodes"])
 def test_parse_kv_list_parses_pairs_and_rejects_bare_tokens() -> None:
     assert parse_kv_list(["a=1", "b=two=three"]) == {"a": "1", "b": "two=three"}
     try:

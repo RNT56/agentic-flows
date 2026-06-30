@@ -1,0 +1,177 @@
+spec_version: agentic-flows/v1.1
+id: ops.ephemeral-preview-deploy
+version: 0.1.0
+title: Ephemeral preview deploy
+summary: Deploy a built artifact to a throwaway preview environment, probe its health, and capture a rollback plan, tearing
+  the preview down afterward.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - ops
+  - deploy
+  - preview
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+  required_capabilities:
+    - repo.checkout
+    - command.run
+    - preview-deploy
+    - evidence.capture
+contracts:
+  inputs:
+    - id: artifact_ref
+      type: uri
+      required: true
+      description: The built artifact or image to deploy to the preview environment.
+    - id: repo
+      type: uri
+      required: true
+      description: Repository or checkout the deploy configuration comes from.
+  outputs:
+    - id: deploy_record
+      type: markdown
+      required: true
+      description: Preview URL, artifact digest, environment id, and probe results.
+    - id: rollback_plan
+      type: markdown
+      required: true
+      description: The documented rollback path for the deployment.
+  artifacts:
+    - deploy-plan
+    - preflight-log
+    - health-probe-log
+    - rollback-plan
+parameters:
+  - id: preflight_command
+    type: text
+    required: true
+    description: Preflight check command for the deploy target.
+  - id: deploy_command
+    type: text
+    required: true
+    description: Command that deploys the artifact to the preview environment.
+  - id: health_check_command
+    type: text
+    required: true
+    description: Health probe command run against the live preview.
+  - id: rollback_command
+    type: text
+    required: true
+    description: Command that rolls the preview back.
+nodes:
+  - id: intake
+    type: intake
+    title: Intake deploy scope
+    description: Capture the artifact, repo, and target configuration for the preview deploy.
+    produces:
+      - deploy-scope
+  - id: plan
+    type: plan
+    title: Plan the preview deploy
+    description: Plan the preflight, deploy, probe, and rollback steps for the preview environment.
+    requires:
+      - deploy-scope
+    produces:
+      - deploy-plan
+  - id: preflight
+    type: tool
+    title: Run preflight checks
+    description: Run preflight checks before provisioning the preview environment.
+    tool: command-runner
+    requires:
+      - deploy-plan
+    produces:
+      - preflight-log
+  - id: deploy
+    type: tool
+    title: Deploy to an ephemeral preview
+    description: Provision a throwaway preview environment and deploy the artifact to it.
+    tool: command-runner
+    requires:
+      - preflight-log
+    produces:
+      - preview-handle
+    environment:
+      ephemeral: true
+      provides:
+        - preview-deploy-target
+      teardown_required: true
+  - id: probe
+    type: verifier
+    title: Probe preview health
+    description: Run health probes against the live preview environment and capture the results.
+    requires:
+      - preview-handle
+    produces:
+      - health-probe-log
+  - id: rollback
+    type: agent_task
+    title: Capture rollback plan
+    description: Produce a rollback plan for the deployment before teardown.
+    agent: deploy-worker
+    requires:
+      - preview-handle
+    produces:
+      - rollback-plan
+  - id: final
+    type: finalizer
+    title: Close out preview deploy
+    description: Return the deploy record and rollback plan after the preview is torn down.
+    requires:
+      - health-probe-log
+      - rollback-plan
+    produces:
+      - deploy_record
+      - rollback_plan
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: preflight
+  - from: preflight
+    to: deploy
+  - from: deploy
+    to: probe
+  - from: probe
+    to: rollback
+  - from: rollback
+    to: final
+quality_gates:
+  - id: preflight-passed
+    title: Preflight checks pass
+    type: command
+    required: true
+    command: '{{param.preflight_command}}'
+    evidence: Preflight output for the deploy target.
+    evidence_refs:
+      - preflight-log
+    evidence_class: deterministic
+  - id: preview-health-probed
+    title: Preview health probed
+    type: probe
+    required: true
+    evidence: Health probes ran against the live preview environment and passed.
+    evidence_refs:
+      - health-probe-log
+    evidence_class: sandbox-run
+  - id: rollback-plan-present
+    title: Rollback plan present
+    type: artifact
+    required: true
+    evidence: A rollback path is documented for the deployment.
+    evidence_refs:
+      - rollback-plan
+    evidence_class: deterministic
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - env.provisioned
+    - env.torn_down
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

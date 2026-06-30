@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "program.feature-to-release",
+    "version": "0.1.0",
+    "source": "flows/program/feature-to-release/flow.yaml"
+  },
+  "inputs": {
+    "issue": "Add a /healthz endpoint with a JSON status body.",
+    "repo": "https://github.com/RNT56/example-webapp"
+  },
+  "expected_outputs": {
+    "release_patch": "The verified, preview-deployed feature changes.",
+    "acceptance_record": "The independent release acceptance record."
+  },
+  "notes": "Sample for program.feature-to-release."
+}
