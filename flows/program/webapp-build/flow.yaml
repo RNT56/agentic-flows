@@ -13,6 +13,7 @@ tags:
 entrypoint: intake
 runtime:
   supported_cores:
+    - thinclaw
     - nilcore
     - standalone
   required_capabilities:

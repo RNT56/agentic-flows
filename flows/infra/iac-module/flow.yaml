@@ -14,12 +14,14 @@ tags:
 entrypoint: intake
 runtime:
   supported_cores:
+    - thinclaw
     - nilcore
   required_capabilities:
     - repo.checkout
     - command.run
     - ephemeral-cloud-target
     - evidence.capture
+    - human.review
 contracts:
   inputs:
     - id: iac_target

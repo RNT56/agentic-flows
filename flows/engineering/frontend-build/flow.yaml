@@ -13,6 +13,7 @@ tags:
 entrypoint: intake
 runtime:
   supported_cores:
+    - thinclaw
     - nilcore
     - standalone
   required_capabilities:
@@ -20,6 +21,7 @@ runtime:
     - patch.apply
     - command.run
     - evidence.capture
+    - human.review
 contracts:
   inputs:
     - id: design_spec

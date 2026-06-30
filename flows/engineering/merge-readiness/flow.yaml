@@ -14,12 +14,14 @@ tags:
 entrypoint: intake
 runtime:
   supported_cores:
+    - thinclaw
     - nilcore
     - crustcore
   required_capabilities:
     - ci.read
     - pr.read
     - evidence.capture
+    - human.review
 contracts:
   inputs:
     - id: pr
