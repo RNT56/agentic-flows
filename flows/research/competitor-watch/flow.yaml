@@ -19,6 +19,7 @@ runtime:
   required_capabilities:
     - source.retrieve
     - evidence.capture
+    - human.review
 contracts:
   inputs:
     - id: target

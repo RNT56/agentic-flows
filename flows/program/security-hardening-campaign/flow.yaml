@@ -25,6 +25,7 @@ runtime:
     - evidence.bundle
     - evidence.capture
     - subflow.dispatch
+    - human.review
 contracts:
   inputs:
     - id: manifest

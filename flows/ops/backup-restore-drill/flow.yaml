@@ -13,12 +13,14 @@ tags:
 entrypoint: intake
 runtime:
   supported_cores:
+    - thinclaw
     - nilcore
     - crustcore
   required_capabilities:
     - backup.read
     - restore.run
     - evidence.capture
+    - human.review
 contracts:
   inputs:
     - id: backup
