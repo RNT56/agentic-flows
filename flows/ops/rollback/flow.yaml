@@ -1,0 +1,146 @@
+spec_version: agentic-flows/v1.1
+id: ops.rollback
+version: 0.1.0
+title: Rollback
+summary: Safely roll back a failed deployment, assessing data-migration risk and confirming health is restored.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - ops
+  - rollback
+  - deploy
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+  required_capabilities:
+    - deploy.observe
+    - deploy.rollback
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: incident
+      type: markdown
+      required: true
+      description: The failed deployment and the rollback target.
+    - id: target
+      type: text
+      required: true
+      description: The rollback target version.
+  outputs:
+    - id: rollback_record
+      type: markdown
+      required: true
+      description: The rollback target, migration-risk assessment, and restored-health evidence.
+    - id: health_status
+      type: json
+      required: true
+      description: The post-rollback health checks.
+  artifacts:
+    - rollback-plan
+    - rollback-evidence
+    - rollback-analysis
+    - rollback-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for rollback.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - rollback-plan
+  - id: gather
+    type: agent_task
+    title: Read deploy state
+    description: Read the live deployment and the rollback target's health and migration state.
+    agent: deploy-worker
+    requires:
+      - rollback-plan
+    produces:
+      - rollback-evidence
+  - id: analyze
+    type: agent_task
+    title: Assess and roll back
+    description: Assess data-migration risk and roll back to the target, capturing health checks.
+    agent: deploy-worker
+    requires:
+      - rollback-evidence
+    produces:
+      - rollback-analysis
+  - id: produce
+    type: agent_task
+    title: Record the rollback
+    description: Assemble the rollback record and the restored-health status.
+    agent: deploy-worker
+    requires:
+      - rollback-analysis
+    produces:
+      - rollback-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - rollback-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - rollback-analysis
+      - rollback-record
+    produces:
+      - rollback_record
+      - health_status
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: health-restored
+    title: Health is restored
+    type: artifact
+    required: true
+    evidence: Post-rollback health checks pass against the real system.
+    evidence_refs:
+      - rollback-evidence
+    evidence_class: external-production
+  - id: migration-risk-assessed
+    title: Migration risk assessed
+    type: judgment
+    required: true
+    evidence: Data-migration risk is assessed and restored health is evidenced.
+    evidence_refs:
+      - rollback-record
+    evidence_class: judgment
+    criteria:
+      - The rollback target is identified
+      - Data-migration risk is assessed before rollback
+      - Restored health is evidenced
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

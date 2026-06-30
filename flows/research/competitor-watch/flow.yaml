@@ -1,0 +1,145 @@
+spec_version: agentic-flows/v1.1
+id: research.competitor-watch
+version: 0.1.0
+title: Competitor watch
+summary: Monitor a competitor or comparable project for product, release, and positioning changes, separating dated changes
+  from interpretation.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - research
+  - competitor
+  - watch
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+  required_capabilities:
+    - source.retrieve
+    - evidence.capture
+contracts:
+  inputs:
+    - id: target
+      type: markdown
+      required: true
+      description: The competitor or project to watch and what to track.
+    - id: cadence
+      type: text
+      required: true
+      description: The watch cadence.
+  outputs:
+    - id: watch_report
+      type: markdown
+      required: true
+      description: The dated changes with sources, separated from interpretation.
+    - id: changes
+      type: json
+      required: true
+      description: The detected changes with source dates.
+  artifacts:
+    - competitor-watch-plan
+    - competitor-watch-evidence
+    - competitor-watch-analysis
+    - competitor-watch-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for competitor watch.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - competitor-watch-plan
+  - id: gather
+    type: agent_task
+    title: Retrieve current sources
+    description: Retrieve the competitor's current product, release, and positioning sources.
+    agent: watch-worker
+    requires:
+      - competitor-watch-plan
+    produces:
+      - competitor-watch-evidence
+  - id: analyze
+    type: agent_task
+    title: Detect dated changes
+    description: Detect changes against the prior watch, dating each from its source.
+    agent: watch-worker
+    requires:
+      - competitor-watch-evidence
+    produces:
+      - competitor-watch-analysis
+  - id: produce
+    type: agent_task
+    title: Separate change from view
+    description: Assemble the report, separating dated changes from interpretation.
+    agent: watch-worker
+    requires:
+      - competitor-watch-analysis
+    produces:
+      - competitor-watch-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - competitor-watch-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - competitor-watch-analysis
+      - competitor-watch-record
+    produces:
+      - watch_report
+      - changes
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: changes-dated-and-sourced
+    title: Changes are dated and sourced
+    type: artifact
+    required: true
+    evidence: Every detected change cites a dated source; freshness is recorded.
+    evidence_refs:
+      - competitor-watch-evidence
+    evidence_class: external-production
+  - id: change-vs-interpretation
+    title: Change is separated from interpretation
+    type: judgment
+    required: true
+    evidence: Detected changes are separated from interpretation.
+    evidence_refs:
+      - competitor-watch-record
+    evidence_class: judgment
+    criteria:
+      - Every change has a dated source
+      - Interpretation is labeled separately from fact
+      - The watch cadence and next review are recorded
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

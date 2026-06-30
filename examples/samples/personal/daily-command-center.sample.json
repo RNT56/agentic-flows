@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "personal.daily-command-center",
+    "version": "0.1.0",
+    "source": "flows/personal/daily-command-center/flow.yaml"
+  },
+  "inputs": {
+    "sources": "Gmail inbox, Google Calendar, GitHub notifications, and project board.",
+    "date": "2026-06-30"
+  },
+  "expected_outputs": {
+    "operating_plan": "The verified daily plan with cited items and pending approvals.",
+    "approvals_needed": "The actions awaiting explicit approval."
+  },
+  "notes": "Contract-first: a completed run needs a runtime wired to the live inboxes, calendar, and approval surface."
+}

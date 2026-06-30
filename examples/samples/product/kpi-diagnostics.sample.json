@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "product.kpi-diagnostics",
+    "version": "0.1.0",
+    "source": "flows/product/kpi-diagnostics/flow.yaml"
+  },
+  "inputs": {
+    "metric": "Weekly active users dropped 12% in June.",
+    "data": "https://analytics.example.com/exports/wau-june.csv"
+  },
+  "expected_outputs": {
+    "diagnosis": "The drivers of the change, separated from speculation, with caveats.",
+    "next_actions": "The recommended next actions."
+  },
+  "notes": "Contract-first: a completed run needs a runtime wired to the real metrics source."
+}

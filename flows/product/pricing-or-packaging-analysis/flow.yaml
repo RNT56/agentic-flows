@@ -1,0 +1,144 @@
+spec_version: agentic-flows/v1.1
+id: product.pricing-or-packaging-analysis
+version: 0.1.0
+title: Pricing or packaging analysis
+summary: Evaluate a pricing, packaging, or plan change with visible assumptions, customer impact, and a rollback path.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - product
+  - pricing
+  - packaging
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+  required_capabilities:
+    - usage.read
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: proposal
+      type: markdown
+      required: true
+      description: The pricing or packaging change to evaluate.
+    - id: usage
+      type: uri
+      required: true
+      description: The usage and revenue data source.
+  outputs:
+    - id: analysis
+      type: markdown
+      required: true
+      description: The evaluation with visible assumptions, customer impact, and rollback.
+    - id: decision_inputs
+      type: json
+      required: true
+      description: The assumptions and impact estimates.
+  artifacts:
+    - pricing-or-packaging-analysis-plan
+    - pricing-or-packaging-analysis-evidence
+    - pricing-or-packaging-analysis-analysis
+    - pricing-or-packaging-analysis-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for pricing or packaging analysis.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - pricing-or-packaging-analysis-plan
+  - id: gather
+    type: agent_task
+    title: Pull usage and revenue
+    description: Pull the real usage and revenue data relevant to the change.
+    agent: pricing-worker
+    requires:
+      - pricing-or-packaging-analysis-plan
+    produces:
+      - pricing-or-packaging-analysis-evidence
+  - id: analyze
+    type: agent_task
+    title: Model the impact
+    description: Model customer impact under visible assumptions.
+    agent: pricing-worker
+    requires:
+      - pricing-or-packaging-analysis-evidence
+    produces:
+      - pricing-or-packaging-analysis-analysis
+  - id: produce
+    type: agent_task
+    title: Document the analysis
+    description: Assemble the analysis with assumptions, impact, and a rollback path.
+    agent: pricing-worker
+    requires:
+      - pricing-or-packaging-analysis-analysis
+    produces:
+      - pricing-or-packaging-analysis-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - pricing-or-packaging-analysis-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - pricing-or-packaging-analysis-analysis
+      - pricing-or-packaging-analysis-record
+    produces:
+      - analysis
+      - decision_inputs
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: impact-source-backed
+    title: Impact estimates are source-backed
+    type: artifact
+    required: true
+    evidence: Customer-impact estimates cite the real usage and revenue data.
+    evidence_refs:
+      - pricing-or-packaging-analysis-evidence
+    evidence_class: external-production
+  - id: assumptions-and-rollback
+    title: Assumptions visible and rollback documented
+    type: judgment
+    required: true
+    evidence: Assumptions are visible and a rollback path is documented.
+    evidence_refs:
+      - pricing-or-packaging-analysis-record
+    evidence_class: judgment
+    criteria:
+      - Assumptions are visible
+      - Customer impact is documented
+      - A rollback path is documented
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

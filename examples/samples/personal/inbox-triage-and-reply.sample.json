@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "personal.inbox-triage-and-reply",
+    "version": "0.1.0",
+    "source": "flows/personal/inbox-triage-and-reply/flow.yaml"
+  },
+  "inputs": {
+    "inbox": "imap://mail.example.com/INBOX",
+    "policy": "Professional tone; escalate legal; never send without approval."
+  },
+  "expected_outputs": {
+    "triage_report": "The classified messages with drafted replies and identified commitments.",
+    "send_queue": "The replies awaiting send approval."
+  },
+  "notes": "Contract-first: a completed run needs a runtime wired to the live inbox and an approval surface."
+}

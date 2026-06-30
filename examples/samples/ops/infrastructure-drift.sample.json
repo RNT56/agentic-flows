@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "ops.infrastructure-drift",
+    "version": "0.1.0",
+    "source": "flows/ops/infrastructure-drift/flow.yaml"
+  },
+  "inputs": {
+    "intended": "https://github.com/RNT56/example/tree/main/infra",
+    "environment": "production"
+  },
+  "expected_outputs": {
+    "drift_report": "The drift between intended and actual state with staged remediation.",
+    "remediation": "The staged remediation steps and approvals."
+  },
+  "notes": "Contract-first: a completed run needs a runtime wired to the live infrastructure."
+}

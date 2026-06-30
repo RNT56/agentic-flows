@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "docs.public-announcement",
+    "version": "0.1.0",
+    "source": "flows/docs/public-announcement/flow.yaml"
+  },
+  "inputs": {
+    "shipped": "Shipped: agentic-flows/v1.1 with composition and evidence classes.",
+    "channel": "Developer newsletter and changelog."
+  },
+  "expected_outputs": {
+    "announcement": "The public announcement copy.",
+    "claims_map": "Each claim mapped to the shipped behavior that supports it."
+  },
+  "notes": "Contract-first: a completed run needs a reviewer to confirm claims against shipped behavior."
+}

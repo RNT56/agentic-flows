@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "ops.scheduler-health",
+    "version": "0.1.0",
+    "source": "flows/ops/scheduler-health/flow.yaml"
+  },
+  "inputs": {
+    "schedulers": "Nightly cron, reminder routines, and uptime monitors.",
+    "window": "the last 14 days"
+  },
+  "expected_outputs": {
+    "health_report": "The stale or failed schedules and proposed remediation.",
+    "remediation": "The remediation awaiting approval."
+  },
+  "notes": "Contract-first: a completed run needs a runtime wired to the live schedulers."
+}

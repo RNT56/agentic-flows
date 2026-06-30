@@ -10,7 +10,7 @@ A library of runnable, consumable agentic workflows — each carrying the instru
 | --- | --- |
 | Latest release | `v0.1.1` |
 | Flow spec | `agentic-flows/v1` and `agentic-flows/v1.1` (additive: `flow_ref` sub-flow composition) |
-| Catalog size | 78 reusable workflows, 3 starter templates |
+| Catalog size | 97 reusable workflows (78 run/contract-evidenced + 19 contract-first deferred), 3 starter templates |
 | Tooling | Python CLI, JSON Schema, YAML flow definitions |
 | Evidence model | Events, streams, run bundles, adapter smoke manifests |
 | CI gate | Schema validation, normalization, samples, runs, links, changelog, package build, tests |
@@ -58,7 +58,7 @@ flowchart LR
 - A versioned YAML workflow format backed by JSON Schema, with a **substance layer**: per-node instructions, structured inputs/outputs, parameters, concrete commands, and failure handling (see [docs/runnable-flows.md](docs/runnable-flows.md)); and an additive `agentic-flows/v1.1` superset adding sub-flow composition, evidence classes, environments, bounded loops, and fan-out.
 - `flowctl`, a repo-local CLI for validation, **execution (`flowctl run`)**, **composition checks (`flowctl check-composition`)**, listing, normalization, graph export, sample checks, event checks, run-bundle checks, replay, reporting, changelog checks, link checks, package builds, and release readiness checks.
 - A **reference runner** that executes runnable flows locally and emits real run bundles with real artifacts — not placeholder evidence. Contract flows run end-to-end too when a consumer binds their open nodes with `flowctl run --handler node_id=command`.
-- Seventy-eight reusable workflow definitions across coding, engineering, design, infrastructure, research, security, product, program, personal, collaboration, operations, proof, orchestration, documentation, and human review. Every flow carries the substance layer — per-node instructions, intake input schemas, parameters, and concrete commands with failure handling on the steps that map to real commands — so each is a consumable contract, and the command-driven ones run directly under `flowctl run`.
+- Ninety-seven reusable workflow definitions across coding, engineering, design, infrastructure, research, security, product, program, personal, collaboration, operations, proof, orchestration, documentation, and human review — including the full backlog as contract-first flows (see below). Every flow carries the substance layer — per-node instructions, intake input schemas, parameters, and concrete commands with failure handling on the steps that map to real commands — so each is a consumable contract, and the command-driven ones run directly under `flowctl run`.
 - Three copyable starter templates for project-specific workflows.
 - Event and run-bundle schemas for evidence-backed execution.
 - Adapter smoke manifest schemas and examples for independent optional consumers.
@@ -149,6 +149,20 @@ flowchart LR
 | [`program.service-from-spec`](flows/program/service-from-spec/README.md) | Experimental | Compose service design-to-spec, backend build, and integration verification into one Design-Build-Verify program. | NilCore | Run bundle recursively validating three child sub-runs, sample contract |
 | [`program.feature-to-release`](flows/program/feature-to-release/README.md) | Experimental | Compose issue-to-verified-pr and preview deploy into a Build-Ship-Govern program with an independent release acceptance. | NilCore | Run bundle recursively validating two child sub-runs, sample contract |
 | [`program.security-hardening-campaign`](flows/program/security-hardening-campaign/README.md) | Experimental | Inventory findings, fan out a bounded per-finding fix-and-verify loop, and export one audit trail (`fan_out` + `iteration` + `flow_ref`). | CrustCore, standalone | Run bundle recursively validating the audit and export sub-runs, sample contract |
+
+## Contract-first (deferred) workflows
+
+These complete the backlog that depends on **real external state** — live inboxes, billing, metrics, CI/PR, infrastructure, or secrets. Each ships a validating `flow.yaml`, a README maturity rubric, and a sample, with a `judgment` decision gate (reviewer-identity) and a source gate that declares `external-production` evidence. They deliberately ship **no completed run bundle**: a standalone run would fabricate the external state, which `flowctl`'s standalone-honesty rule rejects. Run and adapter evidence stay open until a runtime wired to the external system provides them — that is what "contract-first" means here.
+
+| Domain | Workflows |
+| --- | --- |
+| Personal | [`personal.daily-command-center`](flows/personal/daily-command-center/README.md), [`personal.inbox-triage-and-reply`](flows/personal/inbox-triage-and-reply/README.md), [`personal.cross-channel-briefing`](flows/personal/cross-channel-briefing/README.md) |
+| Engineering | [`engineering.merge-readiness`](flows/engineering/merge-readiness/README.md), [`engineering.release-train`](flows/engineering/release-train/README.md) |
+| Ops | [`ops.cost-anomaly`](flows/ops/cost-anomaly/README.md), [`ops.rollback`](flows/ops/rollback/README.md), [`ops.infrastructure-drift`](flows/ops/infrastructure-drift/README.md), [`ops.backup-restore-drill`](flows/ops/backup-restore-drill/README.md), [`ops.scheduler-health`](flows/ops/scheduler-health/README.md) |
+| Product | [`product.kpi-diagnostics`](flows/product/kpi-diagnostics/README.md), [`product.experiment-readout`](flows/product/experiment-readout/README.md), [`product.churn-risk-review`](flows/product/churn-risk-review/README.md), [`product.customer-success-brief`](flows/product/customer-success-brief/README.md), [`product.pricing-or-packaging-analysis`](flows/product/pricing-or-packaging-analysis/README.md), [`product.release-positioning`](flows/product/release-positioning/README.md) |
+| Security / Research / Docs | [`security.secret-leak-response`](flows/security/secret-leak-response/README.md), [`research.competitor-watch`](flows/research/competitor-watch/README.md), [`docs.public-announcement`](flows/docs/public-announcement/README.md) |
+
+The flows whose deferral was an *honesty* problem solvable with a sandbox or a bounded scope were instead shipped run-evidenced earlier: `ops.deploy-and-verify` as [`ops.ephemeral-preview-deploy`](flows/ops/ephemeral-preview-deploy/README.md), the browser/cross-platform regressions as [`engineering.browser-matrix-check`](flows/engineering/browser-matrix-check/README.md), and the release autopilot as [`program.feature-to-release`](flows/program/feature-to-release/README.md).
 
 ## Starter templates
 

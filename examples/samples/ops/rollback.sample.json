@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "ops.rollback",
+    "version": "0.1.0",
+    "source": "flows/ops/rollback/flow.yaml"
+  },
+  "inputs": {
+    "incident": "Deploy 1.4.0 raised 5xx; roll back to 1.3.2.",
+    "target": "1.3.2"
+  },
+  "expected_outputs": {
+    "rollback_record": "The rollback target, migration-risk assessment, and restored-health evidence.",
+    "health_status": "The post-rollback health checks."
+  },
+  "notes": "Contract-first: a completed run needs a runtime wired to the live deployment target."
+}

@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "ops.backup-restore-drill",
+    "version": "0.1.0",
+    "source": "flows/ops/backup-restore-drill/flow.yaml"
+  },
+  "inputs": {
+    "backup": "s3://backups/example/2026-06-29.tar.gz",
+    "target": "restore-sandbox"
+  },
+  "expected_outputs": {
+    "drill_record": "The restore command, integrity checks, and secret handling.",
+    "integrity_status": "The data-integrity check results."
+  },
+  "notes": "Contract-first: a completed run needs a runtime that can perform the restore into a safe environment."
+}

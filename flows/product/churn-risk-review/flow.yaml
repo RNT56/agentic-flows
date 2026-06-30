@@ -1,0 +1,144 @@
+spec_version: agentic-flows/v1.1
+id: product.churn-risk-review
+version: 0.1.0
+title: Churn risk review
+summary: Identify churn risk from real signals and create an intervention plan with an owner and follow-up date.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - product
+  - churn
+  - retention
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+  required_capabilities:
+    - usage.read
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: accounts
+      type: markdown
+      required: true
+      description: The accounts or segment to review.
+    - id: signals
+      type: uri
+      required: true
+      description: The usage and support signals source.
+  outputs:
+    - id: risk_review
+      type: markdown
+      required: true
+      description: The churn-risk accounts with source-backed signals.
+    - id: intervention_plan
+      type: json
+      required: true
+      description: The interventions with owners and follow-up dates.
+  artifacts:
+    - churn-risk-review-plan
+    - churn-risk-review-evidence
+    - churn-risk-review-analysis
+    - churn-risk-review-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for churn risk review.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - churn-risk-review-plan
+  - id: gather
+    type: agent_task
+    title: Pull churn signals
+    description: Pull the real usage and support signals for the accounts.
+    agent: success-worker
+    requires:
+      - churn-risk-review-plan
+    produces:
+      - churn-risk-review-evidence
+  - id: analyze
+    type: agent_task
+    title: Score the risk
+    description: Score churn risk from the signals, citing each signal source.
+    agent: success-worker
+    requires:
+      - churn-risk-review-evidence
+    produces:
+      - churn-risk-review-analysis
+  - id: produce
+    type: agent_task
+    title: Plan interventions
+    description: Assemble the risk review and an intervention plan with owners and dates.
+    agent: success-worker
+    requires:
+      - churn-risk-review-analysis
+    produces:
+      - churn-risk-review-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - churn-risk-review-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - churn-risk-review-analysis
+      - churn-risk-review-record
+    produces:
+      - risk_review
+      - intervention_plan
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: signals-source-backed
+    title: Risk signals are source-backed
+    type: artifact
+    required: true
+    evidence: Every churn-risk signal cites its real source.
+    evidence_refs:
+      - churn-risk-review-evidence
+    evidence_class: external-production
+  - id: intervention-owned
+    title: Interventions are owned and dated
+    type: judgment
+    required: true
+    evidence: Each intervention has an owner and a follow-up date.
+    evidence_refs:
+      - churn-risk-review-record
+    evidence_class: judgment
+    criteria:
+      - Risk signals are source-backed
+      - Each intervention has an owner
+      - Each intervention has a follow-up date
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

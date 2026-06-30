@@ -1063,3 +1063,41 @@ def test_every_flow_has_a_well_defined_consumption_surface() -> None:
                 failures.append(f"{flow_path}: {node_id} wrongly marked needs-handler")
 
     assert not failures, "\n".join(failures)
+
+
+def test_external_production_flows_ship_no_fabricated_run_bundle() -> None:
+    # Honesty invariant: a flow with an `external-production` gate is contract-first —
+    # a completed standalone/local run would fabricate the external state, so none ships.
+    offenders: list[str] = []
+    for flow_path in find_flow_files([Path("flows")]):
+        document = load_yaml(flow_path)
+        has_external = any(
+            gate.get("evidence_class") == "external-production" for gate in document.get("quality_gates", [])
+        )
+        if not has_external:
+            continue
+        run_path = Path("examples/runs") / f"{flow_path.parent.name}.run.json"
+        if run_path.exists():
+            run = load_json(run_path)
+            if run.get("run", {}).get("status") == "completed":
+                offenders.append(str(run_path))
+    assert offenders == [], offenders
+
+
+def test_deferred_backlog_flows_are_contract_first() -> None:
+    # Every shipped contract-first deferred flow validates, has a sample, a judgment
+    # decision gate with reviewer-identity, and no completed run bundle.
+    schema = load_json(DEFAULT_SCHEMA)
+    deferred = [
+        "personal/daily-command-center", "personal/inbox-triage-and-reply", "personal/cross-channel-briefing",
+        "engineering/merge-readiness", "engineering/release-train", "security/secret-leak-response",
+        "research/competitor-watch", "ops/cost-anomaly", "ops/rollback", "ops/infrastructure-drift",
+        "ops/backup-restore-drill", "ops/scheduler-health", "product/kpi-diagnostics", "product/churn-risk-review",
+        "product/customer-success-brief", "product/experiment-readout", "product/pricing-or-packaging-analysis",
+        "product/release-positioning", "docs/public-announcement",
+    ]
+    for rel in deferred:
+        document = load_yaml(Path(f"flows/{rel}/flow.yaml"))
+        assert validate_flow_document(document, schema) == [], rel
+        assert any(gate["type"] == "judgment" for gate in document["quality_gates"]), rel
+        assert not (Path("examples/runs") / f"{Path(rel).name}.run.json").exists(), rel

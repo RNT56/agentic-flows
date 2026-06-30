@@ -1,0 +1,145 @@
+spec_version: agentic-flows/v1.1
+id: ops.infrastructure-drift
+version: 0.1.0
+title: Infrastructure drift
+summary: Compare intended infrastructure state to actual and propose staged remediation, with destructive changes gated on
+  approval.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - ops
+  - infra
+  - drift
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+  required_capabilities:
+    - infra.read
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: intended
+      type: uri
+      required: true
+      description: The intended infrastructure state (IaC source).
+    - id: environment
+      type: text
+      required: true
+      description: The environment to compare.
+  outputs:
+    - id: drift_report
+      type: markdown
+      required: true
+      description: The drift between intended and actual state with staged remediation.
+    - id: remediation
+      type: json
+      required: true
+      description: The staged remediation steps and approvals.
+  artifacts:
+    - infrastructure-drift-plan
+    - infrastructure-drift-evidence
+    - infrastructure-drift-analysis
+    - infrastructure-drift-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for infrastructure drift.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - infrastructure-drift-plan
+  - id: gather
+    type: agent_task
+    title: Read actual state
+    description: Read the actual live infrastructure state for the environment.
+    agent: infra-worker
+    requires:
+      - infrastructure-drift-plan
+    produces:
+      - infrastructure-drift-evidence
+  - id: analyze
+    type: agent_task
+    title: Compute the drift
+    description: Compute the drift against the intended state and classify each change.
+    agent: infra-worker
+    requires:
+      - infrastructure-drift-evidence
+    produces:
+      - infrastructure-drift-analysis
+  - id: produce
+    type: agent_task
+    title: Stage remediation
+    description: Assemble the drift report and stage remediation, flagging destructive changes.
+    agent: infra-worker
+    requires:
+      - infrastructure-drift-analysis
+    produces:
+      - infrastructure-drift-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - infrastructure-drift-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - infrastructure-drift-analysis
+      - infrastructure-drift-record
+    produces:
+      - drift_report
+      - remediation
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: drift-evidence-captured
+    title: Drift evidence is captured
+    type: artifact
+    required: true
+    evidence: The actual-vs-intended drift is captured from the real environment.
+    evidence_refs:
+      - infrastructure-drift-evidence
+    evidence_class: external-production
+  - id: destructive-requires-approval
+    title: Destructive changes require approval
+    type: judgment
+    required: true
+    evidence: Destructive remediation requires explicit approval.
+    evidence_refs:
+      - infrastructure-drift-record
+    evidence_class: judgment
+    criteria:
+      - Drift evidence is captured from the real environment
+      - Destructive changes are flagged and require approval
+      - Remediation is staged, not auto-applied
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

@@ -1,0 +1,146 @@
+spec_version: agentic-flows/v1.1
+id: product.experiment-readout
+version: 0.1.0
+title: Experiment readout
+summary: Analyze an experiment and decide ship, iterate, or stop, reviewing sample size and guardrails so the decision follows
+  the evidence.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - product
+  - experiment
+  - readout
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+  required_capabilities:
+    - metrics.read
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: experiment
+      type: markdown
+      required: true
+      description: The experiment, its hypothesis, and guardrails.
+    - id: results
+      type: uri
+      required: true
+      description: The experiment results source.
+  outputs:
+    - id: readout
+      type: markdown
+      required: true
+      description: The analysis with sample size, guardrails, and a ship/iterate/stop decision.
+    - id: decision
+      type: json
+      required: true
+      description: The decision and its rationale.
+  artifacts:
+    - experiment-readout-plan
+    - experiment-readout-evidence
+    - experiment-readout-analysis
+    - experiment-readout-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for experiment readout.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - experiment-readout-plan
+  - id: gather
+    type: agent_task
+    title: Pull experiment results
+    description: Pull the real experiment results and guardrail metrics.
+    agent: analytics-worker
+    requires:
+      - experiment-readout-plan
+    produces:
+      - experiment-readout-evidence
+  - id: analyze
+    type: agent_task
+    title: Review size and guardrails
+    description: Review sample size and guardrails and whether the effect is real.
+    agent: analytics-worker
+    requires:
+      - experiment-readout-evidence
+    produces:
+      - experiment-readout-analysis
+  - id: produce
+    type: agent_task
+    title: Decide ship/iterate/stop
+    description: Assemble the readout and a ship, iterate, or stop decision that follows the evidence.
+    agent: analytics-worker
+    requires:
+      - experiment-readout-analysis
+    produces:
+      - experiment-readout-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - experiment-readout-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - experiment-readout-analysis
+      - experiment-readout-record
+    produces:
+      - readout
+      - decision
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: results-source-backed
+    title: Results are source-backed
+    type: artifact
+    required: true
+    evidence: The analysis cites the real experiment results and guardrail metrics.
+    evidence_refs:
+      - experiment-readout-evidence
+    evidence_class: external-production
+  - id: decision-follows-evidence
+    title: Decision follows the evidence
+    type: judgment
+    required: true
+    evidence: The ship/iterate/stop decision follows the evidence.
+    evidence_refs:
+      - experiment-readout-record
+    evidence_class: judgment
+    criteria:
+      - Sample size and guardrails are reviewed
+      - The decision follows the evidence
+      - Caveats are stated
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

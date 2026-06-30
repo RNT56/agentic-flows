@@ -1,0 +1,145 @@
+spec_version: agentic-flows/v1.1
+id: ops.cost-anomaly
+version: 0.1.0
+title: Cost anomaly diagnosis
+summary: Diagnose unexpected cloud, API, or compute spend from source billing data and recommend an owned, risk-assessed action.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - ops
+  - cost
+  - finops
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+  required_capabilities:
+    - billing.read
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: billing_export
+      type: uri
+      required: true
+      description: Source billing or usage data for the period under investigation.
+    - id: scope
+      type: markdown
+      required: true
+      description: The spend anomaly to diagnose and the period and services in scope.
+  outputs:
+    - id: driver_analysis
+      type: markdown
+      required: true
+      description: The spend drivers, separated from speculation, each citing the source billing data.
+    - id: recommended_action
+      type: markdown
+      required: true
+      description: The recommended action with owner, risk, and rollback.
+  artifacts:
+    - anomaly-plan
+    - billing-evidence
+    - driver-analysis-doc
+    - action-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake anomaly scope
+    description: Capture the spend anomaly, period, services, and the billing source.
+    produces:
+      - cost-scope
+  - id: plan
+    type: plan
+    title: Plan the diagnosis
+    description: Plan which billing dimensions to pull and how to attribute the spend.
+    requires:
+      - cost-scope
+    produces:
+      - anomaly-plan
+  - id: gather
+    type: agent_task
+    title: Pull source billing data
+    description: Pull the real billing and usage data for the period from the billing system.
+    agent: finops-worker
+    requires:
+      - anomaly-plan
+    produces:
+      - billing-evidence
+  - id: analyze
+    type: agent_task
+    title: Attribute the drivers
+    description: Attribute the spend to drivers, separating measured drivers from speculation.
+    agent: finops-worker
+    requires:
+      - billing-evidence
+    produces:
+      - driver-analysis-doc
+  - id: recommend
+    type: agent_task
+    title: Recommend an action
+    description: Recommend an action with an owner, the risk, and a rollback.
+    agent: finops-worker
+    requires:
+      - driver-analysis-doc
+    produces:
+      - action-record
+  - id: review
+    type: approval
+    title: Action review
+    description: An owner reviews the recommended action before it is acted on.
+    requires:
+      - action-record
+  - id: final
+    type: finalizer
+    title: Close out diagnosis
+    description: Return the driver analysis and the recommended action.
+    requires:
+      - driver-analysis-doc
+      - action-record
+    produces:
+      - driver_analysis
+      - recommended_action
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: recommend
+  - from: recommend
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: drivers-source-backed
+    title: Drivers are source-backed
+    type: artifact
+    required: true
+    evidence: Each spend driver cites the source billing data; speculation is marked.
+    evidence_refs:
+      - billing-evidence
+    evidence_class: external-production
+  - id: action-owned-and-risk-assessed
+    title: Action has an owner and risk
+    type: judgment
+    required: true
+    evidence: The recommended action names an owner, states the risk, and has a rollback.
+    evidence_refs:
+      - action-record
+    evidence_class: judgment
+    criteria:
+      - The action names an accountable owner
+      - The risk and blast radius are stated
+      - A rollback or mitigation is documented
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

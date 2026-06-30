@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "product.pricing-or-packaging-analysis",
+    "version": "0.1.0",
+    "source": "flows/product/pricing-or-packaging-analysis/flow.yaml"
+  },
+  "inputs": {
+    "proposal": "Move the Pro tier from $20 to $25 and add a usage cap.",
+    "usage": "https://billing.example.com/exports/usage.csv"
+  },
+  "expected_outputs": {
+    "analysis": "The evaluation with visible assumptions, customer impact, and rollback.",
+    "decision_inputs": "The assumptions and impact estimates."
+  },
+  "notes": "Contract-first: a completed run needs a runtime wired to the real usage and revenue data."
+}

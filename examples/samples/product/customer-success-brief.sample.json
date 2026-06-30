@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "product.customer-success-brief",
+    "version": "0.1.0",
+    "source": "flows/product/customer-success-brief/flow.yaml"
+  },
+  "inputs": {
+    "account": "Brief the QBR for account Globex.",
+    "sources": "https://crm.example.com/accounts/globex"
+  },
+  "expected_outputs": {
+    "account_brief": "The account briefing with open risks and asks, sources linked.",
+    "open_items": "The open risks and asks."
+  },
+  "notes": "Contract-first: a completed run needs a runtime wired to the real tickets, usage, and roadmap."
+}

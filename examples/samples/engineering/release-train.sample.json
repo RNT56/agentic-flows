@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.release-train",
+    "version": "0.1.0",
+    "source": "flows/engineering/release-train/flow.yaml"
+  },
+  "inputs": {
+    "repo": "https://github.com/RNT56/example",
+    "version": "1.4.0"
+  },
+  "expected_outputs": {
+    "release_plan": "The coordinated release steps and post-release verification.",
+    "release_record": "The tag, package digest, and check results."
+  },
+  "notes": "Contract-first: a completed run needs a runtime that can run the release check and observe the tag/package state."
+}

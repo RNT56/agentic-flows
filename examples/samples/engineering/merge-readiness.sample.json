@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "engineering.merge-readiness",
+    "version": "0.1.0",
+    "source": "flows/engineering/merge-readiness/flow.yaml"
+  },
+  "inputs": {
+    "pr": "https://github.com/RNT56/example/pull/42",
+    "repo": "https://github.com/RNT56/example"
+  },
+  "expected_outputs": {
+    "readiness_report": "The local, CI, review, and blocker state with a merge-ready verdict.",
+    "blockers": "The outstanding merge blockers."
+  },
+  "notes": "Contract-first: a completed run needs a runtime wired to live CI and PR state."
+}

@@ -1,0 +1,144 @@
+spec_version: agentic-flows/v1.1
+id: docs.public-announcement
+version: 0.1.0
+title: Public announcement
+summary: Turn shipped work into concise public-facing announcement copy with no unshipped claim and a selected channel.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - docs
+  - announcement
+  - communication
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - standalone
+  required_capabilities:
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: shipped
+      type: markdown
+      required: true
+      description: The shipped work to announce.
+    - id: channel
+      type: markdown
+      required: true
+      description: The audience and distribution channel.
+  outputs:
+    - id: announcement
+      type: markdown
+      required: true
+      description: The public announcement copy.
+    - id: claims_map
+      type: json
+      required: true
+      description: Each claim mapped to the shipped behavior that supports it.
+  artifacts:
+    - public-announcement-plan
+    - public-announcement-evidence
+    - public-announcement-analysis
+    - public-announcement-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for public announcement.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - public-announcement-plan
+  - id: gather
+    type: agent_task
+    title: Confirm shipped behavior
+    description: Confirm what actually shipped from the changelog and release.
+    agent: comms-worker
+    requires:
+      - public-announcement-plan
+    produces:
+      - public-announcement-evidence
+  - id: analyze
+    type: agent_task
+    title: Draft the copy
+    description: Draft concise public announcement copy for the audience.
+    agent: comms-worker
+    requires:
+      - public-announcement-evidence
+    produces:
+      - public-announcement-analysis
+  - id: produce
+    type: agent_task
+    title: Map claims and select channel
+    description: Map each claim to shipped behavior and select the distribution channel.
+    agent: comms-worker
+    requires:
+      - public-announcement-analysis
+    produces:
+      - public-announcement-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - public-announcement-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - public-announcement-analysis
+      - public-announcement-record
+    produces:
+      - announcement
+      - claims_map
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: claims-mapped-to-behavior
+    title: Claims map to shipped behavior
+    type: artifact
+    required: true
+    evidence: Every announced claim maps to shipped behavior; the map is recorded.
+    evidence_refs:
+      - public-announcement-evidence
+    evidence_class: deterministic
+  - id: no-unshipped-claim
+    title: No unshipped claim and channel selected
+    type: judgment
+    required: true
+    evidence: No unshipped claim is announced and a channel is selected.
+    evidence_refs:
+      - public-announcement-record
+    evidence_class: judgment
+    criteria:
+      - No claim is made about unshipped behavior
+      - The audience is identified
+      - The distribution channel is selected
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

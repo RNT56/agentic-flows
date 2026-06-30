@@ -1,0 +1,146 @@
+spec_version: agentic-flows/v1.1
+id: personal.daily-command-center
+version: 0.1.0
+title: Daily command center
+summary: Gather inboxes, calendar, routines, and pending approvals into one verified daily operating plan, with no external
+  action without approval.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - personal
+  - operating
+  - daily
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+  required_capabilities:
+    - inbox.read
+    - calendar.read
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: sources
+      type: markdown
+      required: true
+      description: The inboxes, calendars, and project signals in scope.
+    - id: date
+      type: text
+      required: true
+      description: The operating day.
+  outputs:
+    - id: operating_plan
+      type: markdown
+      required: true
+      description: The verified daily plan with cited items and pending approvals.
+    - id: approvals_needed
+      type: json
+      required: true
+      description: The actions awaiting explicit approval.
+  artifacts:
+    - daily-command-center-plan
+    - daily-command-center-evidence
+    - daily-command-center-analysis
+    - daily-command-center-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for daily command center.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - daily-command-center-plan
+  - id: gather
+    type: agent_task
+    title: Gather live signals
+    description: Pull the day's inboxes, calendar, routines, and pending approvals from their live sources.
+    agent: operating-worker
+    requires:
+      - daily-command-center-plan
+    produces:
+      - daily-command-center-evidence
+  - id: analyze
+    type: agent_task
+    title: Triage and prioritize
+    description: Triage the signals into a prioritized plan, citing each item's source.
+    agent: operating-worker
+    requires:
+      - daily-command-center-evidence
+    produces:
+      - daily-command-center-analysis
+  - id: produce
+    type: agent_task
+    title: Assemble the plan
+    description: Assemble the operating plan and the list of actions needing approval.
+    agent: operating-worker
+    requires:
+      - daily-command-center-analysis
+    produces:
+      - daily-command-center-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - daily-command-center-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - daily-command-center-analysis
+      - daily-command-center-record
+    produces:
+      - operating_plan
+      - approvals_needed
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: items-source-backed
+    title: Every plan item is source-backed
+    type: artifact
+    required: true
+    evidence: Every plan item cites a live source id; nothing is invented.
+    evidence_refs:
+      - daily-command-center-evidence
+    evidence_class: external-production
+  - id: no-action-without-approval
+    title: No external action without approval
+    type: judgment
+    required: true
+    evidence: The plan takes no external action without approval.
+    evidence_refs:
+      - daily-command-center-record
+    evidence_class: judgment
+    criteria:
+      - No external action is taken without explicit approval
+      - Every cited item has a source ref
+      - Pending approvals are listed, not assumed
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

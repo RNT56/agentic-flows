@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "personal.cross-channel-briefing",
+    "version": "0.1.0",
+    "source": "flows/personal/cross-channel-briefing/flow.yaml"
+  },
+  "inputs": {
+    "channels": "Slack #eng, team email, GitHub, calendar, local notes; brief the eng lead.",
+    "window": "the last 7 days"
+  },
+  "expected_outputs": {
+    "briefing": "The source-backed briefing across channels.",
+    "flagged_items": "Stale sources and items withheld for privacy."
+  },
+  "notes": "Contract-first: a completed run needs a runtime wired to the live channels."
+}

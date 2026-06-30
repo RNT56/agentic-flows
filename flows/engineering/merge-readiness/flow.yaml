@@ -1,0 +1,146 @@
+spec_version: agentic-flows/v1.1
+id: engineering.merge-readiness
+version: 0.1.0
+title: Merge readiness
+summary: Separate local state, CI state, PR review state, and merge blockers, and give no merge-ready verdict unless all are
+  green.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - merge
+  - readiness
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+  required_capabilities:
+    - ci.read
+    - pr.read
+    - evidence.capture
+contracts:
+  inputs:
+    - id: pr
+      type: uri
+      required: true
+      description: The pull request to assess.
+    - id: repo
+      type: uri
+      required: true
+      description: The repository.
+  outputs:
+    - id: readiness_report
+      type: markdown
+      required: true
+      description: The local, CI, review, and blocker state with a merge-ready verdict.
+    - id: blockers
+      type: json
+      required: true
+      description: The outstanding merge blockers.
+  artifacts:
+    - merge-readiness-plan
+    - merge-readiness-evidence
+    - merge-readiness-analysis
+    - merge-readiness-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for merge readiness.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - merge-readiness-plan
+  - id: gather
+    type: agent_task
+    title: Read CI and PR state
+    description: Read the live CI checks, PR review state, and branch state.
+    agent: ci-worker
+    requires:
+      - merge-readiness-plan
+    produces:
+      - merge-readiness-evidence
+  - id: analyze
+    type: agent_task
+    title: Separate the states
+    description: Separate local, CI, review, and blocker state and identify what is not green.
+    agent: ci-worker
+    requires:
+      - merge-readiness-evidence
+    produces:
+      - merge-readiness-analysis
+  - id: produce
+    type: agent_task
+    title: Render the verdict
+    description: Render the readiness report and the merge-ready verdict only if all states are green.
+    agent: ci-worker
+    requires:
+      - merge-readiness-analysis
+    produces:
+      - merge-readiness-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - merge-readiness-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - merge-readiness-analysis
+      - merge-readiness-record
+    produces:
+      - readiness_report
+      - blockers
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: states-source-backed
+    title: States cite live CI and PR data
+    type: artifact
+    required: true
+    evidence: Each state cites the live CI check or PR review it reflects.
+    evidence_refs:
+      - merge-readiness-evidence
+    evidence_class: external-production
+  - id: no-green-verdict-unless-green
+    title: No merge-ready verdict unless all green
+    type: judgment
+    required: true
+    evidence: No merge-ready verdict is given unless all required checks and reviews are green.
+    evidence_refs:
+      - merge-readiness-record
+    evidence_class: judgment
+    criteria:
+      - Every required check and review is green for a merge-ready verdict
+      - Blockers are enumerated with source refs
+      - No verdict is asserted beyond the evidence
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

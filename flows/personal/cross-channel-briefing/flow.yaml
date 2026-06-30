@@ -1,0 +1,144 @@
+spec_version: agentic-flows/v1.1
+id: personal.cross-channel-briefing
+version: 0.1.0
+title: Cross-channel briefing
+summary: Produce a source-backed briefing across Slack, email, GitHub, calendar, and notes without leaking private content.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - personal
+  - briefing
+  - cross-channel
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+  required_capabilities:
+    - channel.read
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: channels
+      type: markdown
+      required: true
+      description: The channels and the briefing question or audience.
+    - id: window
+      type: text
+      required: true
+      description: The time window to brief on.
+  outputs:
+    - id: briefing
+      type: markdown
+      required: true
+      description: The source-backed briefing across channels.
+    - id: flagged_items
+      type: json
+      required: true
+      description: Stale sources and items withheld for privacy.
+  artifacts:
+    - cross-channel-briefing-plan
+    - cross-channel-briefing-evidence
+    - cross-channel-briefing-analysis
+    - cross-channel-briefing-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for cross-channel briefing.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - cross-channel-briefing-plan
+  - id: gather
+    type: agent_task
+    title: Read the channels
+    description: Read the relevant content across the live channels for the window.
+    agent: briefing-worker
+    requires:
+      - cross-channel-briefing-plan
+    produces:
+      - cross-channel-briefing-evidence
+  - id: analyze
+    type: agent_task
+    title: Synthesize the briefing
+    description: Synthesize a briefing, citing each claim's channel source and flagging stale ones.
+    agent: briefing-worker
+    requires:
+      - cross-channel-briefing-evidence
+    produces:
+      - cross-channel-briefing-analysis
+  - id: produce
+    type: agent_task
+    title: Assemble and redact
+    description: Assemble the briefing and withhold private content from a public audience.
+    agent: briefing-worker
+    requires:
+      - cross-channel-briefing-analysis
+    produces:
+      - cross-channel-briefing-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - cross-channel-briefing-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - cross-channel-briefing-analysis
+      - cross-channel-briefing-record
+    produces:
+      - briefing
+      - flagged_items
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: claims-have-sources
+    title: Every claim has a source
+    type: artifact
+    required: true
+    evidence: Every briefing claim cites a channel source id; stale sources are flagged.
+    evidence_refs:
+      - cross-channel-briefing-evidence
+    evidence_class: external-production
+  - id: no-private-leak
+    title: No private content leaks
+    type: judgment
+    required: true
+    evidence: The briefing leaks no private content into a public output.
+    evidence_refs:
+      - cross-channel-briefing-record
+    evidence_class: judgment
+    criteria:
+      - Every claim has a source ref
+      - Stale sources are flagged
+      - No private content reaches a public audience
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds
