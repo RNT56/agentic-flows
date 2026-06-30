@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "product.experiment-readout",
+    "version": "0.1.0",
+    "source": "flows/product/experiment-readout/flow.yaml"
+  },
+  "inputs": {
+    "experiment": "New onboarding flow A/B test.",
+    "results": "https://analytics.example.com/experiments/onboarding.csv"
+  },
+  "expected_outputs": {
+    "readout": "The analysis with sample size, guardrails, and a ship/iterate/stop decision.",
+    "decision": "The decision and its rationale."
+  },
+  "notes": "Contract-first: a completed run needs a runtime wired to the real experiment results."
+}

@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "product.release-positioning",
+    "version": "0.1.0",
+    "source": "flows/product/release-positioning/flow.yaml"
+  },
+  "inputs": {
+    "release": "Shipped: sub-flow composition and evidence classes.",
+    "audience": "Engineering leaders, via the changelog and blog."
+  },
+  "expected_outputs": {
+    "positioning": "The release framing, public copy, and rollout notes.",
+    "claims_map": "Each claim mapped to the shipped behavior that supports it."
+  },
+  "notes": "Contract-first: a completed run needs a reviewer to confirm claims against shipped behavior."
+}

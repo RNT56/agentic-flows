@@ -1,0 +1,146 @@
+spec_version: agentic-flows/v1.1
+id: product.customer-success-brief
+version: 0.1.0
+title: Customer success brief
+summary: Prepare a customer or account briefing from tickets, usage, docs, and roadmap, scoping sensitive data and linking
+  sources.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - product
+  - success
+  - briefing
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+  required_capabilities:
+    - crm.read
+    - usage.read
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: account
+      type: markdown
+      required: true
+      description: The account to brief and the briefing purpose.
+    - id: sources
+      type: uri
+      required: true
+      description: The tickets, usage, and roadmap sources.
+  outputs:
+    - id: account_brief
+      type: markdown
+      required: true
+      description: The account briefing with open risks and asks, sources linked.
+    - id: open_items
+      type: json
+      required: true
+      description: The open risks and asks.
+  artifacts:
+    - customer-success-brief-plan
+    - customer-success-brief-evidence
+    - customer-success-brief-analysis
+    - customer-success-brief-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for customer success brief.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - customer-success-brief-plan
+  - id: gather
+    type: agent_task
+    title: Pull account data
+    description: Pull the account's tickets, usage, and roadmap context from the real sources.
+    agent: success-worker
+    requires:
+      - customer-success-brief-plan
+    produces:
+      - customer-success-brief-evidence
+  - id: analyze
+    type: agent_task
+    title: Synthesize the brief
+    description: Synthesize the briefing, scoping sensitive data and listing open risks and asks.
+    agent: success-worker
+    requires:
+      - customer-success-brief-evidence
+    produces:
+      - customer-success-brief-analysis
+  - id: produce
+    type: agent_task
+    title: Assemble the brief
+    description: Assemble the account brief and the list of open items.
+    agent: success-worker
+    requires:
+      - customer-success-brief-analysis
+    produces:
+      - customer-success-brief-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - customer-success-brief-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - customer-success-brief-analysis
+      - customer-success-brief-record
+    produces:
+      - account_brief
+      - open_items
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: sources-linked
+    title: Claims link their sources
+    type: artifact
+    required: true
+    evidence: Every briefing claim links its source; sensitive data is scoped.
+    evidence_refs:
+      - customer-success-brief-evidence
+    evidence_class: external-production
+  - id: risks-and-asks-listed
+    title: Open risks and asks are listed
+    type: judgment
+    required: true
+    evidence: Open risks and asks are listed with linked sources and scoped sensitive data.
+    evidence_refs:
+      - customer-success-brief-record
+    evidence_class: judgment
+    criteria:
+      - Sensitive data is scoped appropriately
+      - Open risks and asks are listed
+      - Sources are linked for every claim
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

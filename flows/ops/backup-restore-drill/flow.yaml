@@ -1,0 +1,145 @@
+spec_version: agentic-flows/v1.1
+id: ops.backup-restore-drill
+version: 0.1.0
+title: Backup restore drill
+summary: Test backups by restoring into a safe environment and checking data integrity, handling secrets safely.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - ops
+  - backup
+  - restore
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+  required_capabilities:
+    - backup.read
+    - restore.run
+    - evidence.capture
+contracts:
+  inputs:
+    - id: backup
+      type: uri
+      required: true
+      description: The backup to restore.
+    - id: target
+      type: text
+      required: true
+      description: The safe environment to restore into.
+  outputs:
+    - id: drill_record
+      type: markdown
+      required: true
+      description: The restore command, integrity checks, and secret handling.
+    - id: integrity_status
+      type: json
+      required: true
+      description: The data-integrity check results.
+  artifacts:
+    - backup-restore-drill-plan
+    - backup-restore-drill-evidence
+    - backup-restore-drill-analysis
+    - backup-restore-drill-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for backup restore drill.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - backup-restore-drill-plan
+  - id: gather
+    type: agent_task
+    title: Restore into a safe target
+    description: Restore the backup into the safe target environment.
+    agent: restore-worker
+    requires:
+      - backup-restore-drill-plan
+    produces:
+      - backup-restore-drill-evidence
+  - id: analyze
+    type: agent_task
+    title: Check data integrity
+    description: Check data integrity against expectations, handling secrets safely.
+    agent: restore-worker
+    requires:
+      - backup-restore-drill-evidence
+    produces:
+      - backup-restore-drill-analysis
+  - id: produce
+    type: agent_task
+    title: Record the drill
+    description: Assemble the drill record and the integrity status.
+    agent: restore-worker
+    requires:
+      - backup-restore-drill-analysis
+    produces:
+      - backup-restore-drill-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - backup-restore-drill-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - backup-restore-drill-analysis
+      - backup-restore-drill-record
+    produces:
+      - drill_record
+      - integrity_status
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: integrity-checked
+    title: Data integrity is checked
+    type: artifact
+    required: true
+    evidence: The restored data passes integrity checks against the real restore.
+    evidence_refs:
+      - backup-restore-drill-evidence
+    evidence_class: external-production
+  - id: restore-recorded-secrets-safe
+    title: Restore recorded and secrets handled safely
+    type: judgment
+    required: true
+    evidence: The restore is evidenced and secrets are handled safely.
+    evidence_refs:
+      - backup-restore-drill-record
+    evidence_class: judgment
+    criteria:
+      - The restore command is recorded
+      - Data integrity is checked
+      - Secrets are handled safely during the drill
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

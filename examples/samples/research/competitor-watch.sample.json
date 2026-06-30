@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "research.competitor-watch",
+    "version": "0.1.0",
+    "source": "flows/research/competitor-watch/flow.yaml"
+  },
+  "inputs": {
+    "target": "Watch competitor Acme's product and release pages.",
+    "cadence": "weekly"
+  },
+  "expected_outputs": {
+    "watch_report": "The dated changes with sources, separated from interpretation.",
+    "changes": "The detected changes with source dates."
+  },
+  "notes": "Contract-first: a completed run needs a runtime that can retrieve the live competitor sources."
+}

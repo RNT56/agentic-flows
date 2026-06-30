@@ -1,0 +1,147 @@
+spec_version: agentic-flows/v1.1
+id: security.secret-leak-response
+version: 0.1.0
+title: Secret leak response
+summary: Detect, contain, rotate, and document a suspected secret leak with rotation evidence and a blameless postmortem.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - security
+  - secrets
+  - incident
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+    - crustcore
+  required_capabilities:
+    - secret.scan
+    - secret.rotate
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: report
+      type: markdown
+      required: true
+      description: 'The suspected leak: what, where, and when.'
+    - id: repo
+      type: uri
+      required: true
+      description: The repository or system in scope.
+  outputs:
+    - id: response_record
+      type: markdown
+      required: true
+      description: Containment, rotation evidence, and scope of exposure.
+    - id: postmortem
+      type: markdown
+      required: true
+      description: The blameless postmortem with follow-ups.
+  artifacts:
+    - secret-leak-response-plan
+    - secret-leak-response-evidence
+    - secret-leak-response-analysis
+    - secret-leak-response-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for secret leak response.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - secret-leak-response-plan
+  - id: gather
+    type: agent_task
+    title: Confirm and scope
+    description: Confirm the exposure and determine the scope of the leaked secret from the real systems.
+    agent: secrets-worker
+    requires:
+      - secret-leak-response-plan
+    produces:
+      - secret-leak-response-evidence
+  - id: analyze
+    type: agent_task
+    title: Contain and rotate
+    description: Contain the exposure and rotate the secret, capturing rotation evidence.
+    agent: secrets-worker
+    requires:
+      - secret-leak-response-evidence
+    produces:
+      - secret-leak-response-analysis
+  - id: produce
+    type: agent_task
+    title: Document the response
+    description: Assemble the response record and a blameless postmortem with owned follow-ups.
+    agent: secrets-worker
+    requires:
+      - secret-leak-response-analysis
+    produces:
+      - secret-leak-response-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - secret-leak-response-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - secret-leak-response-analysis
+      - secret-leak-response-record
+    produces:
+      - response_record
+      - postmortem
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: rotation-evidenced
+    title: Rotation is evidenced
+    type: artifact
+    required: true
+    evidence: The rotation of the exposed secret is evidenced from the real system, not asserted.
+    evidence_refs:
+      - secret-leak-response-evidence
+    evidence_class: external-production
+  - id: scope-and-postmortem-complete
+    title: Scope identified and postmortem complete
+    type: judgment
+    required: true
+    evidence: The exposed scope is identified and rotation is evidenced before closeout.
+    evidence_refs:
+      - secret-leak-response-record
+    evidence_class: judgment
+    criteria:
+      - The exposed secret's scope is identified
+      - Rotation evidence is present
+      - The postmortem has owned follow-ups
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "product.churn-risk-review",
+    "version": "0.1.0",
+    "source": "flows/product/churn-risk-review/flow.yaml"
+  },
+  "inputs": {
+    "accounts": "Enterprise accounts with declining usage.",
+    "signals": "https://crm.example.com/exports/usage.csv"
+  },
+  "expected_outputs": {
+    "risk_review": "The churn-risk accounts with source-backed signals.",
+    "intervention_plan": "The interventions with owners and follow-up dates."
+  },
+  "notes": "Contract-first: a completed run needs a runtime wired to the real usage and support data."
+}

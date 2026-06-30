@@ -1,0 +1,148 @@
+spec_version: agentic-flows/v1.1
+id: engineering.release-train
+version: 0.1.0
+title: Release train
+summary: Coordinate changelog roll, tag, release package, notes, and post-release verification, gated on a passing release
+  check; no tag pushed without it.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - engineering
+  - release
+  - train
+entrypoint: intake
+runtime:
+  supported_cores:
+    - nilcore
+    - crustcore
+  required_capabilities:
+    - repo.checkout
+    - command.run
+    - release.publish
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: repo
+      type: uri
+      required: true
+      description: The repository to release.
+    - id: version
+      type: text
+      required: true
+      description: The target release version.
+  outputs:
+    - id: release_plan
+      type: markdown
+      required: true
+      description: The coordinated release steps and post-release verification.
+    - id: release_record
+      type: json
+      required: true
+      description: The tag, package digest, and check results.
+  artifacts:
+    - release-train-plan
+    - release-train-evidence
+    - release-train-analysis
+    - release-train-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for release train.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - release-train-plan
+  - id: gather
+    type: agent_task
+    title: Read release state
+    description: Read the live changelog, tags, package, and release-check state.
+    agent: release-worker
+    requires:
+      - release-train-plan
+    produces:
+      - release-train-evidence
+  - id: analyze
+    type: agent_task
+    title: Coordinate the steps
+    description: Order the changelog roll, tag, package, notes, and post-release verification.
+    agent: release-worker
+    requires:
+      - release-train-evidence
+    produces:
+      - release-train-analysis
+  - id: produce
+    type: agent_task
+    title: Record the release
+    description: Assemble the release plan and the record of tag, digest, and checks.
+    agent: release-worker
+    requires:
+      - release-train-analysis
+    produces:
+      - release-train-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - release-train-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - release-train-analysis
+      - release-train-record
+    produces:
+      - release_plan
+      - release_record
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: release-check-passing
+    title: Release check is passing
+    type: artifact
+    required: true
+    evidence: The release-check result and artifact digest are captured from the real run.
+    evidence_refs:
+      - release-train-evidence
+    evidence_class: external-production
+  - id: no-tag-without-check
+    title: No tag pushed without a passing check
+    type: judgment
+    required: true
+    evidence: No tag is pushed without a passing release check.
+    evidence_refs:
+      - release-train-record
+    evidence_class: judgment
+    criteria:
+      - The release check passes before any tag
+      - The tag points at the audited commit
+      - The release artifact digest is recorded
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

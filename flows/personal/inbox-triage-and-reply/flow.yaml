@@ -1,0 +1,145 @@
+spec_version: agentic-flows/v1.1
+id: personal.inbox-triage-and-reply
+version: 0.1.0
+title: Inbox triage and reply
+summary: Classify messages, draft replies, identify commitments, and request approval before any send.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - personal
+  - inbox
+  - triage
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+  required_capabilities:
+    - inbox.read
+    - draft.compose
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: inbox
+      type: uri
+      required: true
+      description: The inbox to triage.
+    - id: policy
+      type: markdown
+      required: true
+      description: Reply tone, escalation, and send-approval policy.
+  outputs:
+    - id: triage_report
+      type: markdown
+      required: true
+      description: The classified messages with drafted replies and identified commitments.
+    - id: send_queue
+      type: json
+      required: true
+      description: The replies awaiting send approval.
+  artifacts:
+    - inbox-triage-and-reply-plan
+    - inbox-triage-and-reply-evidence
+    - inbox-triage-and-reply-analysis
+    - inbox-triage-and-reply-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for inbox triage and reply.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - inbox-triage-and-reply-plan
+  - id: gather
+    type: agent_task
+    title: Read the live inbox
+    description: Read the messages from the live inbox for the triage window.
+    agent: inbox-worker
+    requires:
+      - inbox-triage-and-reply-plan
+    produces:
+      - inbox-triage-and-reply-evidence
+  - id: analyze
+    type: agent_task
+    title: Classify and draft
+    description: Classify each message and draft a reply, identifying any commitments.
+    agent: inbox-worker
+    requires:
+      - inbox-triage-and-reply-evidence
+    produces:
+      - inbox-triage-and-reply-analysis
+  - id: produce
+    type: agent_task
+    title: Build the send queue
+    description: Assemble the triage report and the queue of replies awaiting approval.
+    agent: inbox-worker
+    requires:
+      - inbox-triage-and-reply-analysis
+    produces:
+      - inbox-triage-and-reply-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - inbox-triage-and-reply-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - inbox-triage-and-reply-analysis
+      - inbox-triage-and-reply-record
+    produces:
+      - triage_report
+      - send_queue
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: replies-link-sources
+    title: Replies link their source messages
+    type: artifact
+    required: true
+    evidence: Every drafted reply links the source message id it answers.
+    evidence_refs:
+      - inbox-triage-and-reply-evidence
+    evidence_class: external-production
+  - id: send-requires-approval
+    title: Sends require explicit approval
+    type: judgment
+    required: true
+    evidence: No reply is sent without explicit approval.
+    evidence_refs:
+      - inbox-triage-and-reply-record
+    evidence_class: judgment
+    criteria:
+      - Every reply links a source message
+      - No send happens without explicit approval
+      - Commitments become tracked items
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

@@ -1,0 +1,145 @@
+spec_version: agentic-flows/v1.1
+id: product.kpi-diagnostics
+version: 0.1.0
+title: KPI diagnostics
+summary: Explain why a metric changed and what to do next, separating drivers from speculation with caveats.
+stability: experimental
+owners:
+  - RNT56
+tags:
+  - product
+  - kpi
+  - diagnostics
+entrypoint: intake
+runtime:
+  supported_cores:
+    - thinclaw
+    - nilcore
+  required_capabilities:
+    - metrics.read
+    - evidence.capture
+    - human.review
+contracts:
+  inputs:
+    - id: metric
+      type: markdown
+      required: true
+      description: The metric, its definition, and the change to explain.
+    - id: data
+      type: uri
+      required: true
+      description: The metrics source for the period.
+  outputs:
+    - id: diagnosis
+      type: markdown
+      required: true
+      description: The drivers of the change, separated from speculation, with caveats.
+    - id: next_actions
+      type: json
+      required: true
+      description: The recommended next actions.
+  artifacts:
+    - kpi-diagnostics-plan
+    - kpi-diagnostics-evidence
+    - kpi-diagnostics-analysis
+    - kpi-diagnostics-record
+nodes:
+  - id: intake
+    type: intake
+    title: Intake scope
+    description: Capture the scope and sources for kpi diagnostics.
+    produces:
+      - scope
+  - id: plan
+    type: plan
+    title: Plan the work
+    description: Plan which sources to read and how to attribute the result.
+    requires:
+      - scope
+    produces:
+      - kpi-diagnostics-plan
+  - id: gather
+    type: agent_task
+    title: Pull the metric data
+    description: Pull the real metric data for the period from the metrics source.
+    agent: analytics-worker
+    requires:
+      - kpi-diagnostics-plan
+    produces:
+      - kpi-diagnostics-evidence
+  - id: analyze
+    type: agent_task
+    title: Attribute the change
+    description: Attribute the change to drivers, separating measured drivers from speculation.
+    agent: analytics-worker
+    requires:
+      - kpi-diagnostics-evidence
+    produces:
+      - kpi-diagnostics-analysis
+  - id: produce
+    type: agent_task
+    title: Write the diagnosis
+    description: Assemble the diagnosis with caveats and the recommended next actions.
+    agent: analytics-worker
+    requires:
+      - kpi-diagnostics-analysis
+    produces:
+      - kpi-diagnostics-record
+  - id: review
+    type: approval
+    title: Review decision
+    description: An accountable reviewer signs off before closeout.
+    requires:
+      - kpi-diagnostics-record
+  - id: final
+    type: finalizer
+    title: Close out
+    description: Return the analysis and the decision record.
+    requires:
+      - kpi-diagnostics-analysis
+      - kpi-diagnostics-record
+    produces:
+      - diagnosis
+      - next_actions
+edges:
+  - from: intake
+    to: plan
+  - from: plan
+    to: gather
+  - from: gather
+    to: analyze
+  - from: analyze
+    to: produce
+  - from: produce
+    to: review
+  - from: review
+    to: final
+quality_gates:
+  - id: drivers-source-backed
+    title: Drivers are source-backed
+    type: artifact
+    required: true
+    evidence: Each driver cites the real metric data; the metric definition is stated.
+    evidence_refs:
+      - kpi-diagnostics-evidence
+    evidence_class: external-production
+  - id: drivers-vs-speculation
+    title: Drivers separated from speculation
+    type: judgment
+    required: true
+    evidence: Drivers are separated from speculation with explicit caveats.
+    evidence_refs:
+      - kpi-diagnostics-record
+    evidence_class: judgment
+    criteria:
+      - The metric definition is stated
+      - Drivers are separated from speculation
+      - Caveats and confidence are included
+observability:
+  events:
+    - flow.started
+    - node.completed
+    - gate.completed
+    - flow.completed
+  metrics:
+    - duration.seconds

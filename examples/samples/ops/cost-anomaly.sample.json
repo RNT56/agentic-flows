@@ -1,0 +1,17 @@
+{
+  "sample_version": "agentic-flows.sample/v1",
+  "flow": {
+    "id": "ops.cost-anomaly",
+    "version": "0.1.0",
+    "source": "flows/ops/cost-anomaly/flow.yaml"
+  },
+  "inputs": {
+    "billing_export": "https://billing.example.com/exports/2026-06.csv",
+    "scope": "AWS spend up 40% in June; investigate compute and egress."
+  },
+  "expected_outputs": {
+    "driver_analysis": "Source-backed spend drivers.",
+    "recommended_action": "An owned, risk-assessed action."
+  },
+  "notes": "Contract-first: a completed run needs a runtime wired to the billing system."
+}
